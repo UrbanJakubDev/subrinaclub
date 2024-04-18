@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb_test
+    restart: unless-stopped  # Keep the container running for testing
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password  # Replace with a stronger password for testing
+      MYSQL_DATABASE: test_db             # Database name for testing
+      MYSQL_USER: test_user               # User for testing
+      MYSQL_PASSWORD: test_password       # Password for the testing user
+
+  adminer:
+    image: adminer:latest
+    container_name: adminer_test
+    restart: unless-stopped  # Keep the container running for testing
+    ports:
+      - 8080:8080
+    environment:
+      ADMINER_DEFAULT_SERVER: mariadb_test

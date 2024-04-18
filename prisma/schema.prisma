@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model bonus {
+  id_bonus Int    @id @default(autoincrement()) @db.UnsignedInt
+  nazev    String @default("") @db.VarChar(255)
+  body     Int    @default(0)
+  doplatek Int    @default(0)
+  obdobi   Int    @default(0)
+  rok      Int    @default(0)
+  typ      Int    @default(1)
+}
+
+model business_osoba {
+  id       Int @id @default(autoincrement())
+  id_osoba Int
+  id_sef   Int
+  status   Int @default(0)
+}
+
+model business_sef {
+  id       Int @id @default(autoincrement())
+  id_osoba Int
+  status   Int @default(0)
+}
+
+model konto {
+  idkonto    Int    @id @default(autoincrement()) @db.UnsignedInt
+  idosoba    Int
+  obdobi     Int    @default(0)
+  rok        Int    @default(0)
+  bodu       Int    @default(0)
+  popis      String @default("") @db.VarChar(255)
+  datump     String @default("") @db.VarChar(50)
+  datumo     String @default("") @db.VarChar(50)
+  poukazka   String @default("") @db.VarChar(50)
+  hodnota    Int    @default(0)
+  boduaktual Int    @default(0)
+  zmenit     Int    @default(0)
+  obdobifull Int    @default(0)
+}
+
+model osoba {
+  id_osoba       Int      @id @default(autoincrement()) @db.UnsignedInt
+  jmeno          String   @db.VarChar(255)
+  reg            Int      @default(0)
+  salon          String   @db.VarChar(255)
+  adresa         String   @db.VarChar(255)
+  mesto          String   @db.VarChar(255)
+  psc            String   @db.VarChar(255)
+  telefon        String   @db.VarChar(50)
+  obchodnik      Int      @default(0)
+  status         Int      @default(1)
+  q1              Int      @default(0) @map("1q")
+  q2             Int      @default(0) @map("2q")
+  q3             Int      @default(0) @map("3q")
+  q4             Int      @default(0) @map("4q")
+  typ            Int      @default(1)
+  datum          DateTime @db.DateTime(0)
+  ico            String   @db.VarChar(40)
+  datum_narozeni String   @db.VarChar(40)
+  spolupracuje   String   @db.Text
+  sef            Int      @default(0)
+  dtreg          String   @db.VarChar(40)
+  sef_q          Int      @default(0)
+  sef_rok        Int      @default(0)
+  posl4q         Int      @default(0)
+  email          String   @default("") @db.VarChar(100)
+  now            Int      @default(0)
+  now2r          Int      @default(0)
+  nowp           Int      @default(0)
+  now2rp         Int      @default(0)
+
+  @@index([obchodnik], map: "obchodnik")
+  @@index([sef], map: "sef")
+  @@index([typ], map: "typ")
+}
+
+model rok {
+  id_rok   Int       @id @default(autoincrement())
+  id_osoba Int?
+  rok      Int?
+  hodnota  Int?
+  cas      DateTime? @db.Timestamp(0)
+
+  @@index([id_osoba], map: "id_osoba")
+  @@index([rok], map: "rok")
+}
+
+model vyhra {
+  id_vyhra Int      @id @default(autoincrement()) @db.UnsignedInt
+  id_osoba Int
+  id_bonus Int
+  bodu     Int      @default(0)
+  doruceno DateTime @default(dbgenerated("('0000-00-00')")) @db.Date
+  odeslano DateTime @default(dbgenerated("('0000-00-00')")) @db.Date
+  doplatek Int
+  check    Int      @default(0) @db.TinyInt
+  jina     Int      @default(0)
+  obdobi   Int      @default(0)
+  rok      Int      @default(2007)
+  ddatum   DateTime @default(dbgenerated("('0000-00-00')")) @db.Date
+  pocet    Int
+
+  @@index([id_bonus], map: "id_bonus")
+  @@index([id_osoba], map: "id_osoba")
+  @@index([rok], map: "rok")
+}

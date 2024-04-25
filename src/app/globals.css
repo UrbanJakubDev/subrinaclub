@@ -28,3 +28,14 @@ body {
     text-wrap: balance;
   }
 }
+
+
+.content-container {
+  @apply  bg-white w-11/12 mx-auto overflow-auto;
+}
+
+
+table {
+  @apply w-full table-auto;
+}
+

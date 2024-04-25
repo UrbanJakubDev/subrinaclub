@@ -22,8 +22,8 @@ export default function RootLayout({
 
       <body className={inter.className}>
         <NavIndex />
-        <main className="bg-white my-8 mx-auto overflow-hidden flex-grow ">
-        {children}
+        <main className="w-screen my-8 mx-auto overflow-hidden flex-grow">
+          {children}
         </main>
         <Footer />
         </body>

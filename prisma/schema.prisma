@@ -1,123 +1,153 @@
-generator client {
+generator pgClient {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+datasource dbPG {
+  provider = "postgresql"
+  url      = env("PG_DATABASE_URL")
 }
 
-model User {
-  id        String   @id
-  email     String   @unique
-  name      String?
-  password  String
+// New models for the new database
+
+model Dealer {
+  id        Int    @id @unique @default(autoincrement())
+  public_id String @unique
+  active    Int    @default(1)
+
+  // DB ganerated fields for created and updated
   createdAt DateTime @default(now())
-  updatedAt DateTime
+  updatedAt DateTime @default(now()) @updatedAt
+
+  // Dealer info
+  fullName           String    @dbPG.VarChar(255)
+  registrationNumber Int?      @default(0)
+  ico                String?   @dbPG.VarChar(40)
+  phone              String?   @dbPG.VarChar(50)
+  email              String?   @default("") @dbPG.VarChar(100)
+  registratedSince   DateTime? @dbPG.Date
+  address            String?   @dbPG.VarChar(255)
+  town               String?   @dbPG.VarChar(255)
+  psc                String?   @dbPG.VarChar(255)
+  note               String?   @dbPG.Text
+
+  // Relations
+  customers Customer[]
+
+  salesManagers SalesManager[]
+
+  // Indexes
+  @@index([id], name: "idx_dealer_id")
 }
 
-model bonus {
-  id_bonus Int    @id @default(autoincrement()) @db.UnsignedInt
-  nazev    String @default("") @db.VarChar(255)
-  body     Int    @default(0)
-  doplatek Int    @default(0)
-  obdobi   Int    @default(0)
-  rok      Int    @default(0)
-  typ      Int    @default(1)
+model SalesManager {
+  id                 Int       @id @unique @default(autoincrement())
+  publicId           String    @unique
+  active             Int       @default(1)
+  fullName           String    @dbPG.VarChar(255)
+  birthDate          DateTime? @dbPG.Date
+  registrationNumber Int       @default(0)
+  ico                String?   @dbPG.VarChar(40)
+  phone              String?   @dbPG.VarChar(50)
+  email              String?   @default("") @dbPG.VarChar(100)
+  registratedSince   DateTime? @dbPG.Date
+  address            String?   @dbPG.VarChar(255)
+  town               String?   @dbPG.VarChar(255)
+  psc                String?   @dbPG.VarChar(255)
+  note               String?   @dbPG.Text
+
+  // Relations
+  customers Customer[]
+
+  dealer   Dealer? @relation(fields: [dealerId], references: [id])
+  dealerId Int?
 }
 
-model business_osoba {
-  id       Int @id @default(autoincrement())
-  id_osoba Int
-  id_sef   Int
-  status   Int @default(0)
+model Customer {
+  // Customer info
+  id                 Int     @id @unique @default(autoincrement())
+  publicId           String  @unique
+  active             Int     @default(1)
+  fullName           String  @dbPG.VarChar(255)
+  birthDate          String? @dbPG.VarChar(50)
+  registrationNumber Int     @default(0)
+  ico                String  @dbPG.VarChar(40)
+  phone              String? @dbPG.VarChar(50)
+  email              String? @default("") @dbPG.VarChar(100)
+  registratedSince   String? @dbPG.VarChar(50)
+  // Salon info
+  salonName          String? @dbPG.VarChar(255)
+  address            String? @dbPG.VarChar(255)
+  town               String? @dbPG.VarChar(255)
+  psc                String? @dbPG.VarChar(255)
+  note               String? @dbPG.Text
+
+  // Relations
+  dealer   Dealer? @relation(fields: [dealerId], references: [id])
+  dealerId Int?
+
+  salesManager          SalesManager? @relation(fields: [salesManagerId], references: [id])
+  salesManagerId        Int?
+  salesManagerSinceQ    Int?          @default(0)
+  salesManagerSinceYear Int?          @default(0)
+
+  accounts Account[]
+
+  // Add indexes for the customer
+  @@index([id], name: "idx_customer_id")
+  @@index([fullName], name: "idx_customer_full_name")
+  @@index([salesManagerId], name: "idx_customer_sales_manager_id")
 }
 
-model business_sef {
-  id       Int @id @default(autoincrement())
-  id_osoba Int
-  status   Int @default(0)
+enum AccountType {
+  LIFETIME
+  TWO_YEAR_SAVING
 }
 
-model konto {
-  idkonto    Int    @id @default(autoincrement()) @db.UnsignedInt
-  idosoba    Int
-  obdobi     Int    @default(0)
-  rok        Int    @default(0)
-  bodu       Int    @default(0)
-  popis      String @default("") @db.VarChar(255)
-  datump     String @default("") @db.VarChar(50)
-  datumo     String @default("") @db.VarChar(50)
-  poukazka   String @default("") @db.VarChar(50)
-  hodnota    Int    @default(0)
-  boduaktual Int    @default(0)
-  zmenit     Int    @default(0)
-  obdobifull Int    @default(0)
+enum TransactionType {
+  DEPOSIT
+  WITHDRAW
 }
 
-model osoba {
-  id_osoba       Int      @id @default(autoincrement()) @db.UnsignedInt
-  jmeno          String   @db.VarChar(255)
-  reg            Int      @default(0)
-  salon          String   @db.VarChar(255)
-  adresa         String   @db.VarChar(255)
-  mesto          String   @db.VarChar(255)
-  psc            String   @db.VarChar(255)
-  telefon        String   @db.VarChar(50)
-  obchodnik      Int      @default(0)
-  status         Int      @default(1)
-  q1              Int      @default(0) @map("1q")
-  q2             Int      @default(0) @map("2q")
-  q3             Int      @default(0) @map("3q")
-  q4             Int      @default(0) @map("4q")
-  typ            Int      @default(1)
-  datum          DateTime @db.DateTime(0)
-  ico            String   @db.VarChar(40)
-  datum_narozeni String   @db.VarChar(40)
-  spolupracuje   String   @db.Text
-  sef            Int      @default(0)
-  dtreg          String   @db.VarChar(40)
-  sef_q          Int      @default(0)
-  sef_rok        Int      @default(0)
-  posl4q         Int      @default(0)
-  email          String   @default("") @db.VarChar(100)
-  now            Int      @default(0)
-  now2r          Int      @default(0)
-  nowp           Int      @default(0)
-  now2rp         Int      @default(0)
+model Transaction {
+  id          Int             @id @default(autoincrement())
+  createdAt   DateTime        @default(now())
+  year        Int
+  quarter     Int
+  amount      Int
+  type        TransactionType
+  description String?
 
-  @@index([obchodnik], map: "obchodnik")
-  @@index([sef], map: "sef")
-  @@index([typ], map: "typ")
+  acceptedBonusOrder String?
+  sentBonusOrder     String?
+  bonusName          String?
+  bonusAmount        Int?
+
+  // Define relations
+  account   Account @relation(fields: [accountId], references: [id])
+  accountId Int
+
+  // Indexes
+  @@index([id], name: "idx_transaction_id")
+  @@index([year], name: "idx_transaction_year")
+  @@index([quarter], name: "idx_transaction_quarter")
+  @@index([accountId], name: "idx_transaction_account_id")
 }
 
-model rok {
-  id_rok   Int       @id @default(autoincrement())
-  id_osoba Int?
-  rok      Int?
-  hodnota  Int?
-  cas      DateTime? @db.Timestamp(0)
+model Account {
+  id        Int         @id @default(autoincrement())
+  type      AccountType
+  balance   Int         @default(0)
+  createdAt DateTime?   @default(now())
 
-  @@index([id_osoba], map: "id_osoba")
-  @@index([rok], map: "rok")
-}
+  openedAt     DateTime? // Date when the account was opened
+  closedAt     DateTime? // Date when the account was closed
+  // Define relations
+  customer     Customer      @relation(fields: [customerId], references: [id])
+  customerId   Int
+  // Define relation to transactions
+  transactions Transaction[]
 
-model vyhra {
-  id_vyhra Int      @id @default(autoincrement()) @db.UnsignedInt
-  id_osoba Int
-  id_bonus Int
-  bodu     Int      @default(0)
-  doruceno DateTime @default(dbgenerated("('0000-00-00')")) @db.Date
-  odeslano DateTime @default(dbgenerated("('0000-00-00')")) @db.Date
-  doplatek Int
-  check    Int      @default(0) @db.TinyInt
-  jina     Int      @default(0)
-  obdobi   Int      @default(0)
-  rok      Int      @default(2007)
-  ddatum   DateTime @default(dbgenerated("('0000-00-00')")) @db.Date
-  pocet    Int
-
-  @@index([id_bonus], map: "id_bonus")
-  @@index([id_osoba], map: "id_osoba")
-  @@index([rok], map: "rok")
+  // Indexes
+  @@index([id], name: "idx_account_id")
+  @@index([customerId], name: "idx_account_customer_id")
 }

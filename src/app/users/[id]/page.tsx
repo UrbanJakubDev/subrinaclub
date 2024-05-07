@@ -49,15 +49,6 @@ export default async function UserDetail({
       <div className="content-container p-6 my-2">
         <AccountStats account={account} transactions={transactions} />
       </div>
-      <pre>
-        {JSON.stringify(
-          {
-            customer,
-          },
-          null,
-          2
-        )}
-      </pre>
     </>
   );
 }

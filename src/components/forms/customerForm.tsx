@@ -12,6 +12,8 @@ import SelectField from "../ui/inputs/selectInput";
 import { yupResolver } from "@hookform/resolvers/yup"
 import { customerValidationSchema } from "@/schemas/customerSchema";
 import InputDateFiled from "../ui/inputs/dateInput";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 type Props = {
   customer: ICustomer;
@@ -48,11 +50,11 @@ export default function CustomerForm({ customer, dials }: Props) {
         body: JSON.stringify(data),
       });
       const result = await response.json();
-      console.log("Result:", result);
     } catch (error) {
       console.error("Error:", error);
     } finally {
       setLoading(false);
+      toast.success('Zákazník byl úspěšně uložen');
     }
   };
 
@@ -62,9 +64,6 @@ export default function CustomerForm({ customer, dials }: Props) {
 
   return (
     <div className="mx-auto">
-      <pre>
-        {JSON.stringify(customerData, null, 2)}
-      </pre>
       <form>
         <div className="flex flex-col gap-6 ">
           <div className="flex gap-4">

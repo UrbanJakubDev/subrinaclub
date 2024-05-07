@@ -2,8 +2,6 @@ import { Customer } from "@prisma/client";
 import { notFound } from "next/navigation";
 import { prisma } from "../pgDBClient";
 
-
-
 // basic CRUD operations for customers
 
 // Create a new customer
@@ -39,7 +37,7 @@ export async function updateCustomerById(
   customer: Customer
 ): Promise<Customer> {
   const { dealerId, salesManagerId, ...customerData } = customer;
-  
+
   try {
     const updatedCustomer = await prisma.customer.update({
       where: {
@@ -62,7 +60,7 @@ export async function updateCustomerById(
     return updatedCustomer;
   } catch (error) {
     // Handle error
-    console.error('Error updating customer:', error);
+    console.error("Error updating customer:", error);
     throw error;
   }
 }
@@ -80,7 +78,6 @@ export async function deleteCustomerById(id: number): Promise<Customer> {
   return deletedCustomer;
 }
 
-
 // Get all customers, join with accounts and transactions to get the total points
 export async function getCustomersWithPoints(): Promise<Customer[]> {
   const customers = await prisma.customer.findMany({
@@ -94,4 +91,3 @@ export async function getCustomersWithPoints(): Promise<Customer[]> {
   });
   return customers;
 }
-

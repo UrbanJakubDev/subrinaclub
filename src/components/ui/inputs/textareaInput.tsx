@@ -6,7 +6,7 @@ const TextAreaField = ({ label,  value }: any) => {
        <label className="text-sm font-semibold text-gray-600">{label}</label>
        <textarea
          className={inputClass}
-         rows={8}
+         rows={4}
          cols={80}
          defaultValue={value}
        />

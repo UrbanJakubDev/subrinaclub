@@ -73,6 +73,7 @@ export default function CustomerForm({ customer, dials }: Props) {
               name="registrationNumber"
               register={register}
               defaultValue={customerData.registrationNumber}
+              disabled
             />
             <InputField
               label="IČO"
@@ -161,7 +162,7 @@ export default function CustomerForm({ customer, dials }: Props) {
               register={register}
               defaultValue={customerData.note}
             />
-          </div>x
+          </div>
           <hr />
           <div className="flex gap-4">
             <SelectField

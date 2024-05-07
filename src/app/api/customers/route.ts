@@ -37,7 +37,17 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
   }
 
-  const customer = await updateCustomerById(Number(id), body);
+  body.registrationNumber = Number(body.registrationNumber)
 
-  return NextResponse.json(customer);
+  console.log("Body:", body);
+
+  // Update the customer in the database and his relations to the dealer and sales manager
+  try {
+    const updatedCustomer = await updateCustomerById(Number(id), body);
+    return NextResponse.json(updatedCustomer);
+  }
+  catch (error) {
+    console.error("Error updating customer:", error);
+    return NextResponse.json({ error: "Error updating customer" }, { status: 500 });
+  }
 }

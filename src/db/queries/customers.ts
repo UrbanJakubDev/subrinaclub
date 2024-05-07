@@ -38,13 +38,33 @@ export async function updateCustomerById(
   id: number,
   customer: Customer
 ): Promise<Customer> {
-  const updatedCustomer = await prisma.customer.update({
-    where: {
-      id: id,
-    },
-    data: customer,
-  });
-  return updatedCustomer;
+  const { dealerId, salesManagerId, ...customerData } = customer;
+  
+  try {
+    const updatedCustomer = await prisma.customer.update({
+      where: {
+        id: id,
+      },
+      data: {
+        ...customerData,
+        dealer: {
+          connect: {
+            id: dealerId,
+          },
+        },
+        salesManager: {
+          connect: {
+            id: salesManagerId,
+          },
+        },
+      },
+    });
+    return updatedCustomer;
+  } catch (error) {
+    // Handle error
+    console.error('Error updating customer:', error);
+    throw error;
+  }
 }
 
 // Soft delete a customer by ID (set the active flag to false)

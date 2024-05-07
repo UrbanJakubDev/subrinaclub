@@ -6,6 +6,12 @@ import Button from "../ui/button";
 import { updateCustomerById } from "@/db/queries/customers";
 import React from "react";
 import Loader from "../ui/loader";
+import InputField from "../ui/inputs/basicInput";
+import TextAreaField from "../ui/inputs/textareaInput";
+import SelectField from "../ui/inputs/selectInput";
+import { yupResolver } from "@hookform/resolvers/yup"
+import { customerValidationSchema } from "@/schemas/customerSchema";
+import InputDateFiled from "../ui/inputs/dateInput";
 
 type Props = {
   customer: ICustomer;
@@ -20,7 +26,16 @@ type InputFieldProps = {
 
 export default function CustomerForm({ customer, dials }: Props) {
   const [loading, setLoading] = React.useState(false);
-  const { register, handleSubmit } = useForm<ICustomer>();
+  const [customerData, setCustomerData] = React.useState<ICustomer>(customer);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm({
+    resolver: yupResolver(customerValidationSchema),
+  })
 
   const onSubmit = async (data: ICustomer) => {
     try {
@@ -33,66 +48,12 @@ export default function CustomerForm({ customer, dials }: Props) {
         body: JSON.stringify(data),
       });
       const result = await response.json();
-      console.log(result);
+      console.log("Result:", result);
     } catch (error) {
       console.error("Error:", error);
     } finally {
       setLoading(false);
     }
-  };
-
-  const InputField = ({ label, name, type, ...rest }: any) => {
-    const inputClass = "max-w-sm border border-gray-300 rounded-md p-2";
-
-    return (
-      <div className="flex flex-col">
-        <label className="text-sm font-semibold text-gray-600">{label}</label>
-        <input
-          className={inputClass}
-          type={type}
-          {...register(name)}
-          defaultValue={customer[name]}
-        />
-      </div>
-    );
-  };
-
-  const TextAreaField = ({ label, name }: any) => {
-    const inputClass = "border border-gray-300 rounded-md p-2 w-full"; // Add w-full class here
-
-    return (
-      <div className="flex flex-col">
-        <label className="text-sm font-semibold text-gray-600">{label}</label>
-        <textarea
-          className={inputClass}
-          {...register(name)}
-          defaultValue={customer[name]}
-          rows={8}
-          cols={80}
-        />
-      </div>
-    );
-  };
-
-  const SelectField = ({ label, name, options, ...rest }: any) => {
-    const inputClass = "max-w-sm border border-gray-300 rounded-md p-2";
-
-    return (
-      <div className="flex flex-col">
-        <label className="text-sm font-semibold text-gray-600">{label}</label>
-        <select
-          className={inputClass}
-          {...register(name)}
-          defaultValue={customer[name]}
-        >
-          {options.map((option: any) => (
-            <option key={option.id} value={option.id}>
-              {option.fullName}
-            </option>
-          ))}
-        </select>
-      </div>
-    );
   };
 
   if (loading) {
@@ -101,57 +62,140 @@ export default function CustomerForm({ customer, dials }: Props) {
 
   return (
     <div className="mx-auto">
+      <pre>
+        {JSON.stringify(customerData, null, 2)}
+      </pre>
       <form>
         <div className="flex flex-col gap-6 ">
           <div className="flex gap-4">
             <InputField
-              label="Reg. číslo"
+              label="Registrační číslo"
+              type="number"
               name="registrationNumber"
-              type="text"
+              register={register}
+              defaultValue={customerData.registrationNumber}
             />
-            <InputField label="IČO" name="ico" type="text" />
             <InputField
-              label="Registrace od"
-              name="registratedSince"
+              label="IČO"
               type="text"
+              name="ico"
+              register={register}
+              defaultValue={customerData.ico}
+            />
+            <InputDateFiled
+              label="Registrace od"
+              type="date"
+              name="registratedSinceD"
+              register={register}
+              defaultValue={customerData.registratedSinceD}
+              errors={errors}
             />
           </div>
           <div className="flex gap-4">
-            <InputField label="Jméno" name="fullName" type="text" />
-            <InputField label="Datum narození" name="birthDate" type="text" />
+            <InputField
+              label="Jméno a příjmení"
+              type="text"
+              name="fullName"
+              register={register}
+              defaultValue={customerData.fullName}
+            />
+            <InputDateFiled
+              label="Datum narození"
+              type="date"
+              name="birthDateD"
+              register={register}
+              defaultValue={customerData.birthDateD}
+              errors={errors}
+            />
           </div>
           <div className="flex gap-4">
-            <InputField label="Email" name="email" type="email" />
-            <InputField label="Telefon" name="phone" type="text" />
+            <InputField
+              label="Email"
+              type="email"
+              name="email"
+              register={register}
+              defaultValue={customerData.email} />
+            <InputField
+              label="Telefon"
+              type="text"
+              name="phone"
+              register={register}
+              defaultValue={customerData.phone}
+            />
           </div>
           <div className="flex gap-4">
-            <InputField label="Salón" name="salonName" type="text" />
+            <InputField
+              label="Salón"
+              type="text"
+              name="salonName"
+              register={register}
+              defaultValue={customerData.salonName}
+            />
           </div>
           <div className="flex gap-4">
-            <InputField label="Adresa" name="address" type="text" />
-            <InputField label="Město" name="town" type="text" />
-            <InputField label="PSČ" name="psc" type="text" />
+            <InputField
+              label="Adresa"
+              type="text"
+              name="address"
+              register={register}
+              defaultValue={customerData.address}
+            />
+            <InputField
+              label="Město"
+              type="text"
+              name="town"
+              register={register}
+              defaultValue={customerData.town}
+            />
+            <InputField
+              label="PSČ"
+              type="text"
+              name="psc"
+              register={register}
+              defaultValue={customerData.psc}
+            />
           </div>
           <div className="flex gap-4">
-            <TextAreaField label="Poznámka" name="note" type="textarea" />
-          </div>
+            <TextAreaField
+              label="Poznámka"
+              name="note"
+              register={register}
+              defaultValue={customerData.note}
+            />
+          </div>x
           <hr />
           <div className="flex gap-4">
             <SelectField
               label="Prodejce"
-              name="dealerId"
               options={dials.dealers}
+              name="dealerId"
+              register={register}
+              defaultValue={customerData.dealerId}
             />
           </div>
           <hr />
           <div className="flex gap-4">
             <SelectField
               label="Obchodní zástupce"
-              name="salesManagerId"
               options={dials.salesManagers}
+              name="salesManagerId"
+              register={register}
+              defaultValue={customerData.salesManagerId}
             />
-            <InputField label="Kvartál" name="salesManagerSinceQ" type="text" />
-            <InputField label="Rok" name="salesManagerSinceYear" type="text" />
+            <InputField
+              label="Kvartál"
+              type="number"
+              name="salesManagerSinceQ"
+              register={register}
+              defaultValue={customerData.salesManagerSinceQ}
+            />
+            <InputField
+              label="Rok"
+              type="number"
+              name="salesManagerSinceYear"
+              register={register}
+              defaultValue={customerData.salesManagerSinceYear}
+            />
           </div>
         </div>
         <Button onClick={handleSubmit(onSubmit)}>Uložit</Button>

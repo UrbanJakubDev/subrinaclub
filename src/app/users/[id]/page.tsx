@@ -17,7 +17,7 @@ export default async function UserDetail({
 }) {
   // Get the id from the URL as a number
   let customer_id = parseInt(params.id);
-  const customer = (await getCustomerById(customer_id)) as ICustomer;
+  const customer = await getCustomerById(customer_id) as ICustomer;
   const dealers = await getDealersForSelect();
   const salesManager = await getSalesManagersForSelect();
   const account = (await getAccountByUserId(customer_id)) as IAccount;
@@ -49,6 +49,15 @@ export default async function UserDetail({
       <div className="content-container p-6 my-2">
         <AccountStats account={account} transactions={transactions} />
       </div>
+      <pre>
+        {JSON.stringify(
+          {
+            customer,
+          },
+          null,
+          2
+        )}
+      </pre>
     </>
   );
 }

@@ -64,22 +64,21 @@ model SalesManager {
 
 model Customer {
   // Customer info
-  id                 Int     @id @unique @default(autoincrement())
-  publicId           String  @unique
-  active             Int     @default(1)
-  fullName           String  @dbPG.VarChar(255)
-  birthDate          String? @dbPG.VarChar(50)
-  registrationNumber Int     @default(0)
-  ico                String  @dbPG.VarChar(40)
-  phone              String? @dbPG.VarChar(50)
-  email              String? @default("") @dbPG.VarChar(100)
-  registratedSince   String? @dbPG.VarChar(50)
-  // Salon info
-  salonName          String? @dbPG.VarChar(255)
-  address            String? @dbPG.VarChar(255)
-  town               String? @dbPG.VarChar(255)
-  psc                String? @dbPG.VarChar(255)
-  note               String? @dbPG.Text
+  id                 Int       @id @unique @default(autoincrement())
+  publicId           String    @unique
+  active             Int       @default(1)
+  fullName           String    @dbPG.VarChar(255)
+  birthDateD         DateTime? @dbPG.Date
+  registrationNumber Int       @default(0)
+  ico                String    @dbPG.VarChar(40)
+  phone              String?   @dbPG.VarChar(50)
+  email              String?   @default("") @dbPG.VarChar(100)
+  registratedSinceD  DateTime? @dbPG.Date
+  salonName          String?   @dbPG.VarChar(255)
+  address            String?   @dbPG.VarChar(255)
+  town               String?   @dbPG.VarChar(255)
+  psc                String?   @dbPG.VarChar(255)
+  note               String?   @dbPG.Text
 
   // Relations
   dealer   Dealer? @relation(fields: [dealerId], references: [id])

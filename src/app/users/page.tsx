@@ -9,13 +9,14 @@ export default async function Users({}: Props) {
   // Get all users
   const customers = await getCustomersWithPoints();
 
+
   if (!customers) {
     <Loader />
   }
 
   return (
     <div className="p-6 content-container">
-      <h1>Users</h1>
+      <h1>Zákazníci - přehled</h1>
       <CustomerTable defaultData={customers} detailLinkPath="/users" />
     </div>
   );

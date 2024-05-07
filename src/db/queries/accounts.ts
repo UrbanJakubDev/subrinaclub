@@ -1,4 +1,4 @@
-import prisma from "../pgDBClient";
+import {prisma} from "../pgDBClient";
 
 export default async function getAllAccounts() {
   const accounts = await prisma.account.findMany();

@@ -13,6 +13,12 @@ type Props = {
 };
 
 export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
+
+   // Change the data registrationNumber to a string
+    defaultData.forEach((row) => {
+        row.registrationNumber = row.registrationNumber.toString();
+    });
+
   // Column definitions
   const columns = React.useMemo<ColumnDef<any>[]>(
     () => [
@@ -20,7 +26,7 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         accessorKey: "registrationNumber",
         header: "Registrační číslo",
         cell: (info) => info.getValue(),
-        enableColumnFilter: false,
+        filterFn: "auto",
       },
       {
         accessorKey: "fullName",

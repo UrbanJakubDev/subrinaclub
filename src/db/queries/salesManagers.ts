@@ -1,4 +1,4 @@
-import prisma from "../pgDBClient";
+import {prisma} from "../pgDBClient";
 
 export async function getSalesManagers() {
   let salesManagers = await prisma.salesManager.findMany();
@@ -56,6 +56,7 @@ export async function getListOfTransactionsBySalesManagerId(
         amount: true,
         year: true,
         quarter: true,
+        description: true,
         account: {
           select: {
             customer: {

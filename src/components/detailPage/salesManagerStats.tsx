@@ -69,6 +69,7 @@ export default function SalesManagerStats({
               <th>Year</th>
               <th>Quarter</th>
               <th>Amount</th>
+              <th>Note</th>
               <th>Customer Name</th>
             </tr>
           </thead>
@@ -79,6 +80,7 @@ export default function SalesManagerStats({
                   <td>{transaction.year}</td>
                   <td>{transaction.quarter}</td>
                   <td>{transaction.amount}</td>
+                  <td>{transaction.description}</td>
                   <td>{transaction.customerFullName}</td>
                 </tr>
               );

@@ -1,9 +1,15 @@
-import React from 'react'
+import React from "react";
+import Image from "next/image";
+import logo from "/public/img/logo.png";
 
-type Props = {}
+type Props = {};
 
 export default function Logo({}: Props) {
   return (
-    <div>Logo</div>
-  )
+    <div className=" flex items-baseline ">
+      <Image src={logo} alt="logo" className=" -translate-y-2" />
+      <div className=" text-[#8D354E]">Club</div>
+    </div>
+  );
 }
+

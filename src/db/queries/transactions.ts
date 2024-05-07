@@ -1,4 +1,4 @@
-import prisma from "../pgDBClient";
+import {prisma} from "../pgDBClient";
 
 export async function getTransactionsByCustomerId(accountId: number) {
 

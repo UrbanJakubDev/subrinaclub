@@ -3,6 +3,9 @@
 import { ICustomer } from "@/interfaces/interfaces";
 import { useForm } from "react-hook-form";
 import Button from "../ui/button";
+import { updateCustomerById } from "@/db/queries/customers";
+import React from "react";
+import Loader from "../ui/loader";
 
 type Props = {
   customer: ICustomer;
@@ -16,9 +19,26 @@ type InputFieldProps = {
 };
 
 export default function CustomerForm({ customer, dials }: Props) {
+  const [loading, setLoading] = React.useState(false);
   const { register, handleSubmit } = useForm<ICustomer>();
+
   const onSubmit = async (data: ICustomer) => {
-    console.log(data);
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/customers?id=${customer.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      console.log(result);
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const InputField = ({ label, name, type, ...rest }: any) => {
@@ -74,6 +94,10 @@ export default function CustomerForm({ customer, dials }: Props) {
       </div>
     );
   };
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <div className="mx-auto">

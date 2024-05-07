@@ -1,29 +1,14 @@
 import AccountStats from "@/components/detailPage/accountStats";
 import PageHeader from "@/components/detailPage/pageHeader";
 import CustomerForm from "@/components/forms/customerForm";
-import CustomerTable from "@/components/tables/customerTable";
-import TransactionsTable from "@/components/tables/transactionsTable";
-import Button from "@/components/ui/button";
 import Loader from "@/components/ui/loader";
 import { getAccountByUserId } from "@/db/queries/accounts";
-import { getCustomerById, getCustomers } from "@/db/queries/customers";
-import {
-  getDealerById,
-  getDealers,
-  getDealersForSelect,
-} from "@/db/queries/dealers";
-import {
-  getSalesManagerById,
-  getSalesManagers,
-  getSalesManagersForSelect,
-} from "@/db/queries/salesManagers";
+import { getCustomerById, updateCustomerById } from "@/db/queries/customers";
+import { getDealersForSelect } from "@/db/queries/dealers";
+import { getSalesManagersForSelect } from "@/db/queries/salesManagers";
 import { getTransactionsByCustomerId } from "@/db/queries/transactions";
-import { IAccount, ICustomer, ITransaction } from "@/interfaces/interfaces";
-import { PrismaClient } from "@prisma/client";
-import { register } from "module";
-import Link from "next/link";
-import React, { Suspense } from "react";
-import { useForm } from "react-hook-form";
+import { IAccount, ICustomer } from "@/interfaces/interfaces";
+import { Suspense } from "react";
 
 export default async function UserDetail({
   params,
@@ -35,6 +20,8 @@ export default async function UserDetail({
   const customer = (await getCustomerById(customer_id)) as ICustomer;
   const dealers = await getDealersForSelect();
   const salesManager = await getSalesManagersForSelect();
+  const account = (await getAccountByUserId(customer_id)) as IAccount;
+  const transactions = await getTransactionsByCustomerId(account.id);
 
   const dials = {
     dealers: dealers,
@@ -48,15 +35,20 @@ export default async function UserDetail({
   }
 
   return (
-    <div className="content-container p-6 my-2">
-      <PageHeader
-        userName={customer.fullName}
-        userId={customer.id.toString()}
-        active={customer.active}
-      />
-      <Suspense fallback={<Loader />}>
-        <CustomerForm customer={customer} dials={dials} />
-      </Suspense>
-    </div>
+    <>
+      <div className="content-container p-6 my-2">
+        <PageHeader
+          userName={customer.fullName}
+          userId={customer.id.toString()}
+          active={customer.active}
+        />
+        <Suspense fallback={<Loader />}>
+          <CustomerForm customer={customer} dials={dials} />
+        </Suspense>
+      </div>
+      <div className="content-container p-6 my-2">
+        <AccountStats account={account} transactions={transactions} />
+      </div>
+    </>
   );
 }

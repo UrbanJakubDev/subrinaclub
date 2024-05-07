@@ -14,17 +14,17 @@ export default function Nav({}: Props) {
         </li>
         <li className='mx-4'>
           <Link href='/users'>
-            Users
+            Zákazníci
           </Link>
         </li>
         <li className='mx-4'>
           <Link href='/dealers'>
-            Dealers
+            Obchodníci
           </Link>
         </li>
         <li className='mx-4'>
           <Link href='/sales-managers'>
-            Sales Managers
+            Obchodní manažeři
           </Link>
         </li>
         

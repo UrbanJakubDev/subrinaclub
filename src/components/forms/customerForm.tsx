@@ -3,26 +3,58 @@
 import { ICustomer } from "@/interfaces/interfaces";
 import { useForm } from "react-hook-form";
 import Button from "../ui/button";
-import { updateCustomerById } from "@/db/queries/customers";
 import React from "react";
 import Loader from "../ui/loader";
+import InputField from "../ui/inputs/basicInput";
+import TextAreaField from "../ui/inputs/textareaInput";
+import SelectField from "../ui/inputs/selectInput";
+import { yupResolver } from "@hookform/resolvers/yup"
+import { customerValidationSchema } from "@/schemas/customerSchema";
+import InputDateFiled from "../ui/inputs/dateInput";
+import { toast } from 'react-toastify';
+import { useRouter } from "next/navigation";
+import { CustomerService } from "@/db/queries/customers";
+import InputSwitcher from "../ui/inputs/inputSwitcher";
+
 
 type Props = {
   customer: ICustomer;
   dials: any;
 };
 
-type InputFieldProps = {
-  label: string;
-  name: string;
-  type: string;
-};
-
 export default function CustomerForm({ customer, dials }: Props) {
   const [loading, setLoading] = React.useState(false);
-  const { register, handleSubmit } = useForm<ICustomer>();
+  const [customerData, setCustomerData] = React.useState<ICustomer>(customer);
+  const router = useRouter();
 
-  const onSubmit = async (data: ICustomer) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm({
+    resolver: yupResolver(customerValidationSchema),
+  })
+
+  const getCustomerById = async (id: number) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/customers?id=${id}`);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message);
+      }
+
+      setCustomerData(result);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
+
+  const handleUpdate = async (data: ICustomer) => {
     try {
       setLoading(true);
       const response = await fetch(`/api/customers?id=${customer.id}`, {
@@ -33,66 +65,52 @@ export default function CustomerForm({ customer, dials }: Props) {
         body: JSON.stringify(data),
       });
       const result = await response.json();
-      console.log(result);
+
+      if (!response.ok) {
+        throw new Error(result.message);
+      }
+
+      setCustomerData(result);
+      setLoading(false);
     } catch (error) {
       console.error("Error:", error);
-    } finally {
-      setLoading(false);
     }
-  };
+  }
 
-  const InputField = ({ label, name, type, ...rest }: any) => {
-    const inputClass = "max-w-sm border border-gray-300 rounded-md p-2";
+  const handleCreate = async (data: ICustomer) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/customers`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
 
-    return (
-      <div className="flex flex-col">
-        <label className="text-sm font-semibold text-gray-600">{label}</label>
-        <input
-          className={inputClass}
-          type={type}
-          {...register(name)}
-          defaultValue={customer[name]}
-        />
-      </div>
-    );
-  };
+      if (!response.ok) {
+        throw new Error(result.message);
+      }
 
-  const TextAreaField = ({ label, name }: any) => {
-    const inputClass = "border border-gray-300 rounded-md p-2 w-full"; // Add w-full class here
+      setCustomerData(result);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
 
-    return (
-      <div className="flex flex-col">
-        <label className="text-sm font-semibold text-gray-600">{label}</label>
-        <textarea
-          className={inputClass}
-          {...register(name)}
-          defaultValue={customer[name]}
-          rows={8}
-          cols={80}
-        />
-      </div>
-    );
-  };
 
-  const SelectField = ({ label, name, options, ...rest }: any) => {
-    const inputClass = "max-w-sm border border-gray-300 rounded-md p-2";
+  const onSubmit = async (data: ICustomer) => {
+    if (customer.id === 0) {
+      handleCreate(data);
+    } else {
+      handleUpdate(data);
+    }
+    setLoading(false);
+    toast.success("Zákazník byl uložen");
 
-    return (
-      <div className="flex flex-col">
-        <label className="text-sm font-semibold text-gray-600">{label}</label>
-        <select
-          className={inputClass}
-          {...register(name)}
-          defaultValue={customer[name]}
-        >
-          {options.map((option: any) => (
-            <option key={option.id} value={option.id}>
-              {option.fullName}
-            </option>
-          ))}
-        </select>
-      </div>
-    );
+    await getCustomerById(customer.id);
   };
 
   if (loading) {
@@ -104,57 +122,165 @@ export default function CustomerForm({ customer, dials }: Props) {
       <form>
         <div className="flex flex-col gap-6 ">
           <div className="flex gap-4">
+            <InputSwitcher
+              label="Aktivní"
+              name="active"
+              register={register}
+              defaultValue={customerData.active === 1 ? true : false}
+              errors={errors}
+            />
+
             <InputField
-              label="Reg. číslo"
+              label="Registrační číslo"
+              type="number"
               name="registrationNumber"
-              type="text"
+              register={register}
+              defaultValue={customerData.registrationNumber.toString()}
+              errors={errors}
+              disabled
+
             />
-            <InputField label="IČO" name="ico" type="text" />
+          </div>
+          <div className="flex gap-4">
             <InputField
-              label="Registrace od"
-              name="registratedSince"
+              label="IČO"
               type="text"
+              name="ico"
+              register={register}
+              defaultValue={customerData.ico}
+              errors={errors}
+
+            />
+            <InputDateFiled
+              label="Registrace od"
+              type="date"
+              name="registratedSinceD"
+              register={register}
+              defaultValue={customerData.registratedSinceD}
+
             />
           </div>
           <div className="flex gap-4">
-            <InputField label="Jméno" name="fullName" type="text" />
-            <InputField label="Datum narození" name="birthDate" type="text" />
+            <InputField
+              label="Jméno a příjmení"
+              type="text"
+              name="fullName"
+              register={register}
+              defaultValue={customerData.fullName}
+              errors={errors}
+            />
+            <InputDateFiled
+              label="Datum narození"
+              type="date"
+              name="birthDateD"
+              register={register}
+              defaultValue={customerData.birthDateD}
+              errors={errors}
+
+            />
           </div>
           <div className="flex gap-4">
-            <InputField label="Email" name="email" type="email" />
-            <InputField label="Telefon" name="phone" type="text" />
+            <InputField
+              label="Email"
+              type="email"
+              name="email"
+              register={register}
+              defaultValue={customerData.email}
+              errors={errors}
+            />
+
+            <InputField
+              label="Telefon"
+              type="tel"
+              name="phone"
+              register={register}
+              defaultValue={customerData.phone}
+              errors={errors}
+            />
           </div>
           <div className="flex gap-4">
-            <InputField label="Salón" name="salonName" type="text" />
+            <InputField
+              label="Salón"
+              type="text"
+              name="salonName"
+              register={register}
+              defaultValue={customerData.salonName}
+              errors={errors}
+            />
           </div>
           <div className="flex gap-4">
-            <InputField label="Adresa" name="address" type="text" />
-            <InputField label="Město" name="town" type="text" />
-            <InputField label="PSČ" name="psc" type="text" />
+            <InputField
+              label="Adresa"
+              type="text"
+              name="address"
+              register={register}
+              defaultValue={customerData.address}
+              errors={errors}
+            />
+            <InputField
+              label="Město"
+              type="text"
+              name="town"
+              register={register}
+              defaultValue={customerData.town}
+              errors={errors}
+            />
+            <InputField
+              label="PSČ"
+              type="text"
+              name="psc"
+              register={register}
+              defaultValue={customerData.psc}
+              errors={errors}
+            />
           </div>
           <div className="flex gap-4">
-            <TextAreaField label="Poznámka" name="note" type="textarea" />
+            <TextAreaField
+              label="Poznámka"
+              name="note"
+              register={register}
+              defaultValue={customerData.note}
+            />
           </div>
           <hr />
           <div className="flex gap-4">
             <SelectField
               label="Prodejce"
-              name="dealerId"
               options={dials.dealers}
+              name="dealerId"
+              register={register}
+              defaultValue={customerData.dealerId}
             />
           </div>
           <hr />
           <div className="flex gap-4">
             <SelectField
               label="Obchodní zástupce"
-              name="salesManagerId"
               options={dials.salesManagers}
+              name="salesManagerId"
+              register={register}
+              defaultValue={customerData.salesManagerId}
             />
-            <InputField label="Kvartál" name="salesManagerSinceQ" type="text" />
-            <InputField label="Rok" name="salesManagerSinceYear" type="text" />
+            <InputField
+              label="Kvartál"
+              type="number"
+              name="salesManagerSinceQ"
+              register={register}
+              defaultValue={customerData.salesManagerSinceQ}
+              errors={errors}
+            />
+            <InputField
+              label="Rok"
+              type="number"
+              name="salesManagerSinceYear"
+              register={register}
+              defaultValue={customerData.salesManagerSinceYear}
+              errors={errors}
+            />
           </div>
         </div>
         <Button onClick={handleSubmit(onSubmit)}>Uložit</Button>
+        <Button onClick={() => router.push("/users")}>Zrušit</Button>
       </form>
     </div>
   );

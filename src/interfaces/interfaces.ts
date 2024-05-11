@@ -1,23 +1,55 @@
-export interface ICustomer {
+export interface IDealer {
   id: number;
   publicId: string;
-  active: number;
+  name: string;
+  address: string;
+  town: string;
+  psc: string;
+  phone: string;
+  email: string;
+  note: string;
+}
+
+export interface ISalesManager {
+  id: number;
+  publicId: string;
   fullName: string;
   birthDate: string;
-  registrationNumber: number;
-  ico: string;
+  birthDateD: Date;
   phone: string;
   email: string;
   registratedSince: string;
-  salonName: string;
+  registratedSinceD: Date;
   address: string;
   town: string;
   psc: string;
   note: string;
   dealerId: number;
-  salesManagerId: number;
-  salesManagerSinceQ: number;
-  salesManagerSinceYear: number;
+  dealer: IDealer;
+}
+
+export interface ICustomer {
+  id: number;
+  active: number;
+  registrationNumber: number;
+  fullName: string;
+  publicId: string;
+  birthDateD: Date | null;
+  ico: string;
+  phone: string;
+  email: string;
+  registratedSinceD: Date | null;
+  salonName: string;
+  address: string;
+  town: string;
+  psc: string;
+  note: string;
+  dealerId?: number;
+  dealer?: IDealer;
+  salesManagerId?: number;
+  salesManager?: ISalesManager;
+  salesManagerSinceQ?: number;
+  salesManagerSinceYear?: number;
 }
 
 export interface IAccount {

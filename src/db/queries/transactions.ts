@@ -1,6 +1,6 @@
 import {prisma} from "../pgDBClient";
 
-export async function getTransactionsByCustomerId(accountId: number) {
+export async function getTransactionsByAccountId(accountId: number) {
 
   // Get all transactions for a given account sort them by year descending
   const transactions = await prisma.transaction.findMany({

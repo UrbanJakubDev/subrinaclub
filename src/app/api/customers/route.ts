@@ -1,5 +1,7 @@
-import { getCustomerById, updateCustomerById } from "@/db/queries/customers";
+import { CustomerService } from "@/db/queries/customers";
 import { NextResponse } from "next/server";
+
+const customerService = new CustomerService();
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -9,23 +11,24 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
   }
 
-  const customer = await getCustomerById(Number(id));
+  const customer = await customerService.getCustomerById(Number(id));
 
   return NextResponse.json(customer);
 }
 
 export async function POST(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get("id");
   const body = await request.json();
 
-  if (!id) {
-    return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
+  try {
+    const customer = await customerService.createCustomer(body);
+    return NextResponse.json(customer);
+  } catch (error) {
+    console.error("Error creating customer:", error);
+    return NextResponse.json(
+      { error: "Error creating customer" },
+      { status: 500 }
+    );
   }
-
-  const customer = await getCustomerById(Number(id));
-
-  return NextResponse.json(customer);
 }
 
 export async function PUT(request: Request) {
@@ -37,7 +40,22 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
   }
 
-  const customer = await updateCustomerById(Number(id), body);
+  body.registrationNumber = Number(body.registrationNumber);
+  body.active = Number(body.active);
 
-  return NextResponse.json(customer);
+  // Update the customer in the database and his relations to the dealer and sales manager
+  try {
+    const updatedCustomer = await customerService.updateCustomerById(
+      Number(id),
+      body
+    );
+    return NextResponse.json(updatedCustomer);
+  } catch (error) {
+    console.error("Error updating customer:", error);
+    return NextResponse.json(
+      { error: "Error updating customer" },
+      { status: 500 }
+    );
+  }
 }
+

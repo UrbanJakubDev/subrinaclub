@@ -34,11 +34,11 @@ export interface ICustomer {
   registrationNumber: number;
   fullName: string;
   publicId: string;
-  birthDateD: Date;
+  birthDateD: Date | null;
   ico: string;
   phone: string;
   email: string;
-  registratedSinceD: Date;
+  registratedSinceD: Date | null;
   salonName: string;
   address: string;
   town: string;

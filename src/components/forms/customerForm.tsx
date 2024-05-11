@@ -3,7 +3,6 @@
 import { ICustomer } from "@/interfaces/interfaces";
 import { useForm } from "react-hook-form";
 import Button from "../ui/button";
-import { updateCustomerById } from "@/db/queries/customers";
 import React from "react";
 import Loader from "../ui/loader";
 import InputField from "../ui/inputs/basicInput";
@@ -12,23 +11,21 @@ import SelectField from "../ui/inputs/selectInput";
 import { yupResolver } from "@hookform/resolvers/yup"
 import { customerValidationSchema } from "@/schemas/customerSchema";
 import InputDateFiled from "../ui/inputs/dateInput";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
+import { useRouter } from "next/navigation";
+import { CustomerService } from "@/db/queries/customers";
+import InputSwitcher from "../ui/inputs/inputSwitcher";
+
 
 type Props = {
   customer: ICustomer;
   dials: any;
 };
 
-type InputFieldProps = {
-  label: string;
-  name: string;
-  type: string;
-};
-
 export default function CustomerForm({ customer, dials }: Props) {
   const [loading, setLoading] = React.useState(false);
   const [customerData, setCustomerData] = React.useState<ICustomer>(customer);
+  const router = useRouter();
 
   const {
     register,
@@ -39,7 +36,25 @@ export default function CustomerForm({ customer, dials }: Props) {
     resolver: yupResolver(customerValidationSchema),
   })
 
-  const onSubmit = async (data: ICustomer) => {
+  const getCustomerById = async (id: number) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/customers?id=${id}`);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message);
+      }
+
+      setCustomerData(result);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
+
+  const handleUpdate = async (data: ICustomer) => {
     try {
       setLoading(true);
       const response = await fetch(`/api/customers?id=${customer.id}`, {
@@ -50,12 +65,52 @@ export default function CustomerForm({ customer, dials }: Props) {
         body: JSON.stringify(data),
       });
       const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message);
+      }
+
+      setCustomerData(result);
+      setLoading(false);
     } catch (error) {
       console.error("Error:", error);
-    } finally {
-      setLoading(false);
-      toast.success('Zákazník byl úspěšně uložen');
     }
+  }
+
+  const handleCreate = async (data: ICustomer) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/customers`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message);
+      }
+
+      setCustomerData(result);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
+
+  const onSubmit = async (data: ICustomer) => {
+    if (customer.id === 0) {
+      handleCreate(data);
+    } else {
+      handleUpdate(data);
+    }
+    setLoading(false);
+    toast.success("Zákazník byl uložen");
+
+    await getCustomerById(customer.id);
   };
 
   if (loading) {
@@ -67,20 +122,34 @@ export default function CustomerForm({ customer, dials }: Props) {
       <form>
         <div className="flex flex-col gap-6 ">
           <div className="flex gap-4">
+            <InputSwitcher
+              label="Aktivní"
+              name="active"
+              register={register}
+              defaultValue={customerData.active === 1 ? true : false}
+              errors={errors}
+            />
+
             <InputField
               label="Registrační číslo"
               type="number"
               name="registrationNumber"
               register={register}
-              defaultValue={customerData.registrationNumber}
+              defaultValue={customerData.registrationNumber.toString()}
+              errors={errors}
               disabled
+
             />
+          </div>
+          <div className="flex gap-4">
             <InputField
               label="IČO"
               type="text"
               name="ico"
               register={register}
               defaultValue={customerData.ico}
+              errors={errors}
+
             />
             <InputDateFiled
               label="Registrace od"
@@ -88,7 +157,7 @@ export default function CustomerForm({ customer, dials }: Props) {
               name="registratedSinceD"
               register={register}
               defaultValue={customerData.registratedSinceD}
-              errors={errors}
+
             />
           </div>
           <div className="flex gap-4">
@@ -98,6 +167,7 @@ export default function CustomerForm({ customer, dials }: Props) {
               name="fullName"
               register={register}
               defaultValue={customerData.fullName}
+              errors={errors}
             />
             <InputDateFiled
               label="Datum narození"
@@ -106,6 +176,7 @@ export default function CustomerForm({ customer, dials }: Props) {
               register={register}
               defaultValue={customerData.birthDateD}
               errors={errors}
+
             />
           </div>
           <div className="flex gap-4">
@@ -114,13 +185,17 @@ export default function CustomerForm({ customer, dials }: Props) {
               type="email"
               name="email"
               register={register}
-              defaultValue={customerData.email} />
+              defaultValue={customerData.email}
+              errors={errors}
+            />
+
             <InputField
               label="Telefon"
-              type="text"
+              type="tel"
               name="phone"
               register={register}
               defaultValue={customerData.phone}
+              errors={errors}
             />
           </div>
           <div className="flex gap-4">
@@ -130,6 +205,7 @@ export default function CustomerForm({ customer, dials }: Props) {
               name="salonName"
               register={register}
               defaultValue={customerData.salonName}
+              errors={errors}
             />
           </div>
           <div className="flex gap-4">
@@ -139,6 +215,7 @@ export default function CustomerForm({ customer, dials }: Props) {
               name="address"
               register={register}
               defaultValue={customerData.address}
+              errors={errors}
             />
             <InputField
               label="Město"
@@ -146,6 +223,7 @@ export default function CustomerForm({ customer, dials }: Props) {
               name="town"
               register={register}
               defaultValue={customerData.town}
+              errors={errors}
             />
             <InputField
               label="PSČ"
@@ -153,6 +231,7 @@ export default function CustomerForm({ customer, dials }: Props) {
               name="psc"
               register={register}
               defaultValue={customerData.psc}
+              errors={errors}
             />
           </div>
           <div className="flex gap-4">
@@ -188,6 +267,7 @@ export default function CustomerForm({ customer, dials }: Props) {
               name="salesManagerSinceQ"
               register={register}
               defaultValue={customerData.salesManagerSinceQ}
+              errors={errors}
             />
             <InputField
               label="Rok"
@@ -195,10 +275,12 @@ export default function CustomerForm({ customer, dials }: Props) {
               name="salesManagerSinceYear"
               register={register}
               defaultValue={customerData.salesManagerSinceYear}
+              errors={errors}
             />
           </div>
         </div>
         <Button onClick={handleSubmit(onSubmit)}>Uložit</Button>
+        <Button onClick={() => router.push("/users")}>Zrušit</Button>
       </form>
     </div>
   );

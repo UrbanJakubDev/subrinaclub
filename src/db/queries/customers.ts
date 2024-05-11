@@ -4,90 +4,122 @@ import { prisma } from "../pgDBClient";
 
 // basic CRUD operations for customers
 
-// Create a new customer
-export async function createCustomer(customer: Customer): Promise<Customer> {
-  const newCustomer = await prisma.customer.create({
-    data: customer,
-  });
-  return newCustomer;
-}
+export class CustomerService {
+  // Create a new customer
+  async createCustomer(customer: Customer): Promise<Customer> {
 
-// Read all customers
-export async function getCustomers(): Promise<Customer[]> {
-  const customers = await prisma.customer.findMany();
-  return customers;
-}
+    // Make the unique publicId for the customer from the registrationNumber and UUID 
+    const publicId = `${customer.registrationNumber}SU${Math.random().toString(36).substr(2, 9)}`; 
+    customer.publicId = publicId;
+    const newCustomer = await prisma.customer.create({
+      data: customer,
+    });
 
-// Read a customer by ID
-export async function getCustomerById(id: number): Promise<Customer> {
-  const customer = await prisma.customer.findUnique({
-    where: {
-      id: id,
-    },
-  });
-  if (!customer) {
-    notFound();
+    
+    const newAccount = await prisma.account.create({
+      data: {
+        type: "LIFETIME",
+        balance: 0,
+        createdAt: new Date(),
+        openedAt: new Date(),
+        closedAt: null,
+        customerId: newCustomer.id,
+      },
+    });
+
+    return newCustomer;
   }
-  return customer;
-}
 
-// Update a customer by ID
-export async function updateCustomerById(
-  id: number,
-  customer: Customer
-): Promise<Customer> {
-  const { dealerId, salesManagerId, ...customerData } = customer;
+  // Read all customers
+  async getCustomers(): Promise<Customer[]> {
+    const customers = await prisma.customer.findMany();
+    return customers;
+  }
 
-  try {
-    const updatedCustomer = await prisma.customer.update({
+  // Read a customer by ID
+  async getCustomerById(id: number): Promise<Customer> {
+    const customer = await prisma.customer.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (!customer) {
+      notFound();
+    }
+    return customer;
+  }
+
+  // Update a customer by ID
+  async updateCustomerById(
+    id: number,
+    customer: Customer
+  ): Promise<Customer> {
+    const { dealerId, salesManagerId, ...customerData } = customer;
+
+    try {
+      const updatedCustomer = await prisma.customer.update({
+        where: {
+          id: id,
+        },
+        data: {
+          ...customerData,
+          dealer: {
+            connect: {
+              id: dealerId,
+            },
+          },
+          salesManager: {
+            connect: {
+              id: salesManagerId,
+            },
+          },
+        },
+      });
+      return updatedCustomer;
+    } catch (error) {
+      // Handle error
+      console.error("Error updating customer:", error);
+      throw error;
+    }
+  }
+
+  // Restore a customer by ID (set the active flag to true)
+  async restoreCustomerById(id: number): Promise<Customer> {
+    const restoredCustomer = await prisma.customer.update({
       where: {
         id: id,
       },
       data: {
-        ...customerData,
-        dealer: {
-          connect: {
-            id: dealerId,
-          },
-        },
-        salesManager: {
-          connect: {
-            id: salesManagerId,
+        active: 1,
+      },
+    });
+    return restoredCustomer;
+  }
+
+  // Get all customers, join with accounts and transactions to get the total points
+  async getCustomersWithPoints(): Promise<Customer[]> {
+    const customers = await prisma.customer.findMany({
+      include: {
+        accounts: {
+          include: {
+            transactions: true,
           },
         },
       },
     });
-    return updatedCustomer;
-  } catch (error) {
-    // Handle error
-    console.error("Error updating customer:", error);
-    throw error;
+    return customers;
   }
-}
 
-// Soft delete a customer by ID (set the active flag to false)
-export async function deleteCustomerById(id: number): Promise<Customer> {
-  const deletedCustomer = await prisma.customer.update({
-    where: {
-      id: id,
-    },
-    data: {
-      active: 0,
-    },
-  });
-  return deletedCustomer;
-}
-
-// Get all customers, join with accounts and transactions to get the total points
-export async function getCustomersWithPoints(): Promise<Customer[]> {
-  const customers = await prisma.customer.findMany({
-    include: {
-      accounts: {
-        include: {
-          transactions: true,
-        },
+  // Get the max registrationNumber from the customers
+  async getMaxRegistrationNumber(): Promise<number> {
+    const maxRegistrationNumber = await prisma.customer.findFirst({
+      select: {
+        registrationNumber: true,
       },
-    },
-  });
-  return customers;
+      orderBy: {
+        registrationNumber: "desc",
+      },
+    });
+    return maxRegistrationNumber.registrationNumber;
+  }
 }

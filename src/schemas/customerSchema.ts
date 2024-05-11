@@ -3,7 +3,7 @@
 import * as yup from "yup";
 
 export const customerValidationSchema = yup.object().shape({
-    registrationNumber: yup.number().required(),
+    registrationNumber: yup.number(),
     ico: yup.string().required(),
     registratedSinceD: yup.date().required(),
     fullName: yup.string().required(),

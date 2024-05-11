@@ -15,7 +15,7 @@ const InputDateFiled = ({ label, name, type, defaultValue, register, errors }: a
             defaultValue={inputVal} // Set default value
             {...register(name)} // Pass the register function
          />
-         {errors[name] && <span className="text-red-500">{errors[name].message}</span>}
+         {/* {errors[name] && <span className="text-red-500">{errors[name].message}</span>} */}
       </div>
    );
 };

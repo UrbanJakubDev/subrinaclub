@@ -9,6 +9,7 @@ const SelectField = ({ label, name, options, defaultValue, register }: any) => {
         defaultValue={defaultValue}
         {...register(name)} // Register the select field with React Hook Form
       >
+        <option value="">Vyberte...</option>
         {options.map((option: any) => (
           <option key={option.id} value={option.id}>
             {option.fullName}

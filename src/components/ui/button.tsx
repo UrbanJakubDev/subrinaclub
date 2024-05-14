@@ -15,7 +15,7 @@ export default function Button({
 
   switch (variant) {
     case "primary":
-      baseCls += " bg-blue-500 hover:bg-blue-700";
+      baseCls += " bg-[#8D354E] hover:bg-[#6F2738]";
       break;
     case "secondary":
       baseCls += " bg-gray-500 hover:bg-gray-700";

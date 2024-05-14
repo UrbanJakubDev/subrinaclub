@@ -128,6 +128,7 @@ export default function CustomerForm({ customer, dials }: Props) {
               register={register}
               defaultValue={customerData.active === 1 ? true : false}
               errors={errors}
+              
             />
 
             <InputField

@@ -51,7 +51,7 @@ export default async function UserDetail({
       <div className="content-container p-6 my-2">
         <PageHeader
           userName="Nový zákazník"
-          userId=""
+          userId="0"
           active={true}
         />
         <Suspense fallback={<Loader />}>

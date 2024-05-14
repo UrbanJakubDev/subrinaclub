@@ -31,7 +31,7 @@ export default function SimpleTable({ data }: SimpleTableProps) {
           {data.map((item, index) => (
             <tr key={index} className="hover:bg-zinc-200">
               {columns.map((column, columnIndex) => (
-                <td key={columnIndex}>{item[column].toString()}</td>
+                <td key={columnIndex}>{item[column]}</td>
               ))}
             </tr>
           ))}

@@ -46,12 +46,9 @@ export default function MyTable({
             <thead className='border-b-2'>
                {table.getHeaderGroups().map(headerGroup => (
                   <tr key={headerGroup.id}>
-
-
                      {headerGroup.headers.map(header => {
                         return (
                            <th key={header.id} colSpan={header.colSpan}>
-
                               <div className="flex items-center py-1">
                                  <div {...{ className: header.column.getCanSort() ? 'cursor-pointer select-none' : '', onClick: header.column.getToggleSortingHandler(), }}>
                                     {{
@@ -77,14 +74,14 @@ export default function MyTable({
                   </tr>
                ))}
             </thead>
-            <tbody>
+            <tbody >
                {/* Table body */}
                {table.getRowModel().rows.map(row => {
                   return (
-                     <tr key={row.id} className='text-left hover:bg-zinc-50'>
+                     <tr key={row.id} className='text-left hover:bg-zinc-50 whitespace-nowrap'>
                         {row.getVisibleCells().map(cell => {
                            return (
-                              <td key={cell.id}>
+                              <td key={cell.id} className=" whitespace-nowrap text-center">
                                  {
                                     // If the column is status, render a badge
                                     cell.column.id === 'status' ? (

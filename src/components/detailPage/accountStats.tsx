@@ -1,9 +1,16 @@
 "use client";
 
 import { IAccount, ITransaction } from "@/interfaces/interfaces";
-import React from "react";
+import React, { use, useEffect, useState } from "react";
 import SimpleTable from "../tables/simpleTable";
 import { sumPosPointsInTransactions } from "@/utils/functions";
+import TransactionComponent from "../transactionForm";
+import InputField from "../ui/inputs/basicInput";
+import SelectField from "../ui/inputs/selectInput";
+import { yearSelectOptions } from "@/utils/dateFnc";
+import Button from "../ui/button";
+import SimpleStat from "../ui/stats/simple";
+import InputDateFiled from "../ui/inputs/dateInput";
 
 type Props = {
   account: IAccount;
@@ -11,10 +18,24 @@ type Props = {
 };
 
 export default function AccountStats({ account, transactions }: Props) {
-  const [selectedYear, setSelectedYear] = React.useState(0);
+  const [selectedYear, setSelectedYear] = React.useState(2024);
   const clubAccountBalance = sumPosPointsInTransactions(transactions);
-  
-  
+  const [transactionIsOpen, setTransactionIsOpen] = React.useState(false);
+
+  // Date for the year balance calculation
+  const [yearBalanceDate, setYearBalanceDate] = useState(new Date("2024-01-01"));
+  const [yearBalance, setYearBalance] = useState(0);
+
+
+  useEffect(() => {
+    setYearBalance(sumNextTwoYears(yearBalanceDate, transactions));
+  }
+    , [yearBalanceDate, transactions]);
+
+  const getTransactions = async () => {
+    alert("Transactions fetched");
+  }
+
 
   const sumPointsInYear = (
     transactions: ITransaction[],
@@ -58,7 +79,8 @@ export default function AccountStats({ account, transactions }: Props) {
     const sum = relevantYears.reduce((total, y) => total + sumsByYear[y], 0);
     const average = sum / relevantYears.length;
 
-    return average;
+    // Round the average to two decimal places
+    return Math.round(average * 100) / 100;
   };
 
   const transactionsInYear = (transactions: ITransaction[], year: number) => {
@@ -68,52 +90,69 @@ export default function AccountStats({ account, transactions }: Props) {
   };
 
 
+  function sumNextTwoYears(startingDate: Date, data: any): number {
+    // Extract the starting year from the starting date
+    const startingYear = startingDate.getFullYear();
 
+    // Get the quarters for the starting year and the next year
+    const quartersToSum: number[] = [];
+    for (let i = 0; i < 2; i++) {
+      for (let j = 1; j <= 4; j++) {
+        quartersToSum.push(j + i * 4);
+      }
+    }
+
+    // Filter the data to include only the relevant quarters for the next two years
+    const relevantData = data.filter(point => {
+      return (point.year === startingYear || point.year === startingYear + 1) &&
+        quartersToSum.includes(point.quarter);
+    });
+
+    // Sum up the amounts of the relevant data points
+    const sum = relevantData.reduce((acc, point) => acc + point.amount, 0);
+
+    return sum;
+  }
 
   return (
     <div className="flex flex-col gap-10">
-      <div className="border-b">
-        <small>Statistika účtu s id: {account.id}</small>
+      <TransactionComponent account={account} onTransactionCreated={getTransactions} />
+      <div className="border p-4 bg-zinc-50">
+        <h2>Statistika bodů na účtu s id: {account.id}</h2>
         <div>
-          <h2>Transakce na účtu</h2>
-          <select onChange={(e) => setSelectedYear(parseInt(e.target.value))}>
-            <option value="0" disabled>
-              Choose year...
-            </option>
-            <option value="2024">2024</option>
-            <option value="2023">2023</option>
-            <option value="2022">2022</option>
-            <option value="2021">2021</option>
-            <option value="2020">2020</option>
-            <option value="2019">2019</option>
-            <option value="2018">2018</option>
-            <option value="2017">2017</option>
-          </select>
+          <SelectField
+            label="Rok"
+            name="year"
+            defaultValue="0"
+            options={yearSelectOptions()}
+            onChange={(e: any) => setSelectedYear(parseInt(e.target.value))}
+          />
+
+          <InputDateFiled
+            label="Datum pro výpočet stavu šetřícího účtu"
+            name="yearBalanceDate"
+            defaultValue={yearBalanceDate}
+            onChange={(date: string) => setYearBalanceDate(new Date(date))}
+          />
+
+
         </div>
 
-        <p>Klubové konto: {clubAccountBalance}</p>
-        <p>Roční konto: {account.balance}</p>
-        <p>
-          Suma bodů ve vybraném roce:{" "}
-          {selectedYear === 0 ? "Nevybráno" : selectedYear} -{" "}
-          {sumPointsInYear(transactions, selectedYear)}
-        </p>
-        <p>
-          Suma bodů předešlý rok:{" "}
-          {sumPointsInYear(transactions, selectedYear - 1)}
-        </p>
-        <p>
-          Průměr bodů za poslední 4 roky:{" "}
-          {fourYearAverage(transactions, selectedYear)}
-        </p>
+        <div className="flex flex-row justify-stretch mx-auto">
+          <SimpleStat label="Stav zákaznického konta" value={clubAccountBalance} />
+          <SimpleStat label={`Stav šetřícího konta od: ${yearBalanceDate.toLocaleDateString()}`} value={yearBalance} />
+          <SimpleStat label={`Suma bodů získaných ve vybraném roce: ${selectedYear === 0 ? "Nevybráno" : selectedYear}`} value={sumPointsInYear(transactions, selectedYear)} />
+          <SimpleStat label="Průměr bodů získaných za poslední 4 roky" value={fourYearAverage(transactions, selectedYear)} />
+        </div>
       </div>
 
-      <div className="flex gap-10 justify-between border-b">
+      <div className="flex gap-10 justify-between border bg-zinc-50 p-4">
         <div>
           <SimpleTable data={transactionsInYear(transactions, selectedYear)} />
           <p>Total points {sumPointsInYear(transactions, selectedYear)}</p>
         </div>
       </div>
+
     </div>
   );
 }

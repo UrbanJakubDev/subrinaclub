@@ -13,7 +13,7 @@ type Props = {
 };
 
 export default function PageHeader({ userName, userId, active, url }: Props) {
-  
+
   // Get actual path for conditional rendering
   const pathname = usePathname()
 
@@ -23,6 +23,7 @@ export default function PageHeader({ userName, userId, active, url }: Props) {
 
   return (
     <div className="mb-4">
+
       <div className="flex justify-between">
         <div>
           <Link href={`/${path}`}>
@@ -32,13 +33,15 @@ export default function PageHeader({ userName, userId, active, url }: Props) {
         <div>
           {pathname.includes("stats") ? (
             <Link href={`/${path}/${userId}`}>
-              <Button variant="info"><FontAwesomeIcon icon={faPenToSquare} /></Button>
+              <Button variant="primary"><FontAwesomeIcon icon={faPenToSquare} /></Button>
             </Link>
           ) : (
             <Link href={`/${path}/${userId}/stats`}>
-              <Button variant="info"><FontAwesomeIcon icon={faChartSimple} /></Button>
+              <Button variant="primary"><FontAwesomeIcon icon={faChartSimple} /></Button>
             </Link>
           )}
+          
+
         </div>
       </div>
       <div>

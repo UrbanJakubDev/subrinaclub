@@ -24,7 +24,7 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
     () => [
       {
         accessorKey: "registrationNumber",
-        header: "Registrační číslo",
+        header: "R.Č.",
         cell: (info) => info.getValue(),
         filterFn: "auto",
       },

@@ -51,7 +51,7 @@ export default function Filter({
       value={(columnFilterValue ?? "") as string}
       onChange={(e) => column.setFilterValue(e.target.value)}
       placeholder={column.columnDef.header as string}
-      className="w-36"
+      className="w-full border shadow rounded "
     />
   );
 }

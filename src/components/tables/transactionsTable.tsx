@@ -19,9 +19,19 @@ type Props = {
 
 export default function TransactionsTable({ defaultData, detailLinkPath }: Props) {
 
-   const getTotal = (data: any[]) => {
-      return data.reduce((acc, row) => acc + row.amount, 0)
+   const getTotal = (data: any[], type?: any) => {
+
+      switch (type) {
+         case 'positive':
+            return data.reduce((acc, row) => row.amount > 0 ? acc + row.amount : acc, 0)
+         case 'negative':
+            return data.reduce((acc, row) => row.amount < 0 ? acc + row.amount : acc, 0)
+         default:
+            return data.reduce((acc, row) => acc + row.amount, 0)
+      }
    }
+
+  
 
    // Column definitions
    const columns = React.useMemo<ColumnDef<any>[]>(
@@ -34,45 +44,46 @@ export default function TransactionsTable({ defaultData, detailLinkPath }: Props
          },
          {
             accessorKey: 'year',
-            header: 'year',
+            header: 'Rok',
             cell: info => info.getValue(),
-            filterFn: "auto",
-            sortDescFirst: true
+            enableColumnFilter: false
          },
          {
             accessorKey: 'quarter',
-            header: 'quarter',
+            header: 'Kvartál',
             cell: info => info.getValue(),
+            enableColumnFilter: false
          },
          {
             accessorKey: 'amount',
-            header: 'amount',
+            header: 'Body',
             cell: info => info.getValue(),
          },
          {
             accessorKey: 'description',
-            header: 'description',
+            header: 'Poznámka',
             cell: info => info.getValue(),
          },
          {
             accessorKey: 'acceptedBonusOrder',
-            header: 'acceptedBonusOrder',
+            header: 'Příjetí objednávky bonusu',
             cell: info => info.getValue(),
          },
          {
             accessorKey: 'sentBonusOrder',
-            header: 'sentBonusOrder',
+            header: 'Bonus odeslán',
             cell: info => info.getValue(),
          },
          {
             accessorKey: 'bonusName',
-            header: 'bonusName',
+            header: 'Jméno bonusu',
             cell: info => info.getValue(),
          },
          {
             accessorKey: 'bonusAmount',
-            header: 'bonusAmount',
+            header: 'Cena bonusu',
             cell: info => info.getValue(),
+            enableColumnFilter: false
          },
          // {
          //    accessorKey: 'action',
@@ -99,6 +110,10 @@ export default function TransactionsTable({ defaultData, detailLinkPath }: Props
 
    const [data, _setData] = React.useState(() => [...defaultData])
 
+   if (!data) {
+      return <div>Loading...</div>
+   }
+
    return (
       <>
          <MyTable
@@ -107,6 +122,9 @@ export default function TransactionsTable({ defaultData, detailLinkPath }: Props
                columns,
             }}
          />
+         <p>Celková bilance bodů: {getTotal(defaultData)}</p>
+         <p>Celková bilance kladných bodů: {getTotal(defaultData, "positive")}</p>
+         <p>Celková bilance záporných bodů: {getTotal(defaultData, "negative")}</p>
       </>
    )
 }

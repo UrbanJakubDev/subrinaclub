@@ -11,6 +11,8 @@ import { yearSelectOptions } from "@/utils/dateFnc";
 import Button from "../ui/button";
 import SimpleStat from "../ui/stats/simple";
 import InputDateFiled from "../ui/inputs/dateInput";
+import TransactionsTable from "../tables/transactionsTable";
+import { set } from "react-hook-form";
 
 type Props = {
   account: IAccount;
@@ -21,6 +23,7 @@ export default function AccountStats({ account, transactions }: Props) {
   const [selectedYear, setSelectedYear] = React.useState(2024);
   const clubAccountBalance = sumPosPointsInTransactions(transactions);
   const [transactionIsOpen, setTransactionIsOpen] = React.useState(false);
+  const [yearFilteredTransactions, setYearFilteredTransactions] = React.useState<ITransaction[]>([]);
 
   // Date for the year balance calculation
   const [yearBalanceDate, setYearBalanceDate] = useState(new Date("2024-01-01"));
@@ -31,6 +34,14 @@ export default function AccountStats({ account, transactions }: Props) {
     setYearBalance(sumNextTwoYears(yearBalanceDate, transactions));
   }
     , [yearBalanceDate, transactions]);
+
+  useEffect(() => {
+    // Clear the state when the selected year changes
+    setYearFilteredTransactions([]);
+    setYearFilteredTransactions(transactionsInYear(transactions, selectedYear));
+  }
+    , [selectedYear, transactions]);
+
 
   const getTransactions = async () => {
     alert("Transactions fetched");
@@ -82,6 +93,7 @@ export default function AccountStats({ account, transactions }: Props) {
     // Round the average to two decimal places
     return Math.round(average * 100) / 100;
   };
+
 
   const transactionsInYear = (transactions: ITransaction[], year: number) => {
     return transactions.filter(
@@ -146,7 +158,7 @@ export default function AccountStats({ account, transactions }: Props) {
         </div>
       </div>
 
-      <div className="flex gap-10 justify-between border bg-zinc-50 p-4">
+      <div className="justify-between border bg-zinc-50 p-4">
         <div>
           <SimpleTable data={transactionsInYear(transactions, selectedYear)} />
           <p>Total points {sumPointsInYear(transactions, selectedYear)}</p>

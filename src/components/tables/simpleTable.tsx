@@ -19,7 +19,7 @@ export default function SimpleTable({ data }: SimpleTableProps) {
     const columns = Object.keys(data[0]);
   
     return (
-      <table className="w-full table-auto">
+      <table className="w-full table-auto ">
         <thead className="bg-zinc-300">
           <tr>
             {columns.map((column, index) => (

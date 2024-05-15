@@ -8,6 +8,9 @@ export default async function SalesManagers() {
      <div className="content-container">
        <h1>SalesManagers</h1>
         <SalesManagerTable defaultData={salesManagers} detailLinkPath="sales-managers/" />
+       <pre>
+          {JSON.stringify(salesManagers, null, 2)}
+       </pre>
      </div>
    );
  }

@@ -9,7 +9,7 @@ export const inputDateToDbDate = (date: string) => {
 export const yearSelectOptions = () => {
   const currentYear = new Date().getFullYear();
   const years = [];
-  for (let i = currentYear; i >= 2017; i--) {
+  for (let i = currentYear; i >= 2010; i--) {
     years.push({ id: i, name: i.toString() });
   }
   return years;

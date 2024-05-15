@@ -123,3 +123,5 @@ export class CustomerService {
     return maxRegistrationNumber.registrationNumber;
   }
 }
+
+

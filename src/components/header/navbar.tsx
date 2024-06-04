@@ -13,13 +13,14 @@ export default function Nav({ }: Props) {
     { href: '/users', label: 'Zákazníci' },
     { href: '/dealers', label: 'Obchodníci' },
     { href: '/sales-managers', label: 'Obchodní manažeři' },
-    { href: '/reports/bonus', label: 'Reporty' },
+    { href: '/reports/bonus', label: 'Reporty - premium bonus' },
+    { href: '/reports/transactions', label: 'Reporty - seznam obratu' },
   ]
 
 
   const NavItem = ({ href, label }) => {
     const isActive = pathName === href; // No need for useState here
-    const baseClass = 'text-lg font-semibold text-zinc-700 hover:text-[#8D354E] transition-colors duration-300'
+    const baseClass = 'text-sm md:text-md font-semibold text-zinc-700 hover:text-[#8D354E] transition-colors duration-300'
     const activeClass = 'border-b-2 border-[#8D354E]'
     const mergedClass = isActive ? `${baseClass} ${activeClass}` : baseClass
 

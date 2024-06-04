@@ -1,7 +1,7 @@
 import PageHeader from "@/components/detailPage/pageHeader";
+import { CustomerService } from "@/db/queries/customers";
 import {
-  getCustomerPointsBySalesManagerId,
-  getCustomersWithTotalAmountBySalesManagerId,
+
   getSalesManagerById,
 } from "@/db/queries/salesManagers";
 
@@ -10,9 +10,12 @@ export default async function SalesManagersDetail({
 }: {
   params: { id: string };
 }) {
+
+  const customerService = new CustomerService();
+
   let sales_manager_id = parseInt(params.id);
   const sales_manager = await getSalesManagerById(sales_manager_id);
-  const allPoints = await getCustomerPointsBySalesManagerId(sales_manager_id);
+  // const allPoints = await getCustomerPointsBySalesManagerId(sales_manager_id);
   
 
   if (!sales_manager) {
@@ -29,7 +32,7 @@ export default async function SalesManagersDetail({
         />
       </div>
       <div>
-        <p>Total points: {allPoints}</p>
+        {/* <p>Total points: {allPoints}</p> */}
         <pre>
           {JSON.stringify(sales_manager, null, 2)}
         </pre>

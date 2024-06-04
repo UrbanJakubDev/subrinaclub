@@ -49,26 +49,31 @@ export default function SalesManagerStatsTable({
             accessorKey: "sumQ1",
             header: "Suma za Q1",
             cell: (info) => info.getValue(),
+            enableColumnFilter: false,
          },
          {
             accessorKey: "sumQ2",
             header: "Suma za Q2",
             cell: (info) => info.getValue(),
+            enableColumnFilter: false,
          },
          {
             accessorKey: "sumQ3",
             header: "Suma za Q3",
             cell: (info) => info.getValue(),
+            enableColumnFilter: false,
          },
          {
             accessorKey: "sumQ4",
             header: "Suma za Q4",
             cell: (info) => info.getValue(),
+            enableColumnFilter: false,
          },
          {
             accessorKey: "totalPoints",
-            header: "totalPoints",
+            header: "Klubové konto",
             cell: (info) => info.getValue(),
+            enableColumnFilter: false,
          },
          {
             accessorKey: "actions",

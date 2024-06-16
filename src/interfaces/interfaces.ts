@@ -30,7 +30,7 @@ export interface ISalesManager {
 
 export interface ICustomer {
   id: number;
-  active: number;
+  active: boolean;
   registrationNumber: number;
   fullName: string;
   publicId: string;

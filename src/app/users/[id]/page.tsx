@@ -39,7 +39,7 @@ export default async function UserDetail({
       salesManagerSinceQ: 0,
       salesManagerSinceYear: 0,
       registrationNumber: maxRegistrationNumber + 1,
-      active: 0,
+      active: true,
       publicId: "",
       birthDateD: null,
       ico: "",
@@ -92,6 +92,10 @@ export default async function UserDetail({
           <AccountStats account={account} transactions={transactions} />
         </div>
       )}
+
+      <pre>
+        {JSON.stringify(account, null, 2)}
+      </pre>
     </>
   );
 }

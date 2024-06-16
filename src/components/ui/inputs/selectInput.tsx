@@ -2,7 +2,7 @@ type SelectFieldProps = {
   label: string;
   name: string;
   options: any[];
-  defaultValue: string;
+  defaultValue: string | number | undefined;
   register?: any;
   onChange?: any;
   errors?: any;
@@ -20,7 +20,7 @@ const SelectField = ({ label, name, options, defaultValue, register = null, onCh
         defaultValue={defaultValue}
         onChange={onChange}
       >
-        <option value="">Vyberte...</option>
+        <option value="0">Vyberte...</option>
         {options.map((option: any) => (
           <option key={option.id} value={option.id}>
             {option.name || option.fullName || option.title || option}
@@ -40,7 +40,7 @@ const SelectField = ({ label, name, options, defaultValue, register = null, onCh
         defaultValue={defaultValue}
         {...register(name) } // Register the select field with React Hook Form
       >
-        <option value="">Vyberte...</option>
+        <option value="0">Vyberte...</option>
         {options.map((option: any) => (
           <option key={option.id} value={option.id}>
             {option.name || option.fullName || option.title || option}

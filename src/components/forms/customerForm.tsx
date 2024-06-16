@@ -1,21 +1,19 @@
 "use client";
 
 import { ICustomer } from "@/interfaces/interfaces";
-import { useForm } from "react-hook-form";
-import Button from "../ui/button";
-import React from "react";
-import Loader from "../ui/loader";
-import InputField from "../ui/inputs/basicInput";
-import TextAreaField from "../ui/inputs/textareaInput";
-import SelectField from "../ui/inputs/selectInput";
-import { yupResolver } from "@hookform/resolvers/yup"
 import { customerValidationSchema } from "@/schemas/customerSchema";
-import InputDateFiled from "../ui/inputs/dateInput";
-import { toast } from 'react-toastify';
+import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "next/navigation";
-import { CustomerService } from "@/db/queries/customers";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import Button from "../ui/button";
+import InputField from "../ui/inputs/basicInput";
+import InputDateFiled from "../ui/inputs/dateInput";
 import InputSwitcher from "../ui/inputs/inputSwitcher";
-
+import SelectField from "../ui/inputs/selectInput";
+import TextAreaField from "../ui/inputs/textareaInput";
+import Loader from "../ui/loader";
 
 type Props = {
   customer: ICustomer;
@@ -34,7 +32,7 @@ export default function CustomerForm({ customer, dials }: Props) {
     watch,
   } = useForm({
     resolver: yupResolver(customerValidationSchema),
-  })
+  });
 
   const getCustomerById = async (id: number) => {
     try {
@@ -51,8 +49,7 @@ export default function CustomerForm({ customer, dials }: Props) {
     } catch (error) {
       console.error("Error:", error);
     }
-  }
-
+  };
 
   const handleUpdate = async (data: ICustomer) => {
     try {
@@ -75,7 +72,7 @@ export default function CustomerForm({ customer, dials }: Props) {
     } catch (error) {
       console.error("Error:", error);
     }
-  }
+  };
 
   const handleCreate = async (data: ICustomer) => {
     try {
@@ -98,10 +95,11 @@ export default function CustomerForm({ customer, dials }: Props) {
     } catch (error) {
       console.error("Error:", error);
     }
-  }
-
+  };
 
   const onSubmit = async (data: ICustomer) => {
+    console.log(errors);
+
     if (customer.id === 0) {
       handleCreate(data);
     } else {
@@ -117,6 +115,11 @@ export default function CustomerForm({ customer, dials }: Props) {
     return <Loader />;
   }
 
+  // On errors show error message
+  if (errors) {
+    console.log(errors);
+  }
+
   return (
     <div className="mx-auto">
       <form>
@@ -126,9 +129,15 @@ export default function CustomerForm({ customer, dials }: Props) {
               label="Aktivní"
               name="active"
               register={register}
-              defaultValue={customerData.active === 1 ? true : false}
+              // If customer is active set default value to true, otherwise false or if customer is new set default value to true
+              defaultValue={
+                customerData.active
+                  ? true
+                  : false || customer.id === 0
+                    ? true
+                    : false
+              }
               errors={errors}
-              
             />
 
             <InputField
@@ -139,7 +148,6 @@ export default function CustomerForm({ customer, dials }: Props) {
               defaultValue={customerData.registrationNumber.toString()}
               errors={errors}
               disabled
-
             />
           </div>
           <div className="flex gap-4">
@@ -150,7 +158,6 @@ export default function CustomerForm({ customer, dials }: Props) {
               register={register}
               defaultValue={customerData.ico}
               errors={errors}
-
             />
             <InputDateFiled
               label="Registrace od"
@@ -158,7 +165,6 @@ export default function CustomerForm({ customer, dials }: Props) {
               name="registratedSinceD"
               register={register}
               defaultValue={customerData.registratedSinceD}
-
             />
           </div>
           <div className="flex gap-4">
@@ -177,7 +183,6 @@ export default function CustomerForm({ customer, dials }: Props) {
               register={register}
               defaultValue={customerData.birthDateD}
               errors={errors}
-
             />
           </div>
           <div className="flex gap-4">

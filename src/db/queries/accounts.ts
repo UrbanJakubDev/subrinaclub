@@ -16,8 +16,13 @@ export async function getAccountById(id: number) {
 
 export async function getAccountByUserId(userId: number) {
   const account = await prisma.account.findFirst({
+
+      include: {
+        savingPeriods: true,
+      },
       where: {
          customerId: userId,
+         
       },
   });
   return account;

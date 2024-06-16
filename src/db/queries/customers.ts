@@ -7,11 +7,18 @@ import { prisma } from "../pgDBClient";
 export class CustomerService {
   // Create a new customer
   async createCustomer(customer: Customer): Promise<Customer> {
+
+    
     // Make the unique publicId for the customer from the registrationNumber and UUID
     const publicId = `${customer.registrationNumber}SU${Math.random()
       .toString(36)
       .substr(2, 9)}`;
     customer.publicId = publicId;
+    customer.active = customer.active ? 1 : 0;
+    customer.dealerId = customer.dealerId === 0 ? null : customer.dealerId;
+    customer.salesManagerId = customer.salesManagerId === 0 ? null : customer.salesManagerId;
+
+    // Create the customer and his lifetime account
     const newCustomer = await prisma.customer.create({
       data: customer,
     });

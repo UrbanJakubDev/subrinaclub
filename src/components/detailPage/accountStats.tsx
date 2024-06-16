@@ -128,7 +128,7 @@ export default function AccountStats({ account, transactions }: Props) {
 
   return (
     <div className="flex flex-col gap-10">
-      <TransactionComponent account={account} onTransactionCreated={getTransactions} />
+      {/* <TransactionComponent account={account} onTransactionCreated={getTransactions} /> */}
       <div className="border p-4 bg-zinc-50">
         <h2>Statistika bodů na účtu s id: {account.id}</h2>
         <div>
@@ -158,12 +158,17 @@ export default function AccountStats({ account, transactions }: Props) {
         </div>
       </div>
 
-      <div className="justify-between border bg-zinc-50 p-4">
+
+      <pre>
+        {JSON.stringify(account, null, 2)}
+      </pre>
+
+      {/* <div className="justify-between border bg-zinc-50 p-4">
         <div>
           <SimpleTable data={transactionsInYear(transactions, selectedYear)} />
           <p>Total points {sumPointsInYear(transactions, selectedYear)}</p>
         </div>
-      </div>
+      </div> */}
 
     </div>
   );

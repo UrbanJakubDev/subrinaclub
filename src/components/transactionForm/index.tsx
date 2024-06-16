@@ -10,7 +10,7 @@ type Props = {
 
 const TransactionComponent = ({ account, onTransactionCreated }: Props) => {
    return (
-      <div className='bg-zinc-50 border p-4'>
+      <div className='bg-zinc-50 border p-4 drop-shadow-sm'>
          <h1>Transaction Component</h1>
          <p>{account.id}</p>
          <TransactionForm accountId={account.id} onTransactionCreated={onTransactionCreated} />

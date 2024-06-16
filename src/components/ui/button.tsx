@@ -11,7 +11,7 @@ export default function Button({
   onClick,
   className,
 }: ButtonProps) {
-  let baseCls = "text-white font-bold py-2 px-4 rounded";
+  let baseCls = "text-white font-bold py-2 px-4 rounded drop-shadow-md hover:drop-shadow-lg";
 
   switch (variant) {
     case "primary":

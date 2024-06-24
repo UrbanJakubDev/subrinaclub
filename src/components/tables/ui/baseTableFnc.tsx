@@ -27,7 +27,7 @@ export default function Filter({
             ])
           }
           placeholder={`Min`}
-          className="w-24 border shadow rounded"
+          className="w-24 rounded ps-1"
         />
         <input
           type="number"
@@ -39,7 +39,7 @@ export default function Filter({
             ])
           }
           placeholder={`Max`}
-          className="w-24 border shadow rounded"
+          className="w-24 rounded ps-1"
         />
       </div>
     );
@@ -51,7 +51,7 @@ export default function Filter({
       value={(columnFilterValue ?? "") as string}
       onChange={(e) => column.setFilterValue(e.target.value)}
       placeholder={column.columnDef.header as string}
-      className="w-full border shadow rounded "
+      className="w-full rounded ps-1 !text-black !bg-none"
     />
   );
 }

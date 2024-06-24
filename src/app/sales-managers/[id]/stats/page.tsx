@@ -12,7 +12,7 @@ export default async function SalesManagersDetailStats({
   const totalPoints = await getTotalAmountOfTransactionsBySalesManagerId(sales_manager_id);
   const customersClubPoints = await getTotalPointsBySalesManagerId(sales_manager_id);
   const numOfCusomers = await getCustomerCountBySalesManagerId(sales_manager_id);
-  const numOfActiveCusomers = await getCustomerCountBySalesManagerIdAndStatus(sales_manager_id, 1);
+  const numOfActiveCusomers = await getCustomerCountBySalesManagerIdAndStatus(sales_manager_id, true);
 
   if (!salesManager) {
     return <div>Uživatel nenalezen</div>;

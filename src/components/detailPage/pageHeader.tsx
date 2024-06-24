@@ -1,9 +1,10 @@
 'use client'
 import Link from "next/link";
-import Button from "../ui/button";
 import { usePathname } from "next/navigation";
 import { faPenToSquare, faChartSimple } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Button } from "@material-tailwind/react";
+import type { ButtonStyleTypes } from "@material-tailwind/react";
 
 type Props = {
   userName: string;
@@ -22,12 +23,12 @@ export default function PageHeader({ userName, userId, active, url }: Props) {
 
 
   return (
-    <div className="mb-4">
+    <div className="pb-4 border-b">
 
       <div className="flex justify-between">
         <div>
           <Link href={`/${path}`}>
-            <Button variant="secondary">{"<<"}</Button>
+            <Button>{"<<"}</Button>
           </Link>
         </div>
         <div>
@@ -44,7 +45,7 @@ export default function PageHeader({ userName, userId, active, url }: Props) {
 
         </div>
       </div>
-      <div>
+      {/* <div>
         {userName && userId ? (
           <>
             <h1 className="text-2xl font-bold text-gray-900">{userName}</h1>
@@ -58,7 +59,7 @@ export default function PageHeader({ userName, userId, active, url }: Props) {
         ) : (
           <h1 className="text-2xl font-bold text-gray-900">User</h1>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }

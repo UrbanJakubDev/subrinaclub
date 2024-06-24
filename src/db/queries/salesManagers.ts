@@ -201,7 +201,7 @@ export async function getCustomerCountBySalesManagerId(salesManagerId: number) {
  */
 export async function getCustomerCountBySalesManagerIdAndStatus(
   salesManagerId: number,
-  status: number
+  status: boolean
 ) {
   const customerCount = await prisma.customer.count({
     where: {

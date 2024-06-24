@@ -41,7 +41,6 @@ export async function PUT(request: Request) {
   }
 
   body.registrationNumber = Number(body.registrationNumber);
-  body.active = Number(body.active);
 
   // Update the customer in the database and his relations to the dealer and sales manager
   try {

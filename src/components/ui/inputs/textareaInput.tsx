@@ -1,15 +1,15 @@
-const TextAreaField = ({ label,  value }: any) => {
-   const inputClass = "border border-gray-300 rounded-md p-2 w-full"; // Add w-full class here
+import { Textarea } from "@material-tailwind/react";
 
+const TextAreaField = ({ label,  value }: any) => {
    return (
      <div className="flex flex-col">
-       <label className="text-sm font-semibold text-gray-600">{label}</label>
-       <textarea
-         className={inputClass}
-         rows={4}
-         cols={80}
-         defaultValue={value}
-       />
+       <Textarea 
+        label={label}
+        rows={2}
+        cols={99}
+        value={value}
+        className="w-full"
+        />
      </div>
    );
  };

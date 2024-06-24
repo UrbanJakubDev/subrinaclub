@@ -10,7 +10,7 @@ export async function getDealerById(id: number) {
    let dealer = await prisma.dealer.findUnique({
       where: {
          id: id,
-         active: 1
+         active: true
       }
    });
    return dealer;

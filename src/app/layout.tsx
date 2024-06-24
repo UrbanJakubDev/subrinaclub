@@ -24,7 +24,7 @@ export default function RootLayout({
 
       <body className={inter.className}>
         <NavIndex />
-        <main className="w-screen my-8 mx-auto overflow-hidden flex-grow">
+        <main className="w-screen mx-auto overflow-hidden flex-grow pt-2 ">
           {children}
         </main>
         <Footer />

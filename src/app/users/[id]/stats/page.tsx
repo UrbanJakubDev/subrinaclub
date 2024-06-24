@@ -1,4 +1,4 @@
-import AccountStats from "@/components/detailPage/accountStats";
+import AccountStats from "@/components/account/accountStats";
 import PageHeader from "@/components/detailPage/pageHeader";
 import TransactionsTable from "@/components/tables/transactionsTable";
 import { getAccountByUserId } from "@/db/queries/accounts";

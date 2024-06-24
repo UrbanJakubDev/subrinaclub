@@ -7,13 +7,13 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import Button from "../ui/button";
 import InputField from "../ui/inputs/basicInput";
 import InputDateFiled from "../ui/inputs/dateInput";
 import InputSwitcher from "../ui/inputs/inputSwitcher";
 import SelectField from "../ui/inputs/selectInput";
 import TextAreaField from "../ui/inputs/textareaInput";
 import Loader from "../ui/loader";
+import { Button, Card } from "@material-tailwind/react";
 
 type Props = {
   customer: ICustomer;
@@ -121,22 +121,16 @@ export default function CustomerForm({ customer, dials }: Props) {
   }
 
   return (
-    <div className="mx-auto">
+    <Card className="mx-auto p-4">
       <form>
-        <div className="flex flex-col gap-6 ">
+        <div className="flex flex-col gap-6 my-6">
           <div className="flex gap-4">
             <InputSwitcher
               label="Aktivní"
               name="active"
               register={register}
               // If customer is active set default value to true, otherwise false or if customer is new set default value to true
-              defaultValue={
-                customerData.active
-                  ? true
-                  : false || customer.id === 0
-                    ? true
-                    : false
-              }
+              defaultValue={customerData.active}
               errors={errors}
             />
 
@@ -149,8 +143,6 @@ export default function CustomerForm({ customer, dials }: Props) {
               errors={errors}
               disabled
             />
-          </div>
-          <div className="flex gap-4">
             <InputField
               label="IČO"
               type="text"
@@ -184,8 +176,7 @@ export default function CustomerForm({ customer, dials }: Props) {
               defaultValue={customerData.birthDateD}
               errors={errors}
             />
-          </div>
-          <div className="flex gap-4">
+
             <InputField
               label="Email"
               type="email"
@@ -285,9 +276,13 @@ export default function CustomerForm({ customer, dials }: Props) {
             />
           </div>
         </div>
-        <Button onClick={handleSubmit(onSubmit)}>Uložit</Button>
-        <Button onClick={() => router.push("/users")}>Zrušit</Button>
+
+        <div className="w-full flex justify-end gap-3 mt-4">
+          <Button onClick={handleSubmit(onSubmit)}>Uložit</Button>
+          <Button color="red" onClick={() => router.push("/users")}>Zrušit</Button>
+        </div>
       </form>
-    </div>
+
+    </Card>
   );
 }

@@ -192,7 +192,7 @@ export class CustomerService {
         id: id,
       },
       data: {
-        active: 1,
+        active: true,
       },
     });
     return restoredCustomer;

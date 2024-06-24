@@ -21,7 +21,7 @@ export default async function Users({ }: Props) {
     <div className="p-6 content-container">
       <h1>Zákazníci - přehled</h1>
       <div>
-        <Button variant="primary" >
+        <Button size="sm">
           <Link href="/users/0">
             Přidat zákazníka
           </Link>

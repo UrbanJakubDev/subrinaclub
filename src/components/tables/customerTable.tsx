@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import React from "react";
 import MyTable from "./ui/baseTable";
-import Button from "../ui/button";
+import { Button } from "@material-tailwind/react";
 
 type Props = {
   defaultData: any[];
@@ -73,13 +73,13 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         accessorKey: "action",
         header: "Akce",
         cell: (row) => (
-          <div className="flex">
+          <div className="flex gap-1">
             <div className="flex justify-center gap-2">
               <Link
                 href={`${detailLinkPath}/${row.row.original.id}`}
                 className="text-center"
               >
-                <Button variant="danger">
+                <Button size="sm">
                   <FontAwesomeIcon icon={faPenToSquare} />
                   {/* {row.row.original.id} */}
                 </Button>
@@ -90,7 +90,7 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
                 href={`${detailLinkPath}/${row.row.original.id}/stats`}
                 className="text-center"
               >
-                <Button variant="primary">
+                <Button size="sm">
                   <FontAwesomeIcon icon={faChartSimple} />
                   {/* {row.row.original.id} */}
                 </Button>

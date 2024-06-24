@@ -1,8 +1,10 @@
+"use client"
 import { ColumnDef, PaginationState, useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel, getPaginationRowModel, flexRender } from "@tanstack/react-table"
 import React from "react"
 import Filter from "./baseTableFnc"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCheck, faSort, faSortDown, faSortUp, faTimes, faXmark } from "@fortawesome/free-solid-svg-icons"
+import { Button, Input, Option, Select } from "@material-tailwind/react"
 
 
 
@@ -43,7 +45,7 @@ export default function MyTable({
    return (
       <div className="w-scrren mx-auto overflow-auto">
          <table className='text-sm basic-table'>
-            <thead className='border-b-2'>
+            <thead className='border-b text-black'>
                {table.getHeaderGroups().map(headerGroup => (
                   <tr key={headerGroup.id}>
                      {headerGroup.headers.map(header => {
@@ -83,35 +85,18 @@ export default function MyTable({
                            return (
                               <td key={cell.id} className=" whitespace-nowrap text-center">
                                  {
-                                    // If the column is status, render a badge
-                                    cell.column.id === 'status' ? (
 
-                                       // If value is 1 render a green badge, 2 render a yellow badge, otherwise render a red badge
-                                       cell.getValue() === 3 ? (
-                                          <span className="badge badge-success">Zkontr.</span>
-                                       ) : cell.getValue() === 2 ? (
-                                          <span className="badge badge-warning">RV</span>
-                                       ) : cell.getValue() === 1 ? (
-                                          <span className="badge badge-error">Rozprac.</span>
+                                    // If the cell value is true or false, render a checkmark or an X
+                                    typeof cell.getValue() === 'boolean' ? (
+                                       cell.getValue() ? (
+                                          <FontAwesomeIcon icon={faCheck} style={{ color: "#00ff00", }} />
                                        ) : (
-                                          <span className="badge badge-secondary">Unknown</span>
+                                          <FontAwesomeIcon icon={faXmark} style={{ color: "#ff0000", }} />
                                        )
-
-
-
-
                                     ) : (
-                                       // If the cell value is true or false, render a checkmark or an X
-                                       typeof cell.getValue() === 'boolean' ? (
-                                          cell.getValue() ? (
-                                             <FontAwesomeIcon icon={faCheck} style={{ color: "#00ff00", }} />
-                                          ) : (
-                                             <FontAwesomeIcon icon={faXmark} style={{ color: "#ff0000", }} />
-                                          )
-                                       ) : (
-                                          flexRender(cell.column.columnDef.cell, cell.getContext())
-                                       )
-                                    ) 
+                                       flexRender(cell.column.columnDef.cell, cell.getContext())
+                                    )
+
 
                                  }
                               </td>
@@ -124,65 +109,67 @@ export default function MyTable({
          </table>
          <div className="h-2" />
          <div className="flex justify-center gap-2 mx-auto ">
-            <button
-               className="btn btn-sm btn-success"
-               onClick={() => table.firstPage()}
-               disabled={!table.getCanPreviousPage()}
-            >
-               {'<<'}
-            </button>
-            <button
-               className="btn btn-sm btn-success"
-               onClick={() => table.previousPage()}
-               disabled={!table.getCanPreviousPage()}
-            >
-               {'<'}
-            </button>
-            <button
-               className="btn btn-sm btn-success"
-               onClick={() => table.nextPage()}
-               disabled={!table.getCanNextPage()}
-            >
-               {'>'}
-            </button>
-            <button
-               className="btn btn-sm btn-success"
-               onClick={() => table.lastPage()}
-               disabled={!table.getCanNextPage()}
-            >
-               {'>>'}
-            </button>
-            <span className="flex items-center gap-1">
+            <div className="flex gap-2">
+               <Button
+                  onClick={() => table.firstPage()}
+                  disabled={!table.getCanPreviousPage()}
+               >
+                  {'<<'}
+               </Button>
+               <Button
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+               >
+                  {'<'}
+               </Button>
+               <Button
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+               >
+                  {'>'}
+               </Button>
+               <Button
+                  onClick={() => table.lastPage()}
+                  disabled={!table.getCanNextPage()}
+               >
+                  {'>>'}
+               </Button>
+            </div>
+            <div className="flex items-baseline">
                <div>Page</div>
-               <strong>
-                  {table.getState().pagination.pageIndex + 1} of{' '}
-                  {table.getPageCount().toLocaleString()}
-               </strong>
-            </span>
-            <span className="flex items-center gap-1">
-               | Go to page:
-               <input
-                  type="number"
-                  defaultValue={table.getState().pagination.pageIndex + 1}
-                  onChange={e => {
-                     const page = e.target.value ? Number(e.target.value) - 1 : 0
-                     table.setPageIndex(page)
-                  }}
-                  className="border p-1 rounded w-16"
-               />
-            </span>
-            <select
-               value={table.getState().pagination.pageSize}
-               onChange={e => {
-                  table.setPageSize(Number(e.target.value))
-               }}
-            >
-               {[5, 10, 23, 30, 40, 50, 100, 150, 200, 300, 500].map(pageSize => (
-                  <option key={pageSize} value={pageSize}>
-                     Show {pageSize}
-                  </option>
-               ))}
-            </select>
+               <span className="w-2/3">
+
+                  <strong>
+                     {table.getState().pagination.pageIndex + 1} of{' '}
+                     {table.getPageCount().toLocaleString()}
+                  </strong>
+
+                  | Go to page:
+               </span>
+               <div className="">
+                  <Input
+                     type="number"
+                     defaultValue={table.getState().pagination.pageIndex + 1}
+                     onChange={e => {
+                        const page = e.target.value ? Number(e.target.value) - 1 : 0
+                        table.setPageIndex(page)
+                     }}
+
+                  />
+               </div>
+            </div>
+            <div>
+               <select
+                  value={table.getState().pagination.pageSize}
+                  onChange={e => { table.setPageSize(Number(e.target.value)) }}
+               >
+                  {[5, 10, 23, 30, 40, 50, 100, 150, 200, 300, 500].map(pageSize => (
+                     <option key={pageSize} value={pageSize}>
+                        Show {pageSize}
+                     </option>
+                  ))}
+               </select>
+            </div>
          </div>
          <div className='mt-2'>
             Showing {table.getRowModel().rows.length.toLocaleString()} of{' '}

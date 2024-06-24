@@ -27,3 +27,4 @@ export async function getAccountByUserId(userId: number) {
   });
   return account;
 }
+

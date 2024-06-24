@@ -1,3 +1,7 @@
+"use client";
+import { Select, Option } from "@material-tailwind/react";
+
+
 type SelectFieldProps = {
   label: string;
   name: string;
@@ -14,39 +18,37 @@ const SelectField = ({ label, name, options, defaultValue, register = null, onCh
   if (!register) {
     return (
       <div className="flex flex-col">
-      <label className="text-sm font-semibold text-gray-600">{label}</label>
-      <select
-        className={inputClass}
-        defaultValue={defaultValue}
-        onChange={onChange}
-      >
-        <option value="0">Vyberte...</option>
-        {options.map((option: any) => (
-          <option key={option.id} value={option.id}>
-            {option.name || option.fullName || option.title || option}
-          </option>
-        ))}
-      </select>
-      {errors && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
-    </div>
+        <Select
+          label={label}
+          className={inputClass}
+          defaultValue={defaultValue}
+          onChange={onChange}
+        >
+          <Option value="0">Vyberte...</Option>
+          {options.map((option: any) => (
+            <Option key={option.id} value={option.id}>
+              {option.name || option.fullName || option.title || option}
+            </Option>
+          ))}
+        </Select>
+        {errors && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
+      </div>
     );
   }
 
   return (
     <div className="flex flex-col">
-      <label className="text-sm font-semibold text-gray-600">{label}</label>
-      <select
-        className={inputClass}
-        defaultValue={defaultValue}
-        {...register(name) } // Register the select field with React Hook Form
+      <Select
+        label={label}
+        value={defaultValue}
+        {...register(name)} // Register the select field with React Hook Form
       >
-        <option value="0">Vyberte...</option>
         {options.map((option: any) => (
-          <option key={option.id} value={option.id}>
+          <Option key={option.id} value={option.id}>
             {option.name || option.fullName || option.title || option}
-          </option>
+          </Option>
         ))}
-      </select>
+      </Select>
       {errors && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
     </div>
   );

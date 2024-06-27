@@ -4,7 +4,7 @@ import React from "react"
 import Filter from "./baseTableFnc"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCheck, faSort, faSortDown, faSortUp, faTimes, faXmark } from "@fortawesome/free-solid-svg-icons"
-import { Button, Input, Option, Select } from "@material-tailwind/react"
+import { Button, Card, Input, Option, Select } from "@material-tailwind/react"
 
 
 
@@ -44,69 +44,72 @@ export default function MyTable({
 
    return (
       <div className="w-scrren mx-auto overflow-auto">
-         <table className='text-sm basic-table'>
-            <thead className='border-b text-black'>
-               {table.getHeaderGroups().map(headerGroup => (
-                  <tr key={headerGroup.id}>
-                     {headerGroup.headers.map(header => {
-                        return (
-                           <th key={header.id} colSpan={header.colSpan}>
-                              <div className="flex items-center py-1">
-                                 <div {...{ className: header.column.getCanSort() ? 'cursor-pointer select-none' : '', onClick: header.column.getToggleSortingHandler(), }}>
-                                    {{
-                                       asc: <FontAwesomeIcon icon={faSortUp} />,
-                                       desc: <FontAwesomeIcon icon={faSortDown} />,
-                                    }[header.column.getIsSorted() as string] ?? (header.column.getCanSort() ? <FontAwesomeIcon icon={faSort} /> : null)
-                                    }
+         <Card className="p-4 text-gray-900">
+
+            <table className='text-sm basic-table'>
+               <thead className='border-b text-black'>
+                  {table.getHeaderGroups().map(headerGroup => (
+                     <tr key={headerGroup.id}>
+                        {headerGroup.headers.map(header => {
+                           return (
+                              <th key={header.id} colSpan={header.colSpan}>
+                                 <div className="flex items-center py-1">
+                                    <div {...{ className: header.column.getCanSort() ? 'cursor-pointer select-none' : '', onClick: header.column.getToggleSortingHandler(), }}>
+                                       {{
+                                          asc: <FontAwesomeIcon icon={faSortUp} />,
+                                          desc: <FontAwesomeIcon icon={faSortDown} />,
+                                       }[header.column.getIsSorted() as string] ?? (header.column.getCanSort() ? <FontAwesomeIcon icon={faSort} /> : null)
+                                       }
+
+                                    </div>
+                                    {header.column.getCanFilter() ? (
+                                       <Filter column={header.column} table={table} />
+
+                                    ) : (
+                                       <div className="mx-2">
+                                          {flexRender(header.column.columnDef.header, header.getContext())}
+                                       </div>
+                                    )}
 
                                  </div>
-                                 {header.column.getCanFilter() ? (
-                                    <Filter column={header.column} table={table} />
-
-                                 ) : (
-                                    <div className="mx-2">
-                                       {flexRender(header.column.columnDef.header, header.getContext())}
-                                    </div>
-                                 )}
-
-                              </div>
-                           </th>
-                        );
-                     })}
-                  </tr>
-               ))}
-            </thead>
-            <tbody >
-               {/* Table body */}
-               {table.getRowModel().rows.map(row => {
-                  return (
-                     <tr key={row.id} className='text-left hover:bg-zinc-50 whitespace-nowrap'>
-                        {row.getVisibleCells().map(cell => {
-                           return (
-                              <td key={cell.id} className=" whitespace-nowrap text-center">
-                                 {
-
-                                    // If the cell value is true or false, render a checkmark or an X
-                                    typeof cell.getValue() === 'boolean' ? (
-                                       cell.getValue() ? (
-                                          <FontAwesomeIcon icon={faCheck} style={{ color: "#00ff00", }} />
-                                       ) : (
-                                          <FontAwesomeIcon icon={faXmark} style={{ color: "#ff0000", }} />
-                                       )
-                                    ) : (
-                                       flexRender(cell.column.columnDef.cell, cell.getContext())
-                                    )
-
-
-                                 }
-                              </td>
+                              </th>
                            );
                         })}
                      </tr>
-                  );
-               })}
-            </tbody>
-         </table>
+                  ))}
+               </thead>
+               <tbody >
+                  {/* Table body */}
+                  {table.getRowModel().rows.map(row => {
+                     return (
+                        <tr key={row.id} className='text-left hover:bg-zinc-50 whitespace-nowrap'>
+                           {row.getVisibleCells().map(cell => {
+                              return (
+                                 <td key={cell.id} className=" whitespace-nowrap text-center">
+                                    {
+
+                                       // If the cell value is true or false, render a checkmark or an X
+                                       typeof cell.getValue() === 'boolean' ? (
+                                          cell.getValue() ? (
+                                             <FontAwesomeIcon icon={faCheck} style={{ color: "#00ff00", }} />
+                                          ) : (
+                                             <FontAwesomeIcon icon={faXmark} style={{ color: "#ff0000", }} />
+                                          )
+                                       ) : (
+                                          flexRender(cell.column.columnDef.cell, cell.getContext())
+                                       )
+
+
+                                    }
+                                 </td>
+                              );
+                           })}
+                        </tr>
+                     );
+                  })}
+               </tbody>
+            </table>
+         </Card>
          <div className="h-2" />
          <div className="flex justify-center gap-2 mx-auto ">
             <div className="flex gap-2">

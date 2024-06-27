@@ -37,7 +37,7 @@ body {
 
 
 .content-container {
-  background-color: white;
+  @apply bg-gray-50;
   width: 11/12;
   max-width: 1600px;
   margin: 0 auto;

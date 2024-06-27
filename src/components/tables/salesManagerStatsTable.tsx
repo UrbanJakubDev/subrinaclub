@@ -4,6 +4,7 @@ import Link from "next/link";
 import React from "react";
 import Button from "../ui/button";
 import MyTable from "./ui/baseTable";
+import { Card } from "@material-tailwind/react";
 
 type Props = {
   defaultData: any[];

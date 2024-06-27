@@ -10,6 +10,7 @@ import { Typography } from "@material-tailwind/react";
 import { yearSelectOptions } from "@/utils/dateFnc";
 import { KpiCard } from "../ui/stats/KpiCard";
 import SimpleSelectInput from "../ui/inputs/simpleSelectInput";
+import { set } from "react-hook-form";
 
 type SalesManagerStatsProps = {
   salesManager?: any;
@@ -27,6 +28,10 @@ export default function SalesManagerStats({
   customersTotalPoints,
 }: SalesManagerStatsProps) {
   const [apiData, setApiData] = React.useState<any[]>([]);
+  const [apiDataLastYear, setApiDataLastYear] = React.useState<any[]>([]);
+  const [yearAverage, setYearAverage] = React.useState(0);
+  const [yearAverageLastYear, setYearAverageLastYear] = React.useState(0);
+  const [yearAverageChange, setYearAverageChange] = React.useState(0);
   const salesManagerId = salesManager?.id;
   const [selectedYear, setSelectedYear] = React.useState(2023);
   const [chartSeries, setChartSeries] = React.useState<any[]>([
@@ -37,16 +42,13 @@ export default function SalesManagerStats({
   ]);
 
 
-  const getApiData = async () => {
+  const fetchApi = async (year: Number) => {
     if (!salesManagerId || selectedYear === 0) {
       return;
     }
 
-    // Clear the API data
-    setApiData([]);
-
     // Make get request to API
-    let url = `/api/sales-managers/transactions?id=${salesManagerId}&year=${selectedYear}`;
+    let url = `/api/sales-managers/transactions?id=${salesManagerId}&year=${year}`;
     const header = {
       method: "GET",
       headers: {
@@ -56,7 +58,15 @@ export default function SalesManagerStats({
 
     const response = await fetch(url, header);
     const data = await response.json();
+    return data;
+  };
+
+  const getApiData = async () => {
+    setApiData([]);
+    const data = await fetchApi(selectedYear);
+    const dataLastYear = await fetchApi(selectedYear - 1);
     setApiData(data);
+    setApiDataLastYear(dataLastYear);
   };
 
 
@@ -70,6 +80,27 @@ export default function SalesManagerStats({
     ];
     setChartSeries(series);
   }
+
+  // On API data change, calculate the year average
+  React.useEffect(() => {
+    if (apiData) {
+      setYearAverage(calcyYearAverage(apiData));
+    }
+  }, [apiData]);
+
+  // On API data last year change, update the chart series
+  React.useEffect(() => {
+    if (apiDataLastYear) {
+      setYearAverageLastYear(calcyYearAverage(apiDataLastYear));
+    }
+  }, [apiDataLastYear]);
+
+  // On year average change, calculate the percentage change
+  React.useEffect(() => {
+    setYearAverageChange(calcPercentageChange(yearAverage, yearAverageLastYear));
+  }, [yearAverage, yearAverageLastYear]);
+
+
 
   React.useEffect(() => {
     updateChartSeries();
@@ -102,10 +133,10 @@ export default function SalesManagerStats({
   }
 
   // Sum API data.amount for average points for selected year
-  const yearAverage = () => {
+  const calcyYearAverage = (data) => {
     let sum = 0;
     let count = 0;
-    apiData.forEach((transaction) => {
+    data.forEach((transaction) => {
       if (transaction.amount > 0) {
         sum += transaction.amount;
         count++;
@@ -155,10 +186,12 @@ export default function SalesManagerStats({
         entry.totalPoints = customer.totalPoints;
       }
     });
-
-
-
     return Object.values(result);
+  }
+
+  // Calculate percentage change between two values and round to 2 decimal places
+  const calcPercentageChange = (value1, value2) => {
+    return Math.round(((value1 - value2) / value2) * 100);
   }
 
 
@@ -181,7 +214,7 @@ export default function SalesManagerStats({
 
           <div className="flex flex-col mx-auto w-full my-4 gap-2">
             <SimpleStat label="Klubové body - Celkem" value={totalPoints} />
-            <SimpleStat label="Průmer za kvartál" value={yearAverage()} />
+            <KpiCard title="Počet bodů za kvartál" price={yearAverage} percentage={yearAverageChange + "%"} color={yearAverageChange > 0 ? "green" : "red"}/>
             <KpiCard title="Počet zákazníků" price={numOfCusomers} percentage={numOfActiveCusomers - 50} color="green" icon="Aktivní" />
           </div>
         </div>
@@ -200,8 +233,8 @@ export default function SalesManagerStats({
 
       </div>
 
-        {apiData.length > 0 ? <SalesManagerStatsTable detailLinkPath={"users/"} defaultData={calculateQuarterSums(apiData) } /> : <Loader />}
- 
+      {apiData.length > 0 ? <SalesManagerStatsTable detailLinkPath={"users/"} defaultData={calculateQuarterSums(apiData)} /> : <Loader />}
+
     </div>
   );
 }

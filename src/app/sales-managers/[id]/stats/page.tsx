@@ -25,7 +25,6 @@ export default async function SalesManagersDetailStats({
         userName={salesManager.fullName}
         active={salesManager.active}
       />
-      <h2>Statisitka o zákaznících</h2>
       <div className="flex ">
         <SalesManagerStats
           salesManager={salesManager}

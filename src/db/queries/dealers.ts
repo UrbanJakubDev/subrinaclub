@@ -1,27 +1,27 @@
-import {prisma} from "../pgDBClient";
+import { PrismaClient, Dealer } from "@prisma/client";
 
+export class DealerService {
+   constructor(private readonly prismaDealer: PrismaClient['dealer']) {}
 
-export async function getDealers() {
-   let dealers = await prisma.dealer.findMany();
-   return dealers;
+   async getDealers(): Promise<Dealer[]> {
+      return await this.prismaDealer.findMany();
    }
 
-export async function getDealerById(id: number) {
-   let dealer = await prisma.dealer.findUnique({
-      where: {
-         id: id,
-         active: true
-      }
-   });
-   return dealer;
+   async getDealerById(id: number): Promise<Dealer | null> {
+      return await this.prismaDealer.findUnique({
+         where: {
+            id: id,
+            active: true
+         }
+      });
    }
 
-export async function getDealersForSelect() {
-   let dealers = await prisma.dealer.findMany({
-      select: {
-         id: true,
-         fullName: true
-      }
-   });
-   return dealers;
+   async getDealersForSelect(): Promise<Dealer[]> {
+      return await this.prismaDealer.findMany({
+         select: {
+            id: true,
+            fullName: true
+         }
+      });
    }
+}

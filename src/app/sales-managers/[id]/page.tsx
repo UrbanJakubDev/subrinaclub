@@ -1,4 +1,5 @@
 import PageHeader from "@/components/detailPage/pageHeader";
+import SalesManagerForm from "@/components/forms/salesManagerForm";
 import { CustomerService } from "@/db/queries/customers";
 import {
 
@@ -11,7 +12,7 @@ export default async function SalesManagersDetail({
   params: { id: string };
 }) {
 
-  const customerService = new CustomerService();
+
 
   let sales_manager_id = parseInt(params.id);
   const sales_manager = await getSalesManagerById(sales_manager_id);
@@ -32,10 +33,8 @@ export default async function SalesManagersDetail({
         />
       </div>
       <div>
-        {/* <p>Total points: {allPoints}</p> */}
-        <pre>
-          {JSON.stringify(sales_manager, null, 2)}
-        </pre>
+        <SalesManagerForm sales_manager={sales_manager} />
+      
       </div>
     </div>
   );

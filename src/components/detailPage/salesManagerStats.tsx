@@ -4,8 +4,12 @@ import React from "react";
 import { Suspense } from "react";
 import Loader from "../ui/loader";
 import SimpleStat from "../ui/stats/simple";
-import SimpleTable from "../tables/simpleTable";
 import SalesManagerStatsTable from "../tables/salesManagerStatsTable";
+import LineChart from "../ui/charts/line";
+import { Typography } from "@material-tailwind/react";
+import { yearSelectOptions } from "@/utils/dateFnc";
+import { KpiCard } from "../ui/stats/KpiCard";
+import SimpleSelectInput from "../ui/inputs/simpleSelectInput";
 
 type SalesManagerStatsProps = {
   salesManager?: any;
@@ -25,14 +29,24 @@ export default function SalesManagerStats({
   const [apiData, setApiData] = React.useState<any[]>([]);
   const salesManagerId = salesManager?.id;
   const [selectedYear, setSelectedYear] = React.useState(2023);
+  const [chartSeries, setChartSeries] = React.useState<any[]>([
+    {
+      name: "Quarters",
+      data: [50, 40, 300, 320],
+    }
+  ]);
+
 
   const getApiData = async () => {
     if (!salesManagerId || selectedYear === 0) {
       return;
     }
 
+    // Clear the API data
+    setApiData([]);
+
     // Make get request to API
-    let url = `/api/sales-managers?id=${salesManagerId}&year=${selectedYear}`;
+    let url = `/api/sales-managers/transactions?id=${salesManagerId}&year=${selectedYear}`;
     const header = {
       method: "GET",
       headers: {
@@ -45,8 +59,30 @@ export default function SalesManagerStats({
     setApiData(data);
   };
 
+
+  // Spread the apiData quarter sums to the chartSeries
+  const updateChartSeries = () => {
+    const series = [
+      {
+        name: "Quarters",
+        data: [quarterSum(1), quarterSum(2), quarterSum(3), quarterSum(4)],
+      }
+    ];
+    setChartSeries(series);
+  }
+
   React.useEffect(() => {
-    getApiData();
+    updateChartSeries();
+  }, [apiData]);
+
+  React.useEffect(() => {
+    console.log("Selected year changed to: ", selectedYear);
+
+    const refetchData = async () => {
+      await getApiData();
+    }
+    refetchData();
+
   }, [selectedYear]);
 
 
@@ -70,14 +106,11 @@ export default function SalesManagerStats({
     let sum = 0;
     let count = 0;
     apiData.forEach((transaction) => {
-      if (transaction.year === selectedYear) {
-        // Sum only the positive amounts
-        if (transaction.amount > 0) {
-          sum += transaction.amount;
-        }
+      if (transaction.amount > 0) {
+        sum += transaction.amount;
+        count++;
       }
-    }
-    );
+    });
     return sum / 4;
   }
 
@@ -129,37 +162,42 @@ export default function SalesManagerStats({
   }
 
 
-  if (!salesManager) {
+  if (!salesManager || !apiData) {
     <Loader />;
   }
 
   return (
-    <div className="content-container ">
-      <div className="flex flex-row justify-center gap-4 mx-auto w-full">
-        <SimpleStat label="Celkem za členy v Q1" value={quarterSum(1)} />
-        <SimpleStat label="Celkem za členy v Q2" value={quarterSum(2)} />
-        <SimpleStat label="Celkem za členy v Q3" value={quarterSum(3)} />
-        <SimpleStat label="Celkem za členy v Q4" value={quarterSum(4)} />
-        <SimpleStat label="Celkem za rok" value={quarterSum(1) + quarterSum(2) + quarterSum(3) + quarterSum(4)} />
-      </div>
-      <div className="mx-auto w-full my-4">
-        <p>Klubové konto: {totalPoints}</p>
-        <p>Průměr za kvartál: {yearAverage()}</p>
-        <p>Počet zákazníků {numOfCusomers}</p>
-        <p>Počet aktivních zákazníků {numOfActiveCusomers}</p>
-      </div>
-      <div>
-        <label htmlFor="year">Select Year:</label>
-        <select
-          id="year"
-          value={selectedYear}
-          onChange={(e) => setSelectedYear(parseInt(e.target.value))}
-        >
-          <option value={0}>Select Year</option>
-          <option value={2021}>2021</option>
-          <option value={2022}>2022</option>
-          <option value={2023}>2023</option>
-        </select>
+    <div className="content-container pt-4">
+      <div className="w-full flex gap-4 mb-4">
+        <div className="w-1/3">
+          <Typography className="text-2xl font-bold" >{salesManager.fullName}</Typography>
+          <Typography className=" mb-2 font-light" >Statistika bodů pro obchodníka</Typography>
+          <SimpleSelectInput
+            label="Vybrat Rok..."
+            onChange={(value) => setSelectedYear(value)}
+            options={yearSelectOptions()}
+            value={selectedYear} // Ensure the value is also passed to maintain the controlled state
+          />
+
+          <div className="flex flex-col mx-auto w-full my-4 gap-2">
+            <SimpleStat label="Klubové body - Celkem" value={totalPoints} />
+            <SimpleStat label="Průmer za kvartál" value={yearAverage()} />
+            <KpiCard title="Počet zákazníků" price={numOfCusomers} percentage={numOfActiveCusomers - 50} color="green" icon="Aktivní" />
+          </div>
+        </div>
+
+        <div className="flex flex-col justify-center gap-4 mx-auto w-2/3">
+          <div className="flex justify-between">
+            <SimpleStat label="Celkem za členy v Q1" value={quarterSum(1)} />
+            <SimpleStat label="Celkem za členy v Q2" value={quarterSum(2)} />
+            <SimpleStat label="Celkem za členy v Q3" value={quarterSum(3)} />
+            <SimpleStat label="Celkem za členy v Q4" value={quarterSum(4)} />
+            <SimpleStat label="Celkem za rok" value={quarterSum(1) + quarterSum(2) + quarterSum(3) + quarterSum(4)} />
+          </div>
+          <LineChart series={chartSeries} title="Počet bodů za čtvrtletí" description="Počet bodů za členy, podle čtvrtletí pro obchodníka " />
+        </div>
+
+
       </div>
 
         {apiData.length > 0 ? <SalesManagerStatsTable detailLinkPath={"users/"} defaultData={calculateQuarterSums(apiData) } /> : <Loader />}

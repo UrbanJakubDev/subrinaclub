@@ -1,41 +1,20 @@
 "use client";
 import { Select, Option } from "@material-tailwind/react";
+import { ChangeEvent } from "react";
 
 
 type SelectFieldProps = {
   label: string;
-  name: string;
+  name?: string;
   options: any[];
   defaultValue: string | number | undefined;
   register?: any;
-  onChange?: any;
+  onChange?: (e: ChangeEvent<HTMLSelectElement>) => void;
   errors?: any;
+  value?: any;
 };
 
-const SelectField = ({ label, name, options, defaultValue, register = null, onChange, errors }: SelectFieldProps) => {
-  const inputClass = "max-w-sm border border-gray-300 rounded-md p-2";
-
-  if (!register) {
-    return (
-      <div className="flex flex-col">
-        <Select
-          label={label}
-          className={inputClass}
-          defaultValue={defaultValue}
-          onChange={onChange}
-        >
-          <Option value="0">Vyberte...</Option>
-          {options.map((option: any) => (
-            <Option key={option.id} value={option.id}>
-              {option.name || option.fullName || option.title || option}
-            </Option>
-          ))}
-        </Select>
-        {errors && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
-      </div>
-    );
-  }
-
+const SelectField = ({ label, name, options, defaultValue, register, onChange, errors, value }: SelectFieldProps) => {
   return (
     <div className="flex flex-col">
       <Select

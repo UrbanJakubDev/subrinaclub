@@ -9,14 +9,15 @@ type InputFieldProps = {
   register: any;
   disabled?: boolean;
   errors?: any;
+  customClass?: string;
 };
 
-const InputField = ({ label, name, type, defaultValue, register, disabled, errors }: InputFieldProps) => {
+const InputField = ({ label, name, type, defaultValue, register, disabled, errors, customClass }: InputFieldProps) => {
   // const inputClass = "max-w-sm border border-gray-300 rounded-md p-2";
   // const readOnlyClass = "bg-gray-100 cursor-not-allowed";
 
   return (
-    <div className="">
+    <div className={customClass}>
       {/* <label className="text-sm font-semibold text-gray-600">{label}</label> */}
       <Input
         size="md"

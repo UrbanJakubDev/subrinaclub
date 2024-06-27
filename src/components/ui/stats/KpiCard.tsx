@@ -3,8 +3,8 @@ import { Card, CardBody, Typography } from "@material-tailwind/react";
 
 interface KpiCardPropsType {
    title: string;
-   percentage: string;
-   price: string;
+   percentage: string | number;
+   price: string | number;
    color: string;
    icon: React.ReactNode;
  }

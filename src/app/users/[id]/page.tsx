@@ -5,9 +5,10 @@ import AccountForm from "@/components/forms/accountForm";
 import CustomerForm from "@/components/forms/customerForm";
 import SavingPeriodForm from "@/components/forms/savingPeriodForm";
 import Loader from "@/components/ui/loader";
+import { prisma } from "@/db/pgDBClient";
 import { getAccountByUserId } from "@/db/queries/accounts";
 import { CustomerService } from "@/db/queries/customers";
-import { getDealersForSelect } from "@/db/queries/dealers";
+import { DealerService } from "@/db/queries/dealers";
 import { getSalesManagersForSelect } from "@/db/queries/salesManagers";
 import { getSavingPeriodByUserId } from "@/db/queries/savingPeridos";
 import { getTransactionsByAccountId } from "@/db/queries/transactions";
@@ -22,10 +23,11 @@ export default async function UserDetail({
 
   // Define services for fetching data
   const customerService = new CustomerService();
+  const dealerService = new DealerService(prisma.dealer);
 
   // Fetch dealers and sales managers
   const [dealers, salesManagers] = await Promise.all([
-    getDealersForSelect(),
+    dealerService.getDealersForSelect(),
     getSalesManagersForSelect(),
   ]);
 

@@ -1,29 +1,35 @@
 export interface IDealer {
   id: number;
+  active: boolean;
+  registrationNumber: number;
+  fullName: string;
   publicId: string;
-  name: string;
+  birthDateD: Date | null;
+  ico: string;
+  phone: string;
+  email: string;
+  registratedSinceD: Date | null;
+  salonName: string;
   address: string;
   town: string;
   psc: string;
-  phone: string;
-  email: string;
-  note: string;
 }
 
 export interface ISalesManager {
   id: number;
-  publicId: string;
+  active: boolean;
+  registrationNumber: number;
   fullName: string;
-  birthDate: string;
-  birthDateD: Date;
+  publicId: string;
+  birthDateD: Date | null;
+  ico: string;
   phone: string;
   email: string;
-  registratedSince: string;
-  registratedSinceD: Date;
+  registratedSinceD: Date | null;
+  salonName: string;
   address: string;
   town: string;
   psc: string;
-  note: string;
   dealerId: number;
   dealer: IDealer;
 }

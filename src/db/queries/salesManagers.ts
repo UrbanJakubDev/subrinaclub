@@ -14,6 +14,27 @@ export async function getSalesManagerById(id: number) {
   return salesManager;
 }
 
+export async function createSalesManager(data: any) {
+  let salesManager = await prisma.salesManager.create({
+    data: {
+      ...data,
+    },
+  });
+  return salesManager;
+}
+
+export async function updateSalesManager(id: number, data: any) {
+  let salesManager = await prisma.salesManager.update({
+    where: {
+      id: id,
+    },
+    data: {
+      ...data,
+    },
+  });
+  return salesManager;
+}
+
 export async function getCustomersListBySalesManagerId(salesManagerId: number) {
   let customers = await prisma.customer.findMany({
     where: {

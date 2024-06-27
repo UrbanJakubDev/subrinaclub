@@ -1,8 +1,10 @@
+'use client'
+import { Card, CardBody, Typography } from '@material-tailwind/react';
 import React, { useState, useEffect } from 'react';
 
 type Props = {
-   label: string;
-   value: number;
+  label: string;
+  value: number;
 };
 
 const SimpleStat = ({ label, value }: Props) => {
@@ -33,10 +35,24 @@ const SimpleStat = ({ label, value }: Props) => {
   };
 
   return (
-    <div className="flex flex-col items-center border shadow-md p-8 my-2">
-      <p className="text-4xl font-bold text-brand drop-shadow-sm">{formatNumber(count)}</p>
-      <p className="text-sm text-gray-500">{label}</p>
-    </div>
+    <Card className="shadow-sm border border-gray-200 !rounded-lg">
+      <CardBody className="p-8">
+        <div className="flex justify-between items-center">
+           <Typography
+             className="!font-medium !text-xs text-gray-600"
+           >
+             {label}
+           </Typography>
+        
+         </div>
+         <Typography
+           color="blue-gray"
+           className="mt-1 font-bold text-4xl"
+         >
+           {formatNumber(count)}
+         </Typography>
+      </CardBody>
+    </Card>
   );
 };
 

@@ -6,15 +6,25 @@ const customerService = new CustomerService();
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
+  const ico = searchParams.get("ico");
 
-  if (!id) {
+  console.log("GET /api/customers", id, ico);
+
+  if (!id && !ico) {
     return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
+  }
+
+  if (ico !== null) {
+    const customer = await customerService.findCustomerByIcoOrFullName(ico);
+
+    return NextResponse.json(customer);
   }
 
   const customer = await customerService.getCustomerById(Number(id));
 
   return NextResponse.json(customer);
 }
+
 
 export async function POST(request: Request) {
   const body = await request.json();

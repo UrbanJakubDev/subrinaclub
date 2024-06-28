@@ -39,7 +39,7 @@ body {
 .content-container {
   @apply bg-gray-50;
   width: 11/12;
-  max-width: 1600px;
+  max-width: 1800px;
   margin: 0 auto;
   overflow: auto;
 }

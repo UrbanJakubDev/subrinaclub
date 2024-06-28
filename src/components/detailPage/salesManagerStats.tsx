@@ -200,7 +200,7 @@ export default function SalesManagerStats({
   }
 
   return (
-    <div className="content-container pt-4">
+    <>
       <div className="w-full flex gap-4 mb-4">
         <div className="w-1/3">
           <Typography className="text-2xl font-bold" >{salesManager.fullName}</Typography>
@@ -220,7 +220,7 @@ export default function SalesManagerStats({
         </div>
 
         <div className="flex flex-col justify-center gap-4 mx-auto w-2/3">
-          <div className="flex justify-between">
+          <div className="flex justify-between gap-2">
             <SimpleStat label="Celkem za členy v Q1" value={quarterSum(1)} />
             <SimpleStat label="Celkem za členy v Q2" value={quarterSum(2)} />
             <SimpleStat label="Celkem za členy v Q3" value={quarterSum(3)} />
@@ -235,6 +235,6 @@ export default function SalesManagerStats({
 
       {apiData.length > 0 ? <SalesManagerStatsTable detailLinkPath={"users/"} defaultData={calculateQuarterSums(apiData)} /> : <Loader />}
 
-    </div>
+    </>
   );
 }

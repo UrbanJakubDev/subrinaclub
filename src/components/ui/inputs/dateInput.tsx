@@ -1,7 +1,7 @@
 import { dbDateToInputDate } from "@/utils/dateFnc";
-import { Input } from "@material-tailwind/react";
+import { Input, Typography } from "@material-tailwind/react";
 
-const InputDateFiled = ({ label, name, type, defaultValue, register, errors, onChange }: any) => {
+const InputDateFiled = ({ label, name, type, defaultValue, register, errors, onChange, helperText }: any) => {
 
 
    let inputVal = dbDateToInputDate(defaultValue);
@@ -26,6 +26,13 @@ const InputDateFiled = ({ label, name, type, defaultValue, register, errors, onC
             defaultValue={inputVal} // Set default value
             {...register(name)} // Pass the register function
          />
+         <Typography
+            variant="small"
+            color="gray"
+            className="mt-2 flex justify-end gap-1 font-normal text-[0.7rem]"
+         >
+            {helperText}
+         </Typography>
       </div>
    );
 };

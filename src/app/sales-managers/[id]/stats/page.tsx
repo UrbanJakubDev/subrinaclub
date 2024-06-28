@@ -25,7 +25,7 @@ export default async function SalesManagersDetailStats({
         userName={salesManager.fullName}
         active={salesManager.active}
       />
-      <div className="flex ">
+      <div className="w-11/12 mx-auto">
         <SalesManagerStats
           salesManager={salesManager}
           totalPoints={totalPoints}

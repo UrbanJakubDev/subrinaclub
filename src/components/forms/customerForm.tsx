@@ -14,6 +14,7 @@ import SelectField from "../ui/inputs/selectInput";
 import TextAreaField from "../ui/inputs/textareaInput";
 import Loader from "../ui/loader";
 import { Button, Card } from "@material-tailwind/react";
+import { json } from "stream/consumers";
 
 type Props = {
   customer: ICustomer;
@@ -23,6 +24,7 @@ type Props = {
 export default function CustomerForm({ customer, dials }: Props) {
   const [loading, setLoading] = React.useState(false);
   const [customerData, setCustomerData] = React.useState<ICustomer>(customer);
+  const [canSaveCustomer, setCanSaveCustomer] = React.useState(true);
   const router = useRouter();
 
   const {
@@ -111,6 +113,41 @@ export default function CustomerForm({ customer, dials }: Props) {
     await getCustomerById(customer.id);
   };
 
+  // Fetch customer by ico or full name if customer is new after ico or full name is set
+  const checkCustomer = async () => {
+    const ico = watch(["ico"]);
+
+    if (ico) {
+      try {
+        const response = await fetch(`/api/customers?ico=${ico}`);
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.message);
+        }
+
+        if (result === null) {
+          setCanSaveCustomer(true)
+          return;
+        }
+
+        toast.info(`Zákazník: ${result.fullName} je již v databázi `);
+        setCanSaveCustomer(false)
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+  }
+
+  // Check if customer is new or existing on change the ico in the form but only uf the length of ico is 8
+  React.useEffect(() => {
+    if (customer.id === 0 && watch("ico").length === 8) {
+      checkCustomer();
+    }
+
+  }, [watch("ico")]);
+
+
   if (loading) {
     return <Loader />;
   }
@@ -157,6 +194,7 @@ export default function CustomerForm({ customer, dials }: Props) {
               name="registratedSinceD"
               register={register}
               defaultValue={customerData.registratedSinceD}
+              helperText="RRRR-MM-DD"
             />
           </div>
           <div className="flex gap-4">
@@ -175,6 +213,7 @@ export default function CustomerForm({ customer, dials }: Props) {
               register={register}
               defaultValue={customerData.birthDateD}
               errors={errors}
+              helperText="RRRR-MM-DD"
             />
 
             <InputField
@@ -278,7 +317,7 @@ export default function CustomerForm({ customer, dials }: Props) {
         </div>
 
         <div className="w-full flex justify-end gap-3 mt-4">
-          <Button onClick={handleSubmit(onSubmit)}>Uložit</Button>
+          <Button onClick={handleSubmit(onSubmit)} disabled={!canSaveCustomer}>Uložit</Button>
           <Button color="red" onClick={() => router.push("/users")}>Zrušit</Button>
         </div>
       </form>

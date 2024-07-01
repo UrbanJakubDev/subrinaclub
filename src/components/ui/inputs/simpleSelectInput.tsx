@@ -4,7 +4,7 @@ import { Select, Option } from "@material-tailwind/react";
 
 type SimpleSelectInputProps = {
   label: string;
-  options: { id: number; name: string }[];
+  options: { id: number | string; name: string }[];
   onChange: (value: number) => void;
   value: string | number | undefined;
 };

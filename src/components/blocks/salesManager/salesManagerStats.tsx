@@ -2,14 +2,14 @@
 
 import React from "react";
 import { Suspense } from "react";
-import Loader from "../ui/loader";
-import SimpleStat from "../ui/stats/simple";
-import SalesManagerStatsTable from "../tables/salesManagerStatsTable";
-import LineChart from "../ui/charts/line";
+import Loader from "../../ui/loader";
+import SimpleStat from "../../ui/stats/simple";
+import SalesManagerStatsTable from "../../tables/salesManagerStatsTable";
+import LineChart from "../../ui/charts/line";
 import { Typography } from "@material-tailwind/react";
 import { yearSelectOptions } from "@/utils/dateFnc";
-import { KpiCard } from "../ui/stats/KpiCard";
-import SimpleSelectInput from "../ui/inputs/simpleSelectInput";
+import { KpiCard } from "../../ui/stats/KpiCard";
+import SimpleSelectInput from "../../ui/inputs/simpleSelectInput";
 import { set } from "react-hook-form";
 
 type SalesManagerStatsProps = {
@@ -40,6 +40,9 @@ export default function SalesManagerStats({
       data: [50, 40, 300, 320],
     }
   ]);
+  const [chartCategories, setChartCategories] = React.useState<any[]>(
+    ["Q1", "Q2", "Q3", "Q4"]
+  );
 
 
   const fetchApi = async (year: Number) => {
@@ -227,7 +230,7 @@ export default function SalesManagerStats({
             <SimpleStat label="Celkem za členy v Q4" value={quarterSum(4)} />
             <SimpleStat label="Celkem za rok" value={quarterSum(1) + quarterSum(2) + quarterSum(3) + quarterSum(4)} />
           </div>
-          <LineChart series={chartSeries} title="Počet bodů za čtvrtletí" description="Počet bodů za členy, podle čtvrtletí pro obchodníka " />
+          <LineChart series={chartSeries} categories={chartCategories} title="Počet bodů za čtvrtletí" description="Počet bodů za členy, podle čtvrtletí pro obchodníka " />
         </div>
 
 

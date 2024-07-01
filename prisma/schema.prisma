@@ -170,8 +170,8 @@ model SavingPeriod {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  savingStartDate DateTime?
-  savingEndDate   DateTime?
+  savingStartDate String?
+  savingEndDate   String?
   balance         Float
 
   // Define relations

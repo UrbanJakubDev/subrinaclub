@@ -1,5 +1,5 @@
 import PageHeader from "@/components/detailPage/pageHeader";
-import SalesManagerStats from "@/components/detailPage/salesManagerStats";
+import SalesManagerStats from "@/components/blocks/salesManager/salesManagerStats";
 import { getCustomerCountBySalesManagerId, getCustomerCountBySalesManagerIdAndStatus, getSalesManagerById, getTotalAmountOfTransactionsBySalesManagerId, getTotalPointsBySalesManagerId } from "@/db/queries/salesManagers";
 
 export default async function SalesManagersDetailStats({
@@ -24,6 +24,7 @@ export default async function SalesManagersDetailStats({
         userId={salesManager.id.toString()}
         userName={salesManager.fullName}
         active={salesManager.active}
+        formUrl={`/sales-managers/${salesManager.id}`}
       />
       <div className="w-11/12 mx-auto">
         <SalesManagerStats

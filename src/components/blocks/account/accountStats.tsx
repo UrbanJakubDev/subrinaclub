@@ -1,29 +1,33 @@
 "use client";
 
-import { IAccount, ITransaction } from "@/interfaces/interfaces";
+
 import React, { use, useEffect, useState } from "react";
-import SimpleTable from "../tables/simpleTable";
-import { sumPosPointsInTransactions } from "@/utils/functions";
-import TransactionComponent from "../transactionForm";
-import InputField from "../ui/inputs/basicInput";
-import SelectField from "../ui/inputs/selectInput";
-import { yearSelectOptions } from "@/utils/dateFnc";
-import Button from "../ui/button";
-import SimpleStat from "../ui/stats/simple";
-import InputDateFiled from "../ui/inputs/dateInput";
-import TransactionsTable from "../tables/transactionsTable";
+import SimpleTable from "../../tables/simpleTable";
+import TransactionComponent from "../transaction";
+import InputField from "../../ui/inputs/basicInput";
+import SelectField from "../../ui/inputs/selectInput";
+import Button from "../../ui/button";
+import SimpleStat from "../../ui/stats/simple";
+import InputDateFiled from "../../ui/inputs/dateInput";
+import TransactionsTable from "../../tables/transactionsTable";
 import { set } from "react-hook-form";
+import SimpleSelectInput from "../../ui/inputs/simpleSelectInput";
+import { IAccount, ICustomer, ITransaction } from "../../../interfaces/interfaces";
+import { yearSelectOptions } from "../../../utils/dateFnc";
+import { sumPosPointsInTransactions } from "@/utils/functions";
+import { KpiCard } from "@/components/ui/stats/KpiCard";
+import { faSackDollar } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 type Props = {
+  customer: ICustomer;
   account: IAccount;
   transactions: any[];
 };
 
-export default function AccountStats({ account, transactions }: Props) {
+export default function AccountStats({ customer, account, transactions }: Props) {
   const [selectedYear, setSelectedYear] = React.useState(2024);
   const clubAccountBalance = sumPosPointsInTransactions(transactions);
-  const [transactionIsOpen, setTransactionIsOpen] = React.useState(false);
-  const [yearFilteredTransactions, setYearFilteredTransactions] = React.useState<ITransaction[]>([]);
 
   // Date for the year balance calculation
   const [yearBalanceDate, setYearBalanceDate] = useState(new Date("2024-01-01"));
@@ -34,13 +38,6 @@ export default function AccountStats({ account, transactions }: Props) {
     setYearBalance(sumNextTwoYears(yearBalanceDate, transactions));
   }
     , [yearBalanceDate, transactions]);
-
-  useEffect(() => {
-    // Clear the state when the selected year changes
-    setYearFilteredTransactions([]);
-    setYearFilteredTransactions(transactionsInYear(transactions, selectedYear));
-  }
-    , [selectedYear, transactions]);
 
 
   const getTransactions = async () => {
@@ -95,13 +92,6 @@ export default function AccountStats({ account, transactions }: Props) {
   };
 
 
-  const transactionsInYear = (transactions: ITransaction[], year: number) => {
-    return transactions.filter(
-      (transaction: ITransaction) => transaction.year === year
-    );
-  };
-
-
   function sumNextTwoYears(startingDate: Date, data: any): number {
     // Extract the starting year from the starting date
     const startingYear = startingDate.getFullYear();
@@ -130,38 +120,25 @@ export default function AccountStats({ account, transactions }: Props) {
     <div className="flex flex-col gap-10">
       {/* <TransactionComponent account={account} onTransactionCreated={getTransactions} /> */}
       <div className="border p-4 bg-zinc-50">
-        <h2>Statistika bodů na účtu s id: {account.id}</h2>
-        <div>
-          <SelectField
-            label="Rok"
-            name="year"
-            defaultValue="0"
+        <h2>Statistika bodů na účtu s id: {account.id} pro zákazníka - {customer.fullName}</h2>
+        <div className="mt-2">
+          <SimpleSelectInput
+            label="Vybrat Rok..."
+            onChange={(value) => setSelectedYear(value)}
             options={yearSelectOptions()}
-            onChange={(e: any) => setSelectedYear(parseInt(e.target.value))}
+            value={selectedYear} // Ensure the value is also passed to maintain the controlled state
           />
-
-          <InputDateFiled
-            label="Datum pro výpočet stavu šetřícího účtu"
-            name="yearBalanceDate"
-            defaultValue={yearBalanceDate}
-            onChange={(date: string) => setYearBalanceDate(new Date(date))}
-          />
-
 
         </div>
 
         <div className="flex flex-row justify-stretch mx-auto">
-          <SimpleStat label="Stav zákaznického konta" value={clubAccountBalance} />
-          <SimpleStat label={`Stav šetřícího konta od: ${yearBalanceDate.toLocaleDateString()}`} value={yearBalance} />
-          <SimpleStat label={`Suma bodů získaných ve vybraném roce: ${selectedYear === 0 ? "Nevybráno" : selectedYear}`} value={sumPointsInYear(transactions, selectedYear)} />
-          <SimpleStat label="Průměr bodů získaných za poslední 4 roky" value={fourYearAverage(transactions, selectedYear)} />
+          <KpiCard title="Bodový stav na konci roku" percentage={""} price={clubAccountBalance} color={""} />
+          <KpiCard title={`Suma bodů získaných ve vybraném roce: ${selectedYear === 0 ? "Nevybráno" : selectedYear}`}  percentage={""} price={sumPointsInYear(transactions, selectedYear)}  color={""} />
+          <KpiCard title="Průměr bodů získaných za poslední 4 roky"  percentage={""} price={fourYearAverage(transactions, selectedYear)} color={""} />
         </div>
       </div>
 
 
-      <pre>
-        {JSON.stringify(account, null, 2)}
-      </pre>
 
       {/* <div className="justify-between border bg-zinc-50 p-4">
         <div>
@@ -173,3 +150,5 @@ export default function AccountStats({ account, transactions }: Props) {
     </div>
   );
 }
+
+

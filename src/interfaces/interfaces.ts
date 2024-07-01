@@ -83,3 +83,14 @@ export interface ITransaction {
   bonusAmount: number;
   accountId: number;
 }
+
+export interface ISavingPeriod {
+  id: number;
+  active: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  savingStartDate: String
+  savingEndDate: String
+  balance: number;
+  account: IAccount;
+}

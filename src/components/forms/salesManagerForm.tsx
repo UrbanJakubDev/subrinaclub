@@ -78,6 +78,7 @@ export default function SalesManagerForm({ sales_manager }: Props) {
 
   return (
    <Card className="mx-auto p-4">
+      <h2 className="text-2xl font-semibold">Detail prodejce - {sales_manager.fullName}</h2>
       <form>
         <div className="flex flex-col gap-6 my-6">
           <div className="flex gap-4">

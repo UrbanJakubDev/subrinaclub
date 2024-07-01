@@ -17,10 +17,11 @@ type Props = {
    title: string;
    description: string;
    series: any;
+   categories: any;
 }
 
 
-export default function LineChart({ title, description, series }: Props) {
+export default function LineChart({ title, description, series, categories }: Props) {
 
    const chartConfig = {
       type: "bar",
@@ -60,12 +61,7 @@ export default function LineChart({ title, description, series }: Props) {
                   fontWeight: 400,
                },
             },
-            categories: [
-               "Q1",
-               "Q2",
-               "Q3",
-               "Q4",
-            ],
+            categories: categories,
          },
          yaxis: {
             labels: {

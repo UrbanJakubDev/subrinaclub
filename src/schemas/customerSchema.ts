@@ -33,3 +33,18 @@ export const transactionValidationSchema = yup.object().shape({
   bonusAmount: yup.number(),
   accountId: yup.number(),
 });
+
+export const accountValidationSchema = yup.object().shape({
+  balance: yup.number(),
+  balancePointsCorrection: yup.number(),
+});
+
+export const savingPeriodValidationSchema = yup.object().shape({
+  year: yup.number().required(),
+  quarter: yup.number().required(),
+  amount: yup.number().required(),
+  savingStartDate: yup.date().required(),
+  savingEndDate: yup.date().required(),
+  active: yup.boolean().required(),
+  accountId: yup.number().required(),
+});

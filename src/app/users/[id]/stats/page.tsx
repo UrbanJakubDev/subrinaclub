@@ -1,6 +1,7 @@
-import AccountStats from "@/components/account/accountStats";
+import AccountStats from "@/components/blocks/account/accountStats";
 import PageHeader from "@/components/detailPage/pageHeader";
 import TransactionsTable from "@/components/tables/transactionsTable";
+import Loader from "@/components/ui/loader";
 import { getAccountByUserId } from "@/db/queries/accounts";
 import { CustomerService } from "@/db/queries/customers";
 import { getTransactionsByAccountId } from "@/db/queries/transactions";
@@ -25,9 +26,11 @@ export default async function UserDetailStats({
         userName={customer.fullName}
         userId={customer.id.toString()}
         active={customer.active}
+        accountUrl={`/accounts/${account.id}`}
+        formUrl={`/users/${customer.id}`}
       />
       <div className="content-container p-6 my-2">
-        <AccountStats account={account} transactions={transactions} />
+        <AccountStats customer={customer} account={account} transactions={transactions} />
       </div>
       <div className="content-container p-6 my-2 ">
         <h2>Přehled všech transakcí</h2>

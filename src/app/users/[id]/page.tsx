@@ -1,9 +1,6 @@
-import AccountStats from "@/components/account/accountStats";
-import AccountDetail from "@/components/account/detail";
+
 import PageHeader from "@/components/detailPage/pageHeader";
-import AccountForm from "@/components/forms/accountForm";
 import CustomerForm from "@/components/forms/customerForm";
-import SavingPeriodForm from "@/components/forms/savingPeriodForm";
 import Loader from "@/components/ui/loader";
 import { prisma } from "@/db/pgDBClient";
 import { getAccountByUserId } from "@/db/queries/accounts";
@@ -12,8 +9,11 @@ import { DealerService } from "@/db/queries/dealers";
 import { getSalesManagersForSelect } from "@/db/queries/salesManagers";
 import { getSavingPeriodByUserId } from "@/db/queries/savingPeridos";
 import { getTransactionsByAccountId } from "@/db/queries/transactions";
-import { IAccount, ICustomer } from "@/interfaces/interfaces";
+import { ICustomer } from "@/interfaces/interfaces";
 import { Suspense } from "react";
+import AccountDetail from "@/components/blocks/account/detail";
+import SavingPeriodStats from "@/components/blocks/savingPeriod/savingPeriodStats";
+import TransactionComponent from "@/components/blocks/transaction";
 
 export default async function UserDetail({
   params,
@@ -85,11 +85,13 @@ export default async function UserDetail({
 
   return (
 
-    <div className="content-container p-6 my-2 flex flex-col h-11/12 bg-blue-gray-400" >
+    <div className="content-container p-6 my-2 flex flex-col h-11/12" >
       <PageHeader
         userName={customer.fullName || "Nový zákazník"}
         userId={customer.id.toString()}
         active={customer.active}
+        accountUrl={`/accounts/${account.id}`}
+        statsUrl={`/users/${customer.id}/stats`}
       />
       <div className="flex flex-grow gap-4 p-2">
         <div className="h-full w-full">
@@ -99,19 +101,14 @@ export default async function UserDetail({
             <CustomerForm customer={customer} dials={{ dealers, salesManagers }} />
           </Suspense>
         </div>
-        <div className="h-full w-full">
-
-          {customerId && account && transactions && (
-            <>
-              <h2 className="text-lg font-semibold">Přehled - účtu</h2>
-              <small className=" text-gray-700">Přehled atributů pro ůčet s ID: {account.id}</small>
-              <AccountDetail account={account} />
-              <SavingPeriodForm savingPeriod={savingPeriod} />
-            </>
-          )}
-        </div>
+        {customerId && account && transactions && (
+          <div className="h-full w-full flex flex-col gap-6">
+            <AccountDetail account={account} />
+            <SavingPeriodStats savingPeriod={savingPeriod} />
+            <TransactionComponent account={account}/>
+          </div>
+        )}
       </div>
-
     </div>
   );
 }

@@ -22,17 +22,17 @@ export default async function SalesManagersDetail({
   if (!sales_manager) {
     return <div>Loading...</div>;
   }
-
   return (
-    <div className="content-container">
+    <div className="content-container p-6 my-2">
       <div>
         <PageHeader
-          userName={sales_manager?.fullName}
+          userName={sales_manager.fullName}
           userId={sales_manager_id.toString()}
           active={sales_manager?.active}
+          statsUrl={`/sales-managers/${sales_manager_id}/stats`}
         />
       </div>
-      <div>
+      <div className="mx-auto w-8/12">
         <SalesManagerForm sales_manager={sales_manager} />
       
       </div>

@@ -71,6 +71,15 @@ export async function getTransactionsByAccountId(accountId: number) {
  * @returns The newly created transaction.
  */
 export async function addTransaction(transaction: any) {
+
+  if (transaction.type === "1") {
+    transaction.type = "DEPOSIT";
+  }
+
+  if (transaction.type === "2") {
+    transaction.type = "WITHDRAW";
+  }
+
   const newTransaction = await prisma.transaction.create({
     data: transaction,
   });
@@ -134,4 +143,94 @@ export async function getTotalDepositsByAccountId(accountId: number) {
   , 0);
   return total + account.balancePointsCorrection;
 
+}
+
+// Get the total of deposits for selected year based on the account ID
+export async function getTotalDepositsByAccountIdAndYear(accountId: number, year: number) {
+  const totalDeposits = await prisma.transaction.aggregate({
+    _sum: {
+      amount: true,
+    },
+    where: {
+      accountId: accountId,
+      year: year,
+      type: "DEPOSIT",
+    },
+  });
+
+  return totalDeposits._sum.amount || 0;
+}
+
+
+// Get the sum of transaction for account ID and between two dates
+export async function getSumOfTransactionsByAccountIdAndDate(accountId: number, startDate: string, endDate: string) {
+  
+  let [ startYear, startQuarter ] = startDate.split("-");
+  let [endYear, endQuarter ] = endDate.split("-");
+  
+  const sumResult = await prisma.transaction.aggregate({
+    _sum: {
+      amount: true,
+    },
+    where: {
+      accountId: accountId,
+      OR: [
+        {
+          year: parseInt(startYear),
+          quarter: {
+            gte: parseInt(startQuarter),
+          },
+        },
+        {
+          year: parseInt(endYear),
+          quarter: {
+            lte: parseInt(endQuarter),
+          },
+        },
+        {
+          year: {
+            gt: parseInt(startYear),
+            lt: parseInt(endYear),
+          },
+        },
+      ],
+    },
+  });
+
+  return sumResult._sum.amount || 0;
+}
+
+// Get the list of transactions for the account ID and between two dates
+export async function getTransactionsByAccountIdAndDate(accountId: number, startDate: string, endDate: string) {
+  
+  let [ startYear, startQuarter ] = startDate.split("-");
+  let [endYear, endQuarter ] = endDate.split("-");
+  
+  const transactions = await prisma.transaction.findMany({
+    where: {
+      accountId: accountId,
+      OR: [
+        {
+          year: parseInt(startYear),
+          quarter: {
+            gte: parseInt(startQuarter),
+          },
+        },
+        {
+          year: parseInt(endYear),
+          quarter: {
+            lte: parseInt(endQuarter),
+          },
+        },
+        {
+          year: {
+            gt: parseInt(startYear),
+            lt: parseInt(endYear),
+          },
+        },
+      ],
+    },
+  });
+
+  return transactions;
 }

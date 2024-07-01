@@ -1,19 +1,18 @@
-"use client"
-
-import { IAccount, ITransaction } from '@/interfaces/interfaces';
-import React, { use, useEffect } from 'react'
+"use client";
+import { ITransaction } from '@/interfaces/interfaces';
+import React, { useEffect } from 'react';
 import InputField from '../ui/inputs/basicInput';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { transactionValidationSchema } from '@/schemas/customerSchema';
 import Button from '../ui/button';
-import SelectField from '../ui/inputs/selectInput';
 import { quarterSelectOptions, yearSelectOptions } from '@/utils/dateFnc';
-import { TransactionType } from '@prisma/client';
 import InputDateFiled from '../ui/inputs/dateInput';
 import { toast } from 'react-toastify';
 import Loader from '../ui/loader';
+import { Card } from '@material-tailwind/react';
+import SimpleSelectInput from '../ui/inputs/simpleSelectInput';
 
 type Props = {
    accountId: number;
@@ -32,6 +31,7 @@ const TransactionForm = (props: Props) => {
       handleSubmit,
       formState: { errors },
       watch,
+      control,
    } = useForm({
       resolver: yupResolver(transactionValidationSchema),
    })
@@ -72,87 +72,135 @@ const TransactionForm = (props: Props) => {
    }
 
    return (
-      <div>
-         <form>
-            <div className='flex flex-row gap-4'>
-               <SelectField
-                  label="Year"
-                  name="year"
-                  options={yearSelectOptions()}
-                  defaultValue={new Date().getFullYear().toString()}
-                  register={register}
-                  errors={errors}
+      <Card className='mx-auto p-4 w-full'>
+         <h1 className="text-2xl font-bold text-center">Přidat novou transakci</h1>
+         <div className='p-4'>
+            <form>
+               <div className='flex flex-row gap-4'>
+                  <Controller
+                     name="year"
+                     control={control}
+                     defaultValue={new Date().getFullYear()}
+                     rules={{ required: "Year is required" }}
+                     render={({ field }) => (
+                        <div>
+                           <SimpleSelectInput
+                              label="Vybrat Rok..."
+                              options={yearSelectOptions()}
+                              value={field.value}
+                              onChange={field.onChange}
+                           />
+                           {errors.year && (
+                              <span className="text-red-500 text-xs">
+                                 {errors.year.message}
+                              </span>
+                           )}
+                        </div>
+                     )}
+                  />
 
-               />
-               <SelectField
-                  label="Quarter"
-                  name="quarter"
-                  options={quarterSelectOptions()}
-                  defaultValue={Math.ceil((new Date().getMonth() + 1) / 3).toString()}
-                  register={register}
-                  errors={errors}
-               />
-               <SelectField
-                  label="Type"
-                  name="type"
-                  options={[
-                     { id: 'DEPOSIT', name: 'Vložení' },
-                     { id: 'WITHDRAW', name: 'Výběr' },
-                  ]}
-                  defaultValue={transactionType}
-                  register={register}
-                  errors={errors}
-               />
-            </div>
-            <div className='mb-4'>
-               <InputField
-                  label="Množství"
-                  type="number"
-                  name="amount"
-                  register={register}
-                  errors={errors}
-               />
-            </div>
+                  <Controller
+                     name="quarter"
+                     control={control}
+                     defaultValue={1}
+                     rules={{ required: "Quarter is required" }}
+                     render={({ field }) => (
+                        <div>
+                           <SimpleSelectInput
+                              label="Vybrat Kvartál..."
+                              options={quarterSelectOptions()}
+                              value={field.value}
+                              onChange={field.onChange}
+                           />
+                           {errors.quarter && (
+                              <span className="text-red-500 text-xs">
+                                 {errors.quarter.message}
+                              </span>
+                           )}
+                        </div>
+                     )}
+                  />
 
-            {transactionType === TransactionType.WITHDRAW && (
+                  <Controller
+                     name="type"
+                     control={control}
+                     defaultValue={"1"}
+                     rules={{ required: "Type is required" }}
+                     render={({ field }) => (
+                        <div>
+                           <SimpleSelectInput
+                              label="Vybrat Typ..."
+                              options={[
+                                 { id: 1, name: "Vklad" },
+                                 { id: 2, name: "Výběr" },
+                              ]}
+                              value={field.value}
+                              onChange={field.onChange}
+                           />
+                           {errors.type && (
+                              <span className="text-red-500 text-xs">
+                                 {errors.type.message}
+                              </span>
+                           )}
+                        </div>
+                     )}
+                  />
+
+               </div>
                <div className='mb-4'>
                   <InputField
-                     label="Description"
-                     type="text"
-                     name="description"
-                     register={register}
-                     errors={errors}
-                  />
-                  <InputDateFiled
-                     label="Přijetí objednávky"
-                     name="acceptedBonusOrder"
-                     register={register}
-                     errors={errors}
-                  />
-                  <InputDateFiled
-                     label="Odeslání Bonusu"
-                     name="sentBonusOrder"
-                     register={register}
-                     errors={errors}
-                  />
-                  <InputField
-                     label="Bonus - cena"
+                     label="Množství"
                      type="number"
-                     name="bonusAmount"
-                     register={register}
-                     errors={errors}
-                  />
-                  <InputField
-                     label="Bonus - jméno"
-                     name="bonusName"
+                     name="amount"
                      register={register}
                      errors={errors}
                   />
                </div>
-            )}
-            <Button variant='primary' onClick={handleSubmit(onSubmit)} >Submit</Button>
-         </form >
-      </div >
+
+               {transactionType === "2" && (
+                  <div className='mb-4'>
+                     <InputField
+                        label="Description"
+                        type="text"
+                        name="description"
+                        register={register}
+                        errors={errors}
+                     />
+                     <InputDateFiled
+                        label="Přijetí objednávky"
+                        name="acceptedBonusOrder"
+                        register={register}
+                        errors={errors}
+                     />
+                     <InputDateFiled
+                        label="Odeslání Bonusu"
+                        name="sentBonusOrder"
+                        register={register}
+                        errors={errors}
+                     />
+                     <InputField
+                        label="Bonus - cena"
+                        type="number"
+                        name="bonusAmount"
+                        register={register}
+                        errors={errors}
+                     />
+                     <InputField
+                        label="Bonus - jméno"
+                        name="bonusName"
+                        register={register}
+                        errors={errors}
+                     />
+                  </div>
+               )}
+               <Button variant='primary' onClick={handleSubmit(onSubmit)} >Submit</Button>
+
+            </form >
+         </div>
+         {/* <pre>
+            {JSON.stringify(watch(), null, 2)}
+         </pre> */}
+      </Card >
    )
 }
 

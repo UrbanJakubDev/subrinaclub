@@ -1,7 +1,7 @@
 'use client'
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { faPenToSquare, faChartSimple } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare, faChartSimple, faSackDollar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@material-tailwind/react";
 import type { ButtonStyleTypes } from "@material-tailwind/react";
@@ -10,17 +10,18 @@ type Props = {
   userName: string;
   userId: string;
   active: number | boolean;
-  url?: string;
+  formUrl?: string;
+  accountUrl?: string;
+  statsUrl?: string;
 };
 
-export default function PageHeader({ userName, userId, active, url }: Props) {
+export default function PageHeader({ userName, userId, active, formUrl, accountUrl, statsUrl }: Props) {
 
   // Get actual path for conditional rendering
   const pathname = usePathname()
 
   // Get first part of the path
   const path = pathname.split("/")[1]
-
 
   return (
     <div className="pb-4 border-b">
@@ -31,35 +32,35 @@ export default function PageHeader({ userName, userId, active, url }: Props) {
             <Button>{"<<"}</Button>
           </Link>
         </div>
-        <div>
-          {pathname.includes("stats") ? (
-            <Link href={`/${path}/${userId}`}>
-              <Button variant="primary"><FontAwesomeIcon icon={faPenToSquare} /></Button>
-            </Link>
-          ) : (
-            <Link href={`/${path}/${userId}/stats`}>
-              <Button variant="primary"><FontAwesomeIcon icon={faChartSimple} /></Button>
+        <div className="flex gap-2">
+          {formUrl && (
+            <Link href={formUrl}>
+              <Button color="lightBlue" ripple="light">
+                <FontAwesomeIcon icon={faPenToSquare} />
+              </Button>
             </Link>
           )}
-          
+
+
+          {accountUrl && (
+            <Link href={accountUrl}>
+              <Button color="lightBlue" ripple="light">
+              <FontAwesomeIcon icon={faSackDollar} />
+              </Button>
+            </Link>
+          )}
+
+          {statsUrl && (
+            <Link href={statsUrl}>
+              <Button color="lightBlue" ripple="light">
+                <FontAwesomeIcon icon={faChartSimple} />
+              </Button>
+            </Link>
+          )}
 
         </div>
       </div>
-      {/* <div>
-        {userName && userId ? (
-          <>
-            <h1 className="text-2xl font-bold text-gray-900">{userName}</h1>
-            <div className="flex flex-row gap-4 items-start">
-              <span className="text-sm text-gray-500">ID: {userId}</span>
-              <span className="text-sm text-gray-500">
-                Active: {active ? "Yes" : "No"}
-              </span>
-            </div>
-          </>
-        ) : (
-          <h1 className="text-2xl font-bold text-gray-900">User</h1>
-        )}
-      </div> */}
+
     </div>
   );
 }

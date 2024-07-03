@@ -20,7 +20,7 @@ type Props = {
 
 const AccountDetail = async ({ account }: Props) => {
    const clubPoints = await getTotalDepositsByAccountId(account.id);
-   const yearPoints = await getTotalDepositsByAccountIdAndYear(account.id, new Date().getFullYear()-1);
+   const yearPoints = await getTotalDepositsByAccountIdAndYear(account.id, new Date().getFullYear());
 
    return (
       <>

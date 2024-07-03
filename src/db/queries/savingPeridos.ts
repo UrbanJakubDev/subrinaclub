@@ -24,6 +24,7 @@ export async function getSavingPeriodByUserId(userId: number) {
          account: {
             customerId: userId,
          },
+         active: true,
       },
    });
    return savingPeriod;

@@ -5,22 +5,26 @@ import { prisma } from '../pgDBClient';
 // basic CRUD operations for customers
 
 export class CustomerService {
-    // Create a new customer
     async createCustomer(customer: Customer): Promise<Customer> {
-        // Make the unique publicId for the customer from the registrationNumber and UUID
-        const publicId = `${customer.registrationNumber}SU${Math.random()
+        // Generate a unique publicId for the customer
+        customer.publicId = `${customer.registrationNumber}SU${Math.random()
             .toString(36)
             .substr(2, 9)}`;
-        customer.publicId = publicId;
         customer.active = customer.active ? 1 : 0;
-        customer.dealerId = customer.dealerId === 0 ? null : customer.dealerId;
-        customer.salesManagerId = customer.salesManagerId === 0 ? null : customer.salesManagerId;
+        customer.dealerId = customer.dealerId || null;
+        customer.salesManagerId = customer.salesManagerId || null;
 
-        // Create the customer and his lifetime account
+        const currentYear = new Date().getFullYear();
+        const currentQuarter = Math.floor((new Date().getMonth() + 3) / 3);
+        const savingStartDate = `${currentYear}-${currentQuarter}`;
+        const savingEndDate = `${currentYear + 2}-${currentQuarter}`;
+
+        // Create the customer
         const newCustomer = await prisma.customer.create({
             data: customer,
         });
 
+        // Create the lifetime account for the customer
         const newAccount = await prisma.account.create({
             data: {
                 type: 'LIFETIME',
@@ -29,6 +33,16 @@ export class CustomerService {
                 openedAt: new Date(),
                 closedAt: null,
                 customerId: newCustomer.id,
+            },
+        });
+
+        // Create saving period for the account
+        await prisma.savingPeriod.create({
+            data: {
+                savingStartDate: savingStartDate,
+                savingEndDate: savingEndDate,
+                balance: 0,
+                accountId: newAccount.id,
             },
         });
 
@@ -185,7 +199,7 @@ export class CustomerService {
     async findCustomerByIcoOrFullName(ico: string): Promise<Customer> {
         const customer = await prisma.customer.findFirst({
             where: {
-               ico: ico,
+                ico: ico,
             },
         });
         return customer;

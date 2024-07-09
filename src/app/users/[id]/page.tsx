@@ -14,6 +14,7 @@ import { Suspense } from "react";
 import AccountDetail from "@/components/blocks/account/detail";
 import SavingPeriodStats from "@/components/blocks/savingPeriod/savingPeriodStats";
 import TransactionComponent from "@/components/blocks/transaction";
+import ModalComponent from "@/components/ui/modal";
 
 export default async function UserDetail({
   params,
@@ -105,10 +106,11 @@ export default async function UserDetail({
           <div className="h-full w-full flex flex-col gap-6">
             <AccountDetail account={account} />
             <SavingPeriodStats savingPeriod={savingPeriod} />
-            <TransactionComponent account={account}/>
+            <TransactionComponent account={account} />
           </div>
         )}
       </div>
+
     </div>
   );
 }

@@ -40,11 +40,6 @@ export const accountValidationSchema = yup.object().shape({
 });
 
 export const savingPeriodValidationSchema = yup.object().shape({
-  year: yup.number().required(),
-  quarter: yup.number().required(),
-  amount: yup.number().required(),
-  savingStartDate: yup.date().required(),
-  savingEndDate: yup.date().required(),
-  active: yup.boolean().required(),
-  accountId: yup.number().required(),
+  savingStartDate: yup.string().required(),
+  savingEndDate: yup.string().required(),
 });

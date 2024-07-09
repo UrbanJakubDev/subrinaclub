@@ -13,6 +13,7 @@ import { toast } from 'react-toastify';
 import Loader from '../ui/loader';
 import { Card } from '@material-tailwind/react';
 import SimpleSelectInput from '../ui/inputs/simpleSelectInput';
+import ModalComponent from '../ui/modal';
 
 type Props = {
    accountId: number;
@@ -21,8 +22,9 @@ type Props = {
 
 const TransactionForm = (props: Props) => {
    const [transaction, setTransaction] = React.useState<ITransaction>()
-   const [transactionType, setTransactionType] = React.useState<string>("DEPOSIT")
+   const [transactionType, setTransactionType] = React.useState<number>()
    const [loading, setLoading] = React.useState(false)
+   const [modalOpen, setModalOpen] = React.useState(false)
    const router = useRouter()
 
 
@@ -73,7 +75,8 @@ const TransactionForm = (props: Props) => {
 
    return (
       <Card className='mx-auto p-4 w-full'>
-         <h1 className="text-2xl font-bold text-center">Přidat novou transakci</h1>
+         <Button onClick={() => setModalOpen(true)} >Přidat transakci</Button>
+         <ModalComponent show={modalOpen} onClose={() => setModalOpen(false)} >
          <div className='p-4'>
             <form>
                <div className='flex flex-row gap-4'>
@@ -89,7 +92,7 @@ const TransactionForm = (props: Props) => {
                               options={yearSelectOptions()}
                               value={field.value}
                               onChange={field.onChange}
-                           />
+                              />
                            {errors.year && (
                               <span className="text-red-500 text-xs">
                                  {errors.year.message}
@@ -97,7 +100,7 @@ const TransactionForm = (props: Props) => {
                            )}
                         </div>
                      )}
-                  />
+                     />
 
                   <Controller
                      name="quarter"
@@ -111,7 +114,7 @@ const TransactionForm = (props: Props) => {
                               options={quarterSelectOptions()}
                               value={field.value}
                               onChange={field.onChange}
-                           />
+                              />
                            {errors.quarter && (
                               <span className="text-red-500 text-xs">
                                  {errors.quarter.message}
@@ -119,7 +122,7 @@ const TransactionForm = (props: Props) => {
                            )}
                         </div>
                      )}
-                  />
+                     />
 
                   <Controller
                      name="type"
@@ -136,7 +139,7 @@ const TransactionForm = (props: Props) => {
                               ]}
                               value={field.value}
                               onChange={field.onChange}
-                           />
+                              />
                            {errors.type && (
                               <span className="text-red-500 text-xs">
                                  {errors.type.message}
@@ -144,7 +147,7 @@ const TransactionForm = (props: Props) => {
                            )}
                         </div>
                      )}
-                  />
+                     />
 
                </div>
                <div className='mb-4'>
@@ -154,10 +157,10 @@ const TransactionForm = (props: Props) => {
                      name="amount"
                      register={register}
                      errors={errors}
-                  />
+                     />
                </div>
 
-               {transactionType === "2" && (
+               {transactionType === 2 && (
                   <div className='mb-4'>
                      <InputField
                         label="Description"
@@ -165,41 +168,42 @@ const TransactionForm = (props: Props) => {
                         name="description"
                         register={register}
                         errors={errors}
-                     />
+                        />
                      <InputDateFiled
                         label="Přijetí objednávky"
                         name="acceptedBonusOrder"
                         register={register}
                         errors={errors}
-                     />
+                        />
                      <InputDateFiled
                         label="Odeslání Bonusu"
                         name="sentBonusOrder"
                         register={register}
                         errors={errors}
-                     />
+                        />
                      <InputField
                         label="Bonus - cena"
                         type="number"
                         name="bonusAmount"
                         register={register}
                         errors={errors}
-                     />
+                        />
                      <InputField
                         label="Bonus - jméno"
                         name="bonusName"
                         register={register}
                         errors={errors}
-                     />
+                        />
                   </div>
                )}
                <Button variant='primary' onClick={handleSubmit(onSubmit)} >Submit</Button>
 
             </form >
          </div>
+         </ModalComponent>
          {/* <pre>
             {JSON.stringify(watch(), null, 2)}
-         </pre> */}
+            </pre> */}
       </Card >
    )
 }

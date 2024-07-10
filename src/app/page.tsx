@@ -1,3 +1,4 @@
+import Donut from "@/components/ui/charts/donutChart";
 
 export default async function Home() {
 
@@ -5,6 +6,9 @@ export default async function Home() {
   return (
     <div className="content-container">
       Subrina club
+      <div className="flex px-6 gap-4">
+        <Donut />
+      </div>
     </div>
   );
 }

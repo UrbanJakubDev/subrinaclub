@@ -4,7 +4,7 @@ import React from "react"
 import Filter from "./baseTableFnc"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCheck, faSort, faSortDown, faSortUp, faTimes, faXmark } from "@fortawesome/free-solid-svg-icons"
-import { Button, Card, Input, Option, Select } from "@material-tailwind/react"
+import { Button, Card, Chip, Input, Option, Select } from "@material-tailwind/react"
 
 
 
@@ -39,6 +39,16 @@ export default function MyTable({
       // autoResetPageIndex: false, // turn off page index reset when sorting or filtering
    })
 
+   // Render Chip
+   const ChipComponent = ({ value }: { value: any }) => {
+      if (value > 3000) {
+          return <Chip color="amber" value={value} />;
+      } else if (value > 1000) {
+          return <Chip variant="ghost" value={value} />;
+      } else {
+          return value;
+      }
+  };
 
 
 
@@ -87,18 +97,23 @@ export default function MyTable({
                               return (
                                  <td key={cell.id} className=" whitespace-nowrap text-center">
                                     {
-
-                                       // If the cell value is true or false, render a checkmark or an X
-                                       typeof cell.getValue() === 'boolean' ? (
-                                          cell.getValue() ? (
-                                             <FontAwesomeIcon icon={faCheck} style={{ color: "#00ff00", }} />
-                                          ) : (
-                                             <FontAwesomeIcon icon={faXmark} style={{ color: "#ff0000", }} />
-                                          )
+                                       // If the cell accssorKey is "totalPoints", render the value in bold
+                                       cell.column.columnDef.accessorKey === 'totalPoints' ? (
+                                          <ChipComponent value={cell.getValue()} />
                                        ) : (
-                                          flexRender(cell.column.columnDef.cell, cell.getContext())
-                                       )
 
+
+                                          // If the cell value is true or false, render a checkmark or an X
+                                          typeof cell.getValue() === 'boolean' ? (
+                                             cell.getValue() ? (
+                                                <FontAwesomeIcon icon={faCheck} style={{ color: "#00ff00", }} />
+                                             ) : (
+                                                <FontAwesomeIcon icon={faXmark} style={{ color: "#ff0000", }} />
+                                             )
+                                          ) : (
+                                             flexRender(cell.column.columnDef.cell, cell.getContext())
+                                          )
+                                       )
 
                                     }
                                  </td>

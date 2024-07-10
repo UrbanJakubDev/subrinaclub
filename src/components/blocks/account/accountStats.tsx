@@ -240,10 +240,10 @@ export default function AccountStats({ customer, account, transactions }: Props)
 
       <div className="border bg-zinc-50 p-4">
         <h2>Nejoblíbenější produkt</h2>
-        <div className="flex w-full">
+        <div className="grid grid-cols-4 w-full">
           {Object.keys(mostFavouriteProductValue).map((key) => {
             return (
-              <div key={key} className="w-1/3">
+              <div key={key} className="w-full">
                 <KpiCard title={key} percentage={` ${mostFavouriteProductValue[key].sum} bodů`} price={mostFavouriteProductValue[key].count} color="red" />
               </div>
             );

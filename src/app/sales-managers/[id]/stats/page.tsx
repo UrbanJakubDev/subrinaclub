@@ -1,6 +1,7 @@
 import PageHeader from "@/components/detailPage/pageHeader";
 import SalesManagerStats from "@/components/blocks/salesManager/salesManagerStats";
 import { getCustomerCountBySalesManagerId, getCustomerCountBySalesManagerIdAndStatus, getSalesManagerById, getTotalAmountOfTransactionsBySalesManagerId, getTotalPointsBySalesManagerId } from "@/db/queries/salesManagers";
+import PageComponent from "@/components/detailPage/pageComponent";
 
 export default async function SalesManagersDetailStats({
   params,
@@ -19,7 +20,7 @@ export default async function SalesManagersDetailStats({
   }
 
   return (
-    <div className="content-container p-6 my-2">
+    <PageComponent>
       <PageHeader
         userId={salesManager.id.toString()}
         userName={salesManager.fullName}
@@ -35,6 +36,6 @@ export default async function SalesManagersDetailStats({
           customersTotalPoints={customersClubPoints}
         />
       </div>
-    </div>
+    </PageComponent>
   );
 }

@@ -1,6 +1,7 @@
 "use client"
 import SavingPeriodForm from '@/components/forms/savingPeriodForm';
 import ModalComponent from '@/components/ui/modal';
+import { useModal } from '@/contexts/ModalContext';
 import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button, Card, CardBody, CardFooter, Collapse } from '@material-tailwind/react';
@@ -13,7 +14,7 @@ type Props = {
 const SavingPeriodCard = ({ savingPeriod }: Props) => {
 
    const [modalOpen, setModalOpen] = React.useState(false)
-
+   const { handleOpenModal } = useModal();
 
 
    return (
@@ -24,14 +25,18 @@ const SavingPeriodCard = ({ savingPeriod }: Props) => {
                <small className=" text-gray-700">{savingPeriod.savingStartDate} - {savingPeriod.savingEndDate}</small>
             </div>
             <div className='flex gap-2'>
-               <Button onClick={() => setModalOpen(true)}> Upravit </Button>
+               <Button onClick={() => { handleOpenModal(`savingPeriodForm-${savingPeriod.id}`) }}> Upravit </Button>
                <Button><FontAwesomeIcon icon={faCaretDown} style={{ color: "#ffffff", }} /></Button>
             </div>
          </div>
-         <ModalComponent show={modalOpen} onClose={() => { setModalOpen(false) }}  >
-            <SavingPeriodForm savingPeriod={savingPeriod}/>
+         <ModalComponent
+            modalId={`savingPeriodForm-${savingPeriod.id}`}
+            title='Upravit šetřící období'
+            description='Vyplňte formulář pro úpravu šetřícího období'
+         >
+            <SavingPeriodForm savingPeriod={savingPeriod} />
          </ModalComponent>
- 
+
 
       </Card>
    )

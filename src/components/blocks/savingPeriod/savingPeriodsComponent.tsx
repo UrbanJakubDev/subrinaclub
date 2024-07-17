@@ -21,7 +21,7 @@ const SavingPeriodsComponent = ({ savingPeriods, account }: Props) => {
    const { handleOpenModal } = useModal();
 
 
-   
+
 
 
    return (
@@ -35,11 +35,11 @@ const SavingPeriodsComponent = ({ savingPeriods, account }: Props) => {
                <SavingPeriodCard key={savingPeriod.id} savingPeriod={savingPeriod} />
             ))}
          </div>
-         <ModalComponent 
+         <ModalComponent
             modalId='savingPeriodForm'
             title='Nové šetřící období'
             description='Vyplňte formulář pro vytvoření nového šetřícího období'
-          >
+         >
             <SavingPeriodForm savingPeriod={{}} account_id={account.id} />
          </ModalComponent>
       </Card>

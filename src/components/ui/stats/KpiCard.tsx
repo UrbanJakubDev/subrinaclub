@@ -17,7 +17,7 @@ interface KpiCardPropsType {
    icon,
  }: KpiCardPropsType) {
    return (
-     <Card className="shadow-sm border border-gray-200 !rounded-lg">
+     <Card className="shadow-sm border border-gray-200 !rounded-lg grow">
        <CardBody className="p-4">
          <div className="flex justify-between items-center">
            <Typography

@@ -1,7 +1,6 @@
 
-import { Card } from '@material-tailwind/react';
 import { KpiCard } from '../../ui/stats/KpiCard';
-import { getTotalDepositsByAccountId, getTotalDepositsByAccountIdAndYear } from '@/db/queries/transactions';
+import { getQuarterPointsByAccountIdAndYear, getTotalDepositsByAccountId, getTotalDepositsByAccountIdAndYear } from '@/db/queries/transactions';
 
 type Props = {
    account: any;
@@ -11,6 +10,7 @@ const AccountDetail = async ({ account }: Props) => {
    const actualYear = new Date().getFullYear();
    const clubPoints = await getTotalDepositsByAccountId(account.id);
    const yearPoints = await getTotalDepositsByAccountIdAndYear(account.id, actualYear);
+   const quarterPoints = await getQuarterPointsByAccountIdAndYear(account.id, actualYear-1);
 
    return (
       <div className='flex flex-col'>
@@ -24,6 +24,15 @@ const AccountDetail = async ({ account }: Props) => {
                <KpiCard title="Roční konto pro rok:" percentage={actualYear} price={yearPoints + " b."} icon={<i className="fas fa-arrow-up"></i>} />
             </div>
          </div>
+
+         {quarterPoints.length > 0 &&
+            <div className='flex w-full justify-between py-4 gap-4'>
+               {quarterPoints.map((quarter: any, index: number) => (
+                  <KpiCard key={index} title={`${quarter.quarter}. čtvrtletí`} percentage={actualYear - 1} price={quarter.sumPoints + " b."} icon={<i className="fas fa-arrow-up"></i>} />
+               ))
+               }
+            </div>
+         }
       </div>
    )
 }

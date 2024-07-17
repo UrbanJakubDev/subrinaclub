@@ -5,6 +5,7 @@ import { faPenToSquare, faChartSimple, faSackDollar, faPlus } from "@fortawesome
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@material-tailwind/react";
 import type { ButtonStyleTypes } from "@material-tailwind/react";
+import { useModal } from "@/contexts/ModalContext";
 
 type Props = {
   userName: string;
@@ -20,6 +21,8 @@ export default function PageHeader({ userName, userId, active, formUrl, accountU
   // Get actual path for conditional rendering
   const pathname = usePathname()
 
+  const { handleOpenModal } = useModal();
+
   // Get first part of the path
   const path = pathname.split("/")[1]
 
@@ -34,7 +37,7 @@ export default function PageHeader({ userName, userId, active, formUrl, accountU
         </div>
         <div className="flex gap-2">
           <Link href="#">
-            <Button color="lightBlue" ripple="light">
+            <Button onClick={() => handleOpenModal('transactionForm')} color="lightBlue" ripple="light">
               <FontAwesomeIcon icon={faPlus} />
               <span> Přidat</span>
             </Button>

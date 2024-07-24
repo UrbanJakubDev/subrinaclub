@@ -25,3 +25,13 @@ export const quarterSelectOptions = () => {
 };
 
 
+export const returnLastQuarter = (yq:string) => {
+  const year = parseInt(yq.split("-")[0]);
+  const quarter = parseInt(yq.split("-")[1]);
+  if (quarter === 1) {
+    return `${year - 1}-4`;
+  } else {
+    return `${year}-${quarter - 1}`;
+  }
+}
+

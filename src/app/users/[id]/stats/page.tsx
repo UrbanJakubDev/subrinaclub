@@ -1,4 +1,5 @@
 import AccountStats from "@/components/blocks/account/accountStats";
+import PageComponent from "@/components/detailPage/pageComponent";
 import PageHeader from "@/components/detailPage/pageHeader";
 import TransactionsTable from "@/components/tables/transactionsTable";
 import Loader from "@/components/ui/loader";
@@ -21,7 +22,7 @@ export default async function UserDetailStats({
   const transactions = await getTransactionsByAccountId(account.id);
 
   return (
-    <div className="content-container p-6 my-2">
+    <PageComponent>
       <PageHeader
         userName={customer.fullName}
         userId={customer.id.toString()}
@@ -36,7 +37,7 @@ export default async function UserDetailStats({
         <h2>Přehled všech transakcí</h2>
         <TransactionsTable defaultData={transactions} />
       </div>
-    </div>
+    </PageComponent>
   );
 }
 

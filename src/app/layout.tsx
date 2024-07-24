@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Nav from "../components/header/navbar";
 import NavIndex from "../components/header";
 import Footer from "../components/footer";
-import { ToastContainer } from "react-toastify";
 import Toast from "@/components/ui/toast";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-
+      <Script  src="node_modules/@material-tailwind/html@latest/scripts/dialog.js" />
       <body className={inter.className}>
         <NavIndex />
         <main className="w-screen mx-auto overflow-hidden flex-grow pt-2 bg-gray-50">

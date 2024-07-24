@@ -14,6 +14,9 @@ import { Suspense } from "react";
 import AccountDetail from "@/components/blocks/account/detail";
 import SavingPeriodStats from "@/components/blocks/savingPeriod/savingPeriodStats";
 import TransactionComponent from "@/components/blocks/transaction";
+import ModalComponent from "@/components/ui/modal";
+import TransactionForm from "@/components/forms/transactionForm";
+import PageComponent from "@/components/detailPage/pageComponent";
 
 export default async function UserDetail({
   params,
@@ -85,7 +88,7 @@ export default async function UserDetail({
 
   return (
 
-    <div className="content-container p-6 my-2 flex flex-col h-11/12" >
+    <PageComponent>
       <PageHeader
         userName={customer.fullName || "Nový zákazník"}
         userId={customer.id.toString()}
@@ -105,10 +108,11 @@ export default async function UserDetail({
           <div className="h-full w-full flex flex-col gap-6">
             <AccountDetail account={account} />
             <SavingPeriodStats savingPeriod={savingPeriod} />
-            <TransactionComponent account={account}/>
+            <TransactionForm accountId={account.id} customer={customer} savingPeriod={savingPeriod} />
           </div>
         )}
       </div>
-    </div>
+
+    </PageComponent>
   );
 }

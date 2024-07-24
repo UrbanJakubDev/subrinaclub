@@ -65,8 +65,18 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         cell: (info) => info.getValue(),
       },
       {
-        accessorKey: "poznamka",
-        header: "Poznámka",
+        accessorKey: "totalPoints",
+        header: "Celkem bodů",
+        cell: (info) => info.getValue(),
+      },
+      {
+        accessorKey: "currentYearPoints",
+        header: "Celkem bodů za rok",
+        cell: (info) => info.getValue(),
+      },
+      {
+        accessorKey: "hasCurrentYearPoints",
+        header: "Aktivní",
         cell: (info) => info.getValue(),
       },
       {

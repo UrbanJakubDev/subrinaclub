@@ -1,5 +1,5 @@
 "use client";
-import { ITransaction } from '@/interfaces/interfaces';
+import { ICustomer, ITransaction } from '@/interfaces/interfaces';
 import React, { useEffect } from 'react';
 import InputField from '../ui/inputs/basicInput';
 import { useRouter } from 'next/navigation';
@@ -13,17 +13,21 @@ import { toast } from 'react-toastify';
 import Loader from '../ui/loader';
 import { Card } from '@material-tailwind/react';
 import SimpleSelectInput from '../ui/inputs/simpleSelectInput';
+import ModalComponent from '../ui/modal';
 
 type Props = {
    accountId: number;
-   onTransactionCreated: () => void;
+   customer: ICustomer
+   savingPeriod: any
 }
 
 const TransactionForm = (props: Props) => {
-   const [transaction, setTransaction] = React.useState<ITransaction>()
-   const [transactionType, setTransactionType] = React.useState<string>("DEPOSIT")
+   const [transactionType, setTransactionType] = React.useState<number>()
    const [loading, setLoading] = React.useState(false)
-   const router = useRouter()
+
+   const modalTitle = `Transakce pro ${props.customer.fullName}`
+   const formTitle = `Aktivní šetřící období: ${props.savingPeriod.savingStartDate} - ${props.savingPeriod.savingEndDate}`
+
 
 
    const {
@@ -72,8 +76,11 @@ const TransactionForm = (props: Props) => {
    }
 
    return (
-      <Card className='mx-auto p-4 w-full'>
-         <h1 className="text-2xl font-bold text-center">Přidat novou transakci</h1>
+      <ModalComponent
+         modalId='transactionForm'
+         title={modalTitle}
+         description={formTitle} >
+
          <div className='p-4'>
             <form>
                <div className='flex flex-row gap-4'>
@@ -157,7 +164,7 @@ const TransactionForm = (props: Props) => {
                   />
                </div>
 
-               {transactionType === "2" && (
+               {transactionType === 2 && (
                   <div className='mb-4'>
                      <InputField
                         label="Description"
@@ -197,10 +204,7 @@ const TransactionForm = (props: Props) => {
 
             </form >
          </div>
-         {/* <pre>
-            {JSON.stringify(watch(), null, 2)}
-         </pre> */}
-      </Card >
+      </ModalComponent>
    )
 }
 

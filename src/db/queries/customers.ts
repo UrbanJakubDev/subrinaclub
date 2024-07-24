@@ -49,9 +49,43 @@ export class CustomerService {
         return newCustomer;
     }
 
-    // Read all customers
+    // Read all customers and join sum of positive transactions for each customer
     async getCustomers(): Promise<Customer[]> {
-        const customers = await prisma.customer.findMany();
+        const customers = await prisma.customer.findMany({
+            include: {
+                accounts: {
+                    include: {
+                        transactions: {
+                            select: {
+                                year: true,
+                                amount: true,
+                            },
+                        },
+                    },
+                },
+            },
+        });
+
+        // Calculate the total points for each customer if transctions are positive return as string
+        customers.forEach(customer => {
+            customer.totalPoints = customer.accounts.reduce((total, account) => {
+                const sum = account.transactions.reduce((total, transaction) => {
+                    return transaction.amount > 0 ? total + transaction.amount : total;
+                }, 0);
+                return total + sum;
+            }, 0).toString();
+        });
+
+        // Check if customer have transactions in the current year and set the flag
+        customers.forEach(customer => {
+            customer.hasCurrentYearPoints = customer.accounts.some(account =>
+                account.transactions.some(transaction => {
+                    const currentYear = new Date().getFullYear()-1;
+                    return transaction.year === currentYear;
+                }),
+            );
+        });
+
         return customers;
     }
 

@@ -1,3 +1,4 @@
+import PageComponent from "@/components/detailPage/pageComponent";
 import PageHeader from "@/components/detailPage/pageHeader";
 import SalesManagerForm from "@/components/forms/salesManagerForm";
 import { CustomerService } from "@/db/queries/customers";
@@ -23,7 +24,7 @@ export default async function SalesManagersDetail({
     return <div>Loading...</div>;
   }
   return (
-    <div className="content-container p-6 my-2">
+    <PageComponent>
       <div>
         <PageHeader
           userName={sales_manager.fullName}
@@ -36,6 +37,6 @@ export default async function SalesManagersDetail({
         <SalesManagerForm sales_manager={sales_manager} />
       
       </div>
-    </div>
+    </PageComponent>
   );
 }

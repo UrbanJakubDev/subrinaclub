@@ -1,10 +1,11 @@
 'use client'
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { faPenToSquare, faChartSimple, faSackDollar } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare, faChartSimple, faSackDollar, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@material-tailwind/react";
 import type { ButtonStyleTypes } from "@material-tailwind/react";
+import { useModal } from "@/contexts/ModalContext";
 
 type Props = {
   userName: string;
@@ -20,6 +21,8 @@ export default function PageHeader({ userName, userId, active, formUrl, accountU
   // Get actual path for conditional rendering
   const pathname = usePathname()
 
+  const { handleOpenModal } = useModal();
+
   // Get first part of the path
   const path = pathname.split("/")[1]
 
@@ -33,10 +36,18 @@ export default function PageHeader({ userName, userId, active, formUrl, accountU
           </Link>
         </div>
         <div className="flex gap-2">
+          <Link href="#">
+            <Button onClick={() => handleOpenModal('transactionForm')} color="lightBlue" ripple="light">
+              <FontAwesomeIcon icon={faPlus} />
+              <span> Přidat</span>
+            </Button>
+          </Link>
+
           {formUrl && (
             <Link href={formUrl}>
               <Button color="lightBlue" ripple="light">
                 <FontAwesomeIcon icon={faPenToSquare} />
+                <span> Zákaznice</span>
               </Button>
             </Link>
           )}
@@ -45,7 +56,8 @@ export default function PageHeader({ userName, userId, active, formUrl, accountU
           {accountUrl && (
             <Link href={accountUrl}>
               <Button color="lightBlue" ripple="light">
-              <FontAwesomeIcon icon={faSackDollar} />
+                <FontAwesomeIcon icon={faSackDollar} />
+                <span> Účet</span>
               </Button>
             </Link>
           )}
@@ -54,6 +66,7 @@ export default function PageHeader({ userName, userId, active, formUrl, accountU
             <Link href={statsUrl}>
               <Button color="lightBlue" ripple="light">
                 <FontAwesomeIcon icon={faChartSimple} />
+                <span> Statistiky</span>
               </Button>
             </Link>
           )}

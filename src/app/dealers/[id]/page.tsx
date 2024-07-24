@@ -1,3 +1,4 @@
+import PageComponent from "@/components/detailPage/pageComponent";
 import DealerForm from "@/components/forms/dealerForm";
 import Loader from "@/components/ui/loader";
 import { prisma } from "@/db/pgDBClient";
@@ -15,9 +16,9 @@ export default async function DealersDetail({ params }: { params: { id: string }
   }
 
   return (
-    <div className="content-container">
+    <PageComponent>
       <h1>Dealers Detail</h1>
       <DealerForm dealer={dealer} />
-    </div>
+    </PageComponent>
   );
 }

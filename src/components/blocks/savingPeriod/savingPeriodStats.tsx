@@ -1,9 +1,6 @@
-import React from 'react'
 import { KpiCardProgress } from '../../ui/stats/KpiCardProgress';
 import LineChart from '../../ui/charts/line';
-import InputDateFiled from '../../ui/inputs/dateInput';
 import { getSumOfTransactionsByAccountIdAndDate, getTransactionsByAccountIdAndDate } from '@/db/queries/transactions';
-import TransactionsTable from '../../tables/transactionsTable';
 
 type Props = {
   savingPeriod: any;

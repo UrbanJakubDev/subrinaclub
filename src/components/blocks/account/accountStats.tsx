@@ -19,12 +19,22 @@ import { KpiCard } from "@/components/ui/stats/KpiCard";
 import { faSackDollar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import LineChart from "@/components/ui/charts/line";
+import Donut from "@/components/ui/charts/donutChart";
+import DonutChart from "@/components/ui/charts/donutChart";
 
 type Props = {
   customer: ICustomer;
   account: IAccount;
   transactions: any[];
 };
+
+interface IProductData {
+  bonusId: string;
+  bonusName: string;
+  count: number;
+  sum: number;
+}
+
 
 export default function AccountStats({ customer, account, transactions }: Props) {
   const [selectedYear, setSelectedYear] = React.useState(2024);
@@ -171,40 +181,57 @@ export default function AccountStats({ customer, account, transactions }: Props)
   const { series, categories } = getSumOfTransactionsForChart(transactions, "2014-01", "2024-04");
 
 
-  // Find most favourite product for the customer based on the transactions with negative amount and return the all products with count of transactions and sum of points
-  const mostFavouriteProduct = (transactions: ITransaction[]): { [key: string]: number } => {
+  // Find the most favourite product for the customer based on transactions with negative amounts and return all products with count of transactions and sum of points
+  const mostFavouriteProduct = (transactions: ITransaction[]): IProductData[] => {
     // Filter transactions with negative amount
-    const negativeTransactions = transactions.filter((transaction) => {
-      return transaction.amount < 0;
-    });
+    const negativeTransactions = transactions.filter(transaction => transaction.amount < 0);
 
-    // Get list of products [{bonusName:name, count:2, sum:400}]
-    const products: { [key: string]: { count: number, sum: number } } = {};
-    negativeTransactions.forEach((transaction) => {
-      if (!products[transaction.bonusName]) {
-        products[transaction.bonusName] = { count: 0, sum: 0 };
+    // Accumulate product data
+    const productDataMap: { [key: string]: IProductData } = {};
+    negativeTransactions.forEach(transaction => {
+      const { bonusName, amount } = transaction;
+
+      // Use the bonusName as a key for now since bonusId is not available
+      if (!productDataMap[bonusName]) {
+        productDataMap[bonusName] = {
+          bonusId: 'placeholder-id', // Placeholder for the bonusId
+          bonusName,
+          count: 0,
+          sum: 0
+        };
       }
-      products[transaction.bonusName].count += 1;
-      products[transaction.bonusName].sum += transaction.amount;
+
+      productDataMap[bonusName].count += 1;
+      productDataMap[bonusName].sum += amount;
     });
 
-    // Sort the products by count of transactions but keep original object
-    const orderedProducts = Object.keys(products).sort((a, b) => {
-      return products[b].count - products[a].count;
-    }).reduce((obj, key) => {
-      obj[key] = products[key];
-      return obj;
-    }, {});
+    // Convert the product data map to an array
+    const productDataArray: IProductData[] = Object.values(productDataMap);
 
+    // Sort the products by count of transactions
+    productDataArray.sort((a, b) => b.count - a.count);
 
-    return orderedProducts;
+    return productDataArray;
   }
 
   // Find most favourite product for the customer based on the transactions with negative amount and return the all products with count of transactions
   const mostFavouriteProductValue = mostFavouriteProduct(transactions);
 
 
+  // Function to convert productDataArray to chart data
+  const convertToChartData = (productDataArray: IProductData[]) => {
+    const labels = productDataArray.map(product => product.bonusName);
+    const series = productDataArray.map(product => product.count);
 
+    return {
+      options: {
+        labels
+      },
+      series
+    };
+  };
+
+  const chartData = convertToChartData(mostFavouriteProductValue);
 
   return (
     <div className="flex flex-col gap-10">
@@ -240,15 +267,20 @@ export default function AccountStats({ customer, account, transactions }: Props)
 
       <div className="border bg-zinc-50 p-4">
         <h2>Nejoblíbenější produkt</h2>
-        <div className="grid grid-cols-4 w-full">
-          {Object.keys(mostFavouriteProductValue).map((key) => {
-            return (
-              <div key={key} className="w-full">
-                <KpiCard title={key} percentage={` ${mostFavouriteProductValue[key].sum} bodů`} price={mostFavouriteProductValue[key].count} color="red" />
-              </div>
-            );
-          }
-          )}
+        <div className="flex justify-between w-full gap-4">
+          <div className="w-1/2">
+            <Donut data={chartData} />
+          </div>
+          <div className="grid grid-cols-3 w-full gap-4">
+            {Object.keys(mostFavouriteProductValue).map((key) => {
+              return (
+                <div key={key} className="w-full">
+                  <KpiCard title={mostFavouriteProductValue[key].bonusName} percentage={` ${mostFavouriteProductValue[key].sum} bodů`} price={`${mostFavouriteProductValue[key].count}x`} color="red" />
+                </div>
+              );
+            }
+            )}
+          </div>
         </div>
       </div>
 

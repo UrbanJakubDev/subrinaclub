@@ -39,8 +39,8 @@ const AccountDetailPage = async ({ params }: { params: { id: string } }) => {
           <SavingPeriodStats savingPeriod={activeSavingPeriod} />
         </div>
         <div className='w-1/2 p-4'>
-        <TransactionForm accountId={account.id} customer={customer} savingPeriod={savingPeriods} />
-          <SavingPeriodsComponent savingPeriods={savingPeriods} account={account}  />
+          <TransactionForm accountId={account.id} customer={customer} savingPeriod={savingPeriods} />
+          <SavingPeriodsComponent savingPeriods={savingPeriods} account={account} />
         </div>
       </div>
       <TrasactionTable defaultData={allTransactions} />

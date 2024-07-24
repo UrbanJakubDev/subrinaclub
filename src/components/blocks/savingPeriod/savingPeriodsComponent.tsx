@@ -20,10 +20,6 @@ const SavingPeriodsComponent = ({ savingPeriods, account }: Props) => {
 
    const { handleOpenModal } = useModal();
 
-
-
-
-
    return (
       <Card className='p-4 my-4'>
          <div className='flex justify-between'>

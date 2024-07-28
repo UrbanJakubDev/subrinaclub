@@ -18,6 +18,8 @@ const SavingPeriodsComponent = ({ savingPeriods, account }: Props) => {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
    })
 
+   const activeSavingPeriod = savingPeriods.find((savingPeriod: any) => savingPeriod.active)
+
    const { handleOpenModal } = useModal();
 
    return (
@@ -36,7 +38,7 @@ const SavingPeriodsComponent = ({ savingPeriods, account }: Props) => {
             title='Nové šetřící období'
             description='Vyplňte formulář pro vytvoření nového šetřícího období'
          >
-            <SavingPeriodForm savingPeriod={{}} account_id={account.id} />
+            <SavingPeriodForm savingPeriod={{}} previousSavingPeriod={activeSavingPeriod} account_id={account.id} userName={account.customer.fullName} />
          </ModalComponent>
       </Card>
    )

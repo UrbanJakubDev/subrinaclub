@@ -33,12 +33,7 @@ export async function getSavingPeriodByUserId(userId: number) {
 
 export async function createSavingPeriod(account_id: any, data: any) {
     // Change the active to boolean
-    if (data.active === 'true') {
-        data.active = true;
-    } else {
-        data.active = false;
-    }
-
+    data.active = data.active === 'true';
     data.balance = parseFloat(data.balance);
 
     // Get the last saving period for the account and set it to inactive and replace savingEndDate with the new savingStartDate - 1 quarter
@@ -51,6 +46,7 @@ export async function createSavingPeriod(account_id: any, data: any) {
             active: true,
         },
     });
+    console.log('lastSavingPeriod', lastSavingPeriod);
 
     if (lastSavingPeriod) {
         await prisma.savingPeriod.update({
@@ -59,10 +55,11 @@ export async function createSavingPeriod(account_id: any, data: any) {
             },
             data: {
                 active: false,
-                savingEndDate: returnLastQuarter(lastSavingPeriod.savingStartDate),
+                savingEndDate: returnLastQuarter(data.savingStartDate),
             },
         });
     }
+    console.log('lastSavingPeriod - after update', lastSavingPeriod);
 
     const savingPeriod = await prisma.savingPeriod.create({
         data: {

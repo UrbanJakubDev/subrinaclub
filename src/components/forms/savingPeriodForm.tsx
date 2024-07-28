@@ -13,11 +13,12 @@ import { useModal } from '@/contexts/ModalContext'
 
 type Props = {
    savingPeriod: any
+   previousSavingPeriod?: any
    account_id?: number
-   useName?: string
+   userName?: string
 }
 
-const SavingPeriodForm = ({ savingPeriod, account_id, userName }: Props) => {
+const SavingPeriodForm = ({ savingPeriod, account_id, userName, previousSavingPeriod }: Props) => {
 
    const {
       register,
@@ -85,6 +86,9 @@ const SavingPeriodForm = ({ savingPeriod, account_id, userName }: Props) => {
 
    return (
       <div className='flex p-4 gap-4 items-baseline m-4'>
+         <pre>
+            {JSON.stringify(previousSavingPeriod, null, 2)}
+         </pre>
          {account_id && <span>Účet: {account_id} {userName}</span>}
          <div className='grid grid-cols-2'>
             <InputField

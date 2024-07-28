@@ -25,13 +25,23 @@ export const quarterSelectOptions = () => {
 };
 
 
-export const returnLastQuarter = (yq:string) => {
-  const year = parseInt(yq.split("-")[0]);
-  const quarter = parseInt(yq.split("-")[1]);
+
+export const returnLastQuarter = (yq: string): string => {
+  // Extract year and quarter from the input string
+  const [yearStr, quarterStr] = yq.split("-");
+  const year = parseInt(yearStr);
+  const quarter = parseInt(quarterStr);
+
+  // Check if the quarter is the first quarter
   if (quarter === 1) {
-    return `${year - 1}-4`;
+    // If it is the first quarter, return the last quarter of the previous year
+    return `${year - 1}-04`;
   } else {
-    return `${year}-${quarter - 1}`;
+    // Otherwise, return the previous quarter of the same year
+    const previousQuarter = quarter - 1;
+    // Format previous quarter as two digits (e.g., "02", "03")
+    const formattedQuarter = previousQuarter < 10 ? `0${previousQuarter}` : previousQuarter;
+    return `${year}-${formattedQuarter}`;
   }
 }
 

@@ -26,7 +26,6 @@ const SavingPeriodCard = ({ savingPeriod }: Props) => {
             </div>
             <div className='flex gap-2'>
                <Button onClick={() => { handleOpenModal(`savingPeriodForm-${savingPeriod.id}`) }}> Upravit </Button>
-               <Button><FontAwesomeIcon icon={faCaretDown} style={{ color: "#ffffff", }} /></Button>
             </div>
          </div>
          <ModalComponent

@@ -14,9 +14,7 @@ const AccountDetailPage = async ({ params }: { params: { id: string } }) => {
   const account = await getAccountById(parseInt(params.id));
   const savingPeriods = account?.savingPeriods;
   const customer = account.customer;
-
   const activeSavingPeriod = savingPeriods.find((savingPeriod: any) => savingPeriod.active)
-  const allTransactions = await getTransactionsByAccountId(account.id);
 
 
   if (!account || !customer) {
@@ -39,11 +37,11 @@ const AccountDetailPage = async ({ params }: { params: { id: string } }) => {
           <SavingPeriodStats savingPeriod={activeSavingPeriod} />
         </div>
         <div className='w-1/2 p-4'>
-          <TransactionForm accountId={account.id} customer={customer} savingPeriod={savingPeriods} />
+          <TransactionForm accountId={account.id} customer={customer} savingPeriod={activeSavingPeriod} />
           <SavingPeriodsComponent savingPeriods={savingPeriods} account={account} />
         </div>
       </div>
-      <TrasactionTable defaultData={allTransactions} />
+
     </PageComponent>
   )
 }

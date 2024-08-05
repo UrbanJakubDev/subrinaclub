@@ -24,6 +24,9 @@ export async function createSalesManager(data: any) {
 }
 
 export async function updateSalesManager(id: number, data: any) {
+
+  data.registrationNumber = parseInt(data.registrationNumber);
+
   let salesManager = await prisma.salesManager.update({
     where: {
       id: id,
@@ -240,5 +243,9 @@ export async function getSalesManagersForSelect() {
       fullName: true,
     },
   });
-  return salesManagers;
+  
+  return salesManagers.map((salesManager) => ({
+    id: salesManager.id,
+    name: salesManager.fullName,
+  }));
 }

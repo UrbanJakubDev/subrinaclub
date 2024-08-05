@@ -51,6 +51,7 @@ export async function PUT(request: Request) {
   }
 
   body.registrationNumber = Number(body.registrationNumber);
+  console.log("PUT /api/customers", id, body);
 
   // Update the customer in the database and his relations to the dealer and sales manager
   try {

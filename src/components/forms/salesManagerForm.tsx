@@ -111,9 +111,9 @@ export default function SalesManagerForm({ sales_manager }: Props) {
             <InputDateFiled
               label="Registrace od"
               type="date"
-              name="registratedSinceD"
+              name="registratedSince"
               register={register}
-              defaultValue={salesManagerData.registratedSinceD}
+              defaultValue={salesManagerData.registratedSince}
             />
           </div>
           <div className="flex gap-4">
@@ -128,9 +128,9 @@ export default function SalesManagerForm({ sales_manager }: Props) {
             <InputDateFiled
               label="Datum narození"
               type="date"
-              name="birthDateD"
+              name="birthDate"
               register={register}
-              defaultValue={salesManagerData.birthDateD}
+              defaultValue={salesManagerData.birthDate}
               errors={errors}
             />
 
@@ -149,16 +149,6 @@ export default function SalesManagerForm({ sales_manager }: Props) {
               name="phone"
               register={register}
               defaultValue={salesManagerData.phone}
-              errors={errors}
-            />
-          </div>
-          <div className="flex gap-4">
-            <InputField
-              label="Salón"
-              type="text"
-              name="salonName"
-              register={register}
-              defaultValue={salesManagerData.salonName}
               errors={errors}
             />
           </div>

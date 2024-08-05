@@ -26,13 +26,7 @@ const InputField = ({ label, name, type, defaultValue, register, disabled, error
         {...register(name)} // Pass the register function
         readOnly={disabled}
       />
-      <Typography
-        variant="small"
-        color="gray"
-        className="mt-2 flex items-center gap-1 font-normal"
-      >
-        {helperText}
-      </Typography>
+      <span className="mt-2 flex items-center gap-1 font-normal" >{helperText}</span>
       {errors[name] && <span className="text-red-500">{errors[name].message}</span>}
     </div>
   );

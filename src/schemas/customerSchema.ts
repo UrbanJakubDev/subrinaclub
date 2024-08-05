@@ -1,45 +1,46 @@
 // Yup schema fro customer form
 
-import * as yup from "yup";
+import * as yup from 'yup';
 
 export const customerValidationSchema = yup.object().shape({
-  registrationNumber: yup.number(),
-  ico: yup.string().required(),
-  registratedSinceD: yup.date().required(),
-  fullName: yup.string().required(),
-  birthDateD: yup.date(),
-  email: yup.string().email(),
-  phone: yup.string(),
-  salonName: yup.string(),
-  address: yup.string(),
-  town: yup.string(),
-  psc: yup.string(),
-  note: yup.string(),
-  dealerId: yup.number(),
-  salesManagerId: yup.number(),
-  salesManagerSinceQ: yup.number(),
-  salesManagerSinceYear: yup.number(),
+    active: yup.boolean().default(true),
+    registrationNumber: yup.number().default(0),
+    ico: yup.string().max(40).required(),
+    registratedSinceD: yup.date().required(),
+    fullName: yup.string().max(255).required(),
+    birthDateD: yup.date().nullable(),
+    email: yup.string().email().max(100).nullable(),
+    phone: yup.string().max(50).nullable(),
+    salonName: yup.string().max(255).nullable(),
+    address: yup.string().max(255).nullable(),
+    town: yup.string().max(255).nullable(),
+    psc: yup.string().max(255).nullable(),
+    note: yup.string().nullable(),
+    dealerId: yup.number().nullable(),
+    salesManagerId: yup.number().nullable(),
+    salesManagerSinceQ: yup.number().default(0).nullable(),
+    salesManagerSinceYear: yup.number().default(0).nullable(),
 });
 
 export const transactionValidationSchema = yup.object().shape({
-  year: yup.number().required(),
-  quarter: yup.number().required(),
-  amount: yup.number().required(),
-  type: yup.string().required(),
-  description: yup.string(),
-  acceptedBonusOrder: yup.date(),
-  sentBonusOrder: yup.date(),
-  bonusName: yup.string(),
-  bonusAmount: yup.number(),
-  accountId: yup.number(),
+    year: yup.number().required(),
+    quarter: yup.number().required(),
+    amount: yup.number().required(),
+    type: yup.string().required(),
+    description: yup.string(),
+    acceptedBonusOrder: yup.date(),
+    sentBonusOrder: yup.date(),
+    bonusName: yup.string(),
+    bonusAmount: yup.number(),
+    accountId: yup.number(),
 });
 
 export const accountValidationSchema = yup.object().shape({
-  balance: yup.number(),
-  balancePointsCorrection: yup.number(),
+    balance: yup.number(),
+    balancePointsCorrection: yup.number(),
 });
 
 export const savingPeriodValidationSchema = yup.object().shape({
-  savingStartDate: yup.string().required(),
-  savingEndDate: yup.string().required(),
+    savingStartDate: yup.string().required(),
+    savingEndDate: yup.string().required(),
 });

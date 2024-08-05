@@ -8,6 +8,8 @@ import Link from 'next/link'
 import React from 'react'
 import MyTable from './ui/baseTable'
 import Button from '../ui/button'
+import { useModal } from '@/contexts/ModalContext'
+import { toast } from 'react-toastify'
 
 type Props = {
    defaultData: any[]
@@ -18,6 +20,8 @@ type Props = {
 
 
 export default function TransactionsTable({ defaultData, detailLinkPath }: Props) {
+
+   const { handleOpenModal } = useModal();
 
    const getTotal = (data: any[], type?: any) => {
 
@@ -31,6 +35,35 @@ export default function TransactionsTable({ defaultData, detailLinkPath }: Props
       }
    }
 
+   // Delete transaction 
+   const deleteTransaction = async (id: number) => {
+      try {
+         const response = await fetch(`/api/transactions?transactionId=${id}`, {
+            method: 'DELETE',
+         })
+         if (!response.ok) {
+            throw new Error('Error deleting transaction')
+         }
+         const result = await response.json()
+         console.log(result)
+      } catch (error) {
+         console.error('Error:', error)
+      }
+
+      toast.success('Transakce byla smazána')
+   }
+
+
+
+   // On edit button click open modal with form to edit transaction
+   const onEdit = (id: number) => {
+      handleOpenModal('transactionForm', id)
+   }
+
+   // On delete button click delete transaction
+   const onDelete = (id: number) => {
+      confirm('Opravdu chcete smazat tuto transakci?') && deleteTransaction(id)
+   }
 
 
    // Column definitions
@@ -90,23 +123,12 @@ export default function TransactionsTable({ defaultData, detailLinkPath }: Props
             header: 'Akce',
             cell: row => (
                <div className="flex justify-center gap-2">
-                  <Link
-                     href="#"
-                     className="text-center"
-                  >
-                     <Button  >
-                        <FontAwesomeIcon icon={faPenToSquare} />
-                        {/* {row.row.original.id} */}
-                     </Button>
-                  </Link>
-                  <Link
-                     href="#"
-                     className="text-center"
-                  >
-                     <Button  >
-                        <FontAwesomeIcon icon={faTrash} />
-                     </Button>
-                  </Link>
+                  <Button onClick={() => onEdit(row.row.original.id)}>
+                     <FontAwesomeIcon icon={faPenToSquare} />
+                  </Button>
+                  <Button onClick={() => onDelete(row.row.original.id)}>
+                     <FontAwesomeIcon icon={faTrash} />
+                  </Button>
                </div>
             ),
             enableColumnFilter: false

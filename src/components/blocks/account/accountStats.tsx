@@ -1,26 +1,12 @@
-"use client";
-
-
-import React, { use, useEffect, useState } from "react";
-import SimpleTable from "../../tables/simpleTable";
-import TransactionComponent from "../transaction";
-import InputField from "../../ui/inputs/basicInput";
-import SelectField from "../../ui/inputs/selectInput";
-import Button from "../../ui/button";
-import SimpleStat from "../../ui/stats/simple";
-import InputDateFiled from "../../ui/inputs/dateInput";
-import TransactionsTable from "../../tables/transactionsTable";
-import { set } from "react-hook-form";
+"use client";;
+import React, { Suspense, useEffect, useState } from "react";
 import SimpleSelectInput from "../../ui/inputs/simpleSelectInput";
 import { IAccount, ICustomer, ITransaction } from "../../../interfaces/interfaces";
 import { yearSelectOptions } from "../../../utils/dateFnc";
 import { sumPosPointsInTransactions } from "@/utils/functions";
 import { KpiCard } from "@/components/ui/stats/KpiCard";
-import { faSackDollar } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import LineChart from "@/components/ui/charts/line";
 import Donut from "@/components/ui/charts/donutChart";
-import DonutChart from "@/components/ui/charts/donutChart";
 
 type Props = {
   customer: ICustomer;
@@ -51,9 +37,7 @@ export default function AccountStats({ customer, account, transactions }: Props)
     , [yearBalanceDate, transactions]);
 
 
-  const getTransactions = async () => {
-    alert("Transactions fetched");
-  }
+
 
 
   const sumPointsInYear = (
@@ -127,6 +111,7 @@ export default function AccountStats({ customer, account, transactions }: Props)
     return sum;
   }
 
+
   const getSumOfTransactionsForChart = (transactions: any, startDate: String, endDate: String) => {
     const [startYear, startQuarter] = startDate.split("-");
     const [endYear, endQuarter] = endDate.split("-");
@@ -178,9 +163,32 @@ export default function AccountStats({ customer, account, transactions }: Props)
     };
   }
 
+  // TODO: Make that to accept dynamic date range
   const { series, categories } = getSumOfTransactionsForChart(transactions, "2014-01", "2024-04");
 
 
+
+  // Sum of points for the selected year and quarter for the account
+  const sumTransactionPointsInQuarter = (transactions: ITransaction[], year: number, quarter: number): number => {
+    // Filter transactions for the specified year and quarter with positive amounts
+    const validTransactions = transactions.filter((transaction) => {
+      return transaction.year === year && transaction.quarter === quarter && transaction.amount > 0;
+    });
+
+    // Use reduce to sum the points from valid transactions
+    const sum = validTransactions.reduce((total, transaction) => {
+      return total + transaction.amount;
+    }, 0);
+
+    return sum;
+  }
+
+
+
+
+
+
+  // TODO: Implement as fucntion which groups transactions on category and sums the points
   // Find the most favourite product for the customer based on transactions with negative amounts and return all products with count of transactions and sum of points
   const mostFavouriteProduct = (transactions: ITransaction[]): IProductData[] => {
     // Filter transactions with negative amount
@@ -218,6 +226,7 @@ export default function AccountStats({ customer, account, transactions }: Props)
   const mostFavouriteProductValue = mostFavouriteProduct(transactions);
 
 
+  // TODO: Make that function more universal and use it for the line chart as well
   // Function to convert productDataArray to chart data
   const convertToChartData = (productDataArray: IProductData[]) => {
     const labels = productDataArray.map(product => product.bonusName);
@@ -232,6 +241,11 @@ export default function AccountStats({ customer, account, transactions }: Props)
   };
 
   const chartData = convertToChartData(mostFavouriteProductValue);
+
+  if (!chartData || !mostFavouriteProductValue) {
+    return <div>Loading...</div>;
+  }
+
 
   return (
     <div className="flex flex-col gap-10">
@@ -257,10 +271,16 @@ export default function AccountStats({ customer, account, transactions }: Props)
 
         </div>
 
-        <div className="flex flex-row justify-stretch mx-auto">
+        <div className="flex flex-row justify-stretch mx-auto gap-4 mb-4">
           <KpiCard title="Bodový stav na konci roku" percentage={""} price={clubAccountBalance} color={""} />
           <KpiCard title={`Suma bodů získaných ve vybraném roce: ${selectedYear === 0 ? "Nevybráno" : selectedYear}`} percentage={""} price={sumPointsInYear(transactions, selectedYear)} color={""} />
           <KpiCard title="Průměr bodů získaných za poslední 4 roky" percentage={""} price={fourYearAverage(transactions, selectedYear)} color={""} />
+        </div>
+        <div className="flex flex-row justify-stretch mx-auto gap-4">
+          <KpiCard title={`Suma bodu za 1q ${selectedYear}`} percentage={""} price={sumTransactionPointsInQuarter(transactions, selectedYear, 1)} color={""} />
+          <KpiCard title={`Suma bodu za 2q ${selectedYear}`} percentage={""} price={sumTransactionPointsInQuarter(transactions, selectedYear, 2)} color={""} />
+          <KpiCard title={`Suma bodu za 3q ${selectedYear}`} percentage={""} price={sumTransactionPointsInQuarter(transactions, selectedYear, 3)} color={""} />
+          <KpiCard title={`Suma bodu za 4q ${selectedYear}`} percentage={""} price={sumTransactionPointsInQuarter(transactions, selectedYear, 4)} color={""} />
         </div>
       </div>
 
@@ -269,7 +289,12 @@ export default function AccountStats({ customer, account, transactions }: Props)
         <h2>Nejoblíbenější produkt</h2>
         <div className="flex justify-between w-full gap-4">
           <div className="w-1/2">
-            <Donut data={chartData} />
+            {chartData && (
+              <Suspense fallback={<div>Loading...</div>}>
+                <Donut data={chartData}
+                />  </Suspense>
+            )
+            }
           </div>
           <div className="grid grid-cols-3 w-full gap-4">
             {Object.keys(mostFavouriteProductValue).map((key) => {
@@ -283,15 +308,6 @@ export default function AccountStats({ customer, account, transactions }: Props)
           </div>
         </div>
       </div>
-
-
-      {/* <div className="justify-between border bg-zinc-50 p-4">
-        <div>
-          <SimpleTable data={transactionsInYear(transactions, selectedYear)} />
-          <p>Total points {sumPointsInYear(transactions, selectedYear)}</p>
-        </div>
-      </div> */}
-
     </div>
   );
 }

@@ -10,7 +10,8 @@ export class CustomerService {
         customer.publicId = `${customer.registrationNumber}SU${Math.random()
             .toString(36)
             .substr(2, 9)}`;
-        customer.active = customer.active ? 1 : 0;
+
+        // If 1 change to true, if 0 change to false
         customer.dealerId = customer.dealerId || null;
         customer.salesManagerId = customer.salesManagerId || null;
 
@@ -27,11 +28,8 @@ export class CustomerService {
         // Create the lifetime account for the customer
         const newAccount = await prisma.account.create({
             data: {
-                type: 'LIFETIME',
                 balance: 0,
                 createdAt: new Date(),
-                openedAt: new Date(),
-                closedAt: null,
                 customerId: newCustomer.id,
             },
         });
@@ -49,7 +47,7 @@ export class CustomerService {
         return newCustomer;
     }
 
-    // Read all customers and join sum of positive transactions for each customer
+    // Read all customers and join sum of positive transactions for each customer and add sales manager full name but flatten the data
     async getCustomers(): Promise<Customer[]> {
         const customers = await prisma.customer.findMany({
             include: {
@@ -63,8 +61,15 @@ export class CustomerService {
                         },
                     },
                 },
+                salesManager: {
+                    select: {
+                        fullName: true,
+                    },  
+                },
             },
         });
+        
+    
 
         // Calculate the total points for each customer if transctions are positive return as string
         customers.forEach(customer => {
@@ -80,11 +85,29 @@ export class CustomerService {
         customers.forEach(customer => {
             customer.hasCurrentYearPoints = customer.accounts.some(account =>
                 account.transactions.some(transaction => {
-                    const currentYear = new Date().getFullYear()-1;
+                    const currentYear = new Date().getFullYear();
                     return transaction.year === currentYear;
                 }),
             );
         });
+
+        // Flatten the salesManager object
+        customers.forEach(customer => {
+            customer.salesManager = customer.salesManager?.fullName;
+        });
+
+
+        // Find last transaction year for each customer as string
+        customers.forEach(customer => {
+            customer.lastTransactionYear = customer.accounts.reduce((lastYear, account) => {
+                const maxYear = account.transactions.reduce((lastYear, transaction) => {
+                    return transaction.year > lastYear ? transaction.year : lastYear;
+                }, 0);
+                return maxYear > lastYear ? maxYear : lastYear;
+            }, 0).toString();
+        });
+        
+
 
         return customers;
     }
@@ -105,26 +128,39 @@ export class CustomerService {
     // Update a customer by ID
     async updateCustomerById(id: number, customer: Customer): Promise<Customer> {
         const { dealerId, salesManagerId, ...customerData } = customer;
-
+    
         try {
+            // Create the data object with customerData
+            const data: any = {
+                ...customerData,
+            };
+    
+            // Conditionally add dealer connection to the data object
+            if (dealerId !== undefined) {
+                data.dealer = {
+                    connect: {
+                        id: dealerId,
+                    },
+                };
+            }
+    
+            // Conditionally add sales manager connection to the data object
+            if (salesManagerId !== undefined) {
+                data.salesManager = {
+                    connect: {
+                        id: salesManagerId,
+                    },
+                };
+            }
+    
+            // Update the customer
             const updatedCustomer = await prisma.customer.update({
                 where: {
                     id: id,
                 },
-                data: {
-                    ...customerData,
-                    dealer: {
-                        connect: {
-                            id: dealerId,
-                        },
-                    },
-                    salesManager: {
-                        connect: {
-                            id: salesManagerId,
-                        },
-                    },
-                },
+                data: data,
             });
+    
             return updatedCustomer;
         } catch (error) {
             // Handle error
@@ -132,6 +168,8 @@ export class CustomerService {
             throw error;
         }
     }
+    
+    
 
     // Restore a customer by ID (set the active flag to true)
     async restoreCustomerById(id: number): Promise<Customer> {

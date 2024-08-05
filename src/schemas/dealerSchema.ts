@@ -16,9 +16,9 @@ export const dealerValidationSchema = yup.object().shape({
 
 export const salesManagerValidationSchema = yup.object().shape({
   ico: yup.string().required(),
-  registratedSinceD: yup.date().required(),
+  registratedSince: yup.date().required(),
   fullName: yup.string().required(),
-  birthDateD: yup.date(),
+  birthDate: yup.date(),
   email: yup.string().email(),
   phone: yup.string(),
   salonName: yup.string(),

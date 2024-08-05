@@ -1,10 +1,8 @@
-"use client"
+"use client";
 import SavingPeriodForm from '@/components/forms/savingPeriodForm';
 import ModalComponent from '@/components/ui/modal';
 import { useModal } from '@/contexts/ModalContext';
-import { faCaretDown } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button, Card, CardBody, CardFooter, Collapse } from '@material-tailwind/react';
+import { Button, Card } from '@material-tailwind/react';
 import React from 'react'
 
 type Props = {

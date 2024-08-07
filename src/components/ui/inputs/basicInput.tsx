@@ -5,7 +5,7 @@ type InputFieldProps = {
   label: string;
   name: string;
   type?: string;
-  defaultValue?: string;
+  defaultValue?: string | number;
   register: any;
   disabled?: boolean;
   errors?: any;

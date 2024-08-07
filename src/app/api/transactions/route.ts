@@ -39,6 +39,25 @@ export async function POST(request: Request) {
   }
 }
 
+// PUT /api/transactions?transactionId=1
+export async function PUT(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const transactionId = searchParams.get("transactionId");
+
+  const body = await request.json();
+
+  try {
+    const transaction = await addTransaction(body, Number(transactionId));
+    return NextResponse.json(transaction);
+  } catch (error) {
+    console.error("Error updating transaction:", error);
+    return NextResponse.json(
+      { error: "Error updating transaction" },
+      { status: 500 }
+    );
+  }
+}
+
 // DELETE /api/transactions?transactionId=1
 export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);

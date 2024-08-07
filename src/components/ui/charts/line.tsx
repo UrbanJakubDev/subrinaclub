@@ -106,7 +106,7 @@ export default function LineChart({ title, description, series, categories }: Pr
             className="flex flex-col gap-4 rounded-none md:flex-row md:items-center"
          >
             <div className="w-max rounded-lg bg-gray-900 p-5 text-white">
-            <FontAwesomeIcon icon={faSackDollar} style={{color: "#ffffff",}} />
+               <FontAwesomeIcon icon={faSackDollar} style={{ color: "#ffffff", }} />
             </div>
             <div>
                <Typography variant="h6" color="blue-gray">
@@ -121,8 +121,10 @@ export default function LineChart({ title, description, series, categories }: Pr
                </Typography>
             </div>
          </CardHeader>
-         <CardBody className="px-2 pb-0">
-            <Chart {...chartConfig} />
+         <CardBody className="px-2 pb-0 w-full">
+            {series && categories && (
+               <Chart {...chartConfig} />
+            )}
          </CardBody>
       </Card>
    );

@@ -42,13 +42,13 @@ export default function MyTable({
    // Render Chip
    const ChipComponent = ({ value }: { value: any }) => {
       if (value > 3000) {
-          return <Chip color="amber" value={value} />;
+         return <Chip color="amber" value={value} />;
       } else if (value > 1000) {
-          return <Chip variant="ghost" value={value} />;
+         return <Chip variant="ghost" value={value} />;
       } else {
-          return value;
+         return value;
       }
-  };
+   };
 
 
 
@@ -59,33 +59,38 @@ export default function MyTable({
             <table className='text-sm basic-table'>
                <thead className='border-b text-black'>
                   {table.getHeaderGroups().map(headerGroup => (
-                     <tr key={headerGroup.id}>
-                        {headerGroup.headers.map(header => {
-                           return (
+                     <React.Fragment key={headerGroup.id}>
+                        <tr>
+                           {headerGroup.headers.map(header => (
+                              <th key={header.id} colSpan={header.colSpan}>
+                                 <div className="py-1">
+                                    <div className="mx-2">
+                                       {flexRender(header.column.columnDef.header, header.getContext())}
+                                    </div>
+                                 </div>
+                              </th>
+                           ))}
+                        </tr>
+                        <tr>
+                           {headerGroup.headers.map(header => (
                               <th key={header.id} colSpan={header.colSpan}>
                                  <div className="flex items-center py-1">
-                                    <div {...{ className: header.column.getCanSort() ? 'cursor-pointer select-none' : '', onClick: header.column.getToggleSortingHandler(), }}>
+                                    <div {...{ className: header.column.getCanSort() ? 'cursor-pointer select-none' : '', onClick: header.column.getToggleSortingHandler() }}>
                                        {{
                                           asc: <FontAwesomeIcon icon={faSortUp} />,
                                           desc: <FontAwesomeIcon icon={faSortDown} />,
-                                       }[header.column.getIsSorted() as string] ?? (header.column.getCanSort() ? <FontAwesomeIcon icon={faSort} /> : null)
-                                       }
-
+                                       }[header.column.getIsSorted() as string] ?? (header.column.getCanSort() ? <FontAwesomeIcon icon={faSort} /> : null)}
                                     </div>
                                     {header.column.getCanFilter() ? (
                                        <Filter column={header.column} table={table} />
-
                                     ) : (
-                                       <div className="mx-2">
-                                          {flexRender(header.column.columnDef.header, header.getContext())}
-                                       </div>
+                                       <div className="mx-2"></div>
                                     )}
-
                                  </div>
                               </th>
-                           );
-                        })}
-                     </tr>
+                           ))}
+                        </tr>
+                     </React.Fragment>
                   ))}
                </thead>
                <tbody >
@@ -95,7 +100,7 @@ export default function MyTable({
                         <tr key={row.id} className='text-left hover:bg-zinc-50 whitespace-nowrap'>
                            {row.getVisibleCells().map(cell => {
                               return (
-                                 <td key={cell.id} className=" whitespace-nowrap text-center">
+                                 <td key={cell.id} className=" whitespace-nowrap text-left max-w-32 text-wrap ">
                                     {
                                        // If the cell accssorKey is "totalPoints", render the value in bold
                                        cell.column.columnDef.accessorKey === 'totalPoints' ? (
@@ -125,8 +130,8 @@ export default function MyTable({
                </tbody>
             </table>
          </Card>
-         <div className="h-2" />
-         <div className="flex justify-center gap-2 mx-auto ">
+         
+         <div className="flex justify-center gap-2 mx-auto mt-6">
             <div className="flex gap-2">
                <Button
                   onClick={() => table.firstPage()}
@@ -190,8 +195,8 @@ export default function MyTable({
             </div>
          </div>
          <div className='mt-2'>
-            Showing {table.getRowModel().rows.length.toLocaleString()} of{' '}
-            {table.getRowCount().toLocaleString()} Rows
+            Zobrazeno {table.getRowModel().rows.length.toLocaleString()} z{' '}
+            {table.getRowCount().toLocaleString()} záznamů.
          </div>
          {/* <pre>{JSON.stringify(table.getState().pagination, null, 2)}</pre> */}
       </div>

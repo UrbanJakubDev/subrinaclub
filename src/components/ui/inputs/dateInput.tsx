@@ -7,15 +7,11 @@ const InputDateFiled = ({ label, name, type, defaultValue, register, errors, onC
 
    let inputVal = dbDateToInputDate(defaultValue);
 
+   // If not default value, set it to Postrges null date
+   (!defaultValue) && (inputVal = "0000-00-00");
+  
+
    if (!register) return (
-      // <div className="flex flex-col">
-      //    <label className="text-sm font-semibold text-gray-600">{label}</label>
-      //    <input
-      //       type="date"
-      //       defaultValue={inputVal} // Set default value
-      //       onChange={(e) => { onChange(e.target.value) }}
-      //    />
-      // </div>
       <div className="flex flex-col">
          <Input
             label={label}

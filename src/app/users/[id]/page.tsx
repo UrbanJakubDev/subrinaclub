@@ -13,8 +13,6 @@ import { ICustomer } from "@/interfaces/interfaces";
 import { Suspense } from "react";
 import AccountDetail from "@/components/blocks/account/detail";
 import SavingPeriodStats from "@/components/blocks/savingPeriod/savingPeriodStats";
-import TransactionComponent from "@/components/blocks/transaction";
-import ModalComponent from "@/components/ui/modal";
 import TransactionForm from "@/components/forms/transactionForm";
 import PageComponent from "@/components/detailPage/pageComponent";
 
@@ -54,17 +52,12 @@ export default async function UserDetail({
       publicId: "",
       birthDateD: null,
       ico: "",
-      registratedSinceD: null,
+      registratedSinceD: new Date(),
       salonName: ""
     };
 
     return (
       <div className="content-container p-6 my-2">
-        <PageHeader
-          userName="Nový zákazník"
-          userId="0"
-          active={true}
-        />
         <h2 className="text-lg font-semibold">Vytvoření nového zákazníka</h2>
         <Suspense fallback={<Loader />}>
           <CustomerForm customer={customer} dials={{ dealers, salesManagers }} />

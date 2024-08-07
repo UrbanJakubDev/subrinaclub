@@ -1,4 +1,4 @@
-import { KpiCardProgress } from '../../ui/stats/KpiCardProgress';
+import { KpiCardProgress } from '../../ui/stats/cardsWidgets/KpiCardProgress';
 import LineChart from '../../ui/charts/line';
 import { getSumOfTransactionsByAccountIdAndDate, getTransactionsByAccountIdAndDate } from '@/db/queries/transactions';
 

@@ -1,6 +1,6 @@
 "use client"
 import React from 'react'
-import { KpiCard } from '../ui/stats/KpiCard';
+import { KpiCard } from '../ui/stats/cardsWidgets/KpiCard';
 import InputField from '../ui/inputs/basicInput';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';

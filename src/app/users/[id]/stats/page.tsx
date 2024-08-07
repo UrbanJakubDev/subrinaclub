@@ -1,6 +1,7 @@
 import AccountStats from "@/components/blocks/account/accountStats";
 import PageComponent from "@/components/detailPage/pageComponent";
 import PageHeader from "@/components/detailPage/pageHeader";
+import TransactionForm from "@/components/forms/transactionForm";
 import TransactionsTable from "@/components/tables/transactionsTable";
 import Loader from "@/components/ui/loader";
 import { getAccountByUserId } from "@/db/queries/accounts";
@@ -20,6 +21,8 @@ export default async function UserDetailStats({
   const customer = (await customerService.getCustomerById(customer_id)) as ICustomer;
   const account = (await getAccountByUserId(customer_id)) as IAccount;
   const transactions = await getTransactionsByAccountId(account.id);
+  const savingPeriods = account?.savingPeriods;
+  const activeSavingPeriod = savingPeriods.find((savingPeriod: any) => savingPeriod.active)
 
   return (
     <PageComponent>
@@ -37,6 +40,7 @@ export default async function UserDetailStats({
         <h2>Přehled všech transakcí</h2>
         <TransactionsTable defaultData={transactions} />
       </div>
+      <TransactionForm accountId={account.id} customer={customer} savingPeriod={activeSavingPeriod} />
     </PageComponent>
   );
 }

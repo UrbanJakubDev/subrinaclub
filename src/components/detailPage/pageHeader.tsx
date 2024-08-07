@@ -35,19 +35,23 @@ export default function PageHeader({ userName, userId, active, formUrl, accountU
             <Button>{"<<"}</Button>
           </Link>
         </div>
+
+
         <div className="flex gap-2">
-          <Link href="#">
-            <Button onClick={() => handleOpenModal('transactionForm')} color="lightBlue" ripple="light">
-              <FontAwesomeIcon icon={faPlus} />
-              <span> Přidat</span>
-            </Button>
-          </Link>
+          {userId !== "0" && (
+            <Link href="#">
+              <Button onClick={() => handleOpenModal('transactionForm')}>
+                <FontAwesomeIcon icon={faPlus} />
+                <span> Transakce</span>
+              </Button>
+            </Link>
+          )}
 
           {formUrl && (
             <Link href={formUrl}>
-              <Button color="lightBlue" ripple="light">
+              <Button>
                 <FontAwesomeIcon icon={faPenToSquare} />
-                <span> Zákaznice</span>
+                <span> Upravit</span>
               </Button>
             </Link>
           )}
@@ -55,7 +59,7 @@ export default function PageHeader({ userName, userId, active, formUrl, accountU
 
           {accountUrl && (
             <Link href={accountUrl}>
-              <Button color="lightBlue" ripple="light">
+              <Button>
                 <FontAwesomeIcon icon={faSackDollar} />
                 <span> Účet</span>
               </Button>
@@ -64,7 +68,7 @@ export default function PageHeader({ userName, userId, active, formUrl, accountU
 
           {statsUrl && (
             <Link href={statsUrl}>
-              <Button color="lightBlue" ripple="light">
+              <Button>
                 <FontAwesomeIcon icon={faChartSimple} />
                 <span> Statistiky</span>
               </Button>

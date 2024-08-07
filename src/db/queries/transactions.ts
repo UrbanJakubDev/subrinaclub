@@ -1,5 +1,17 @@
 import { prisma } from '../pgDBClient';
 
+// Get single transaction by ID
+export async function getTransactionById(id: number) {
+    const transaction = await prisma.transaction.findUnique({
+        where: {
+            id: id,
+        },
+    });
+    return transaction;
+}
+
+
+
 /**
  * Retrieves transactions based on the specified year and type.
  * @param year - The year of the transactions.
@@ -247,4 +259,15 @@ export async function getQuarterPointsByAccountIdAndYear(accountId: number, year
       quarter: quarter.quarter,
       sumPoints: quarter._sum.amount,
   }));
+}
+
+
+// Remove transaction by ID
+export async function removeTransactionById(id: number) {
+    const transaction = await prisma.transaction.delete({
+        where: {
+            id: id,
+        },
+    });
+    return transaction;
 }

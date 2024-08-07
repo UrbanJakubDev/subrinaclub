@@ -1,5 +1,6 @@
 
-import { KpiCard } from '../../ui/stats/KpiCard';
+
+import KpiCard from '@/components/ui/stats/cardsWidgets/KpiCard';
 import { getQuarterPointsByAccountIdAndYear, getTotalDepositsByAccountId, getTotalDepositsByAccountIdAndYear } from '@/db/queries/transactions';
 
 type Props = {

@@ -49,9 +49,9 @@ export default function Filter({
     <input
       type="text"
       value={(columnFilterValue ?? "") as string}
+      placeholder="Hledat"
       onChange={(e) => column.setFilterValue(e.target.value)}
-      placeholder={column.columnDef.header as string}
-      className="w-full rounded ps-1 !text-black !bg-none"
+      className="w-full ps-1"
     />
   );
 }

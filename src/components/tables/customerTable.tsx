@@ -55,6 +55,12 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         cell: (info) => info.getValue(),
       },
       {
+        accessorKey: "phone",
+        header: "Telefon",
+        cell: (info) => info.getValue(),
+      },
+ 
+      {
         accessorKey: "ico",
         header: "IČ",
         cell: (info) => info.getValue(),
@@ -65,13 +71,23 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         cell: (info) => info.getValue(),
       },
       {
+        accessorKey: "dealer",
+        header: "Velkoobchod",
+        cell: (info) => info.getValue(),
+      },
+      {
+        accessorKey: "currentYearPoints",
+        header: "Roční konto",
+        cell: (info) => info.getValue(),
+      },
+      {
         accessorKey: "totalPoints",
         header: "Klubové konto",
         cell: (info) => info.getValue(),
       },
       {
-        accessorKey: "currentYearPoints",
-        header: "Body posledni rok",
+        accessorKey: "pointsInActiveSavingPeriod",
+        header: "Průběžné konto",
         cell: (info) => info.getValue(),
       },
       {

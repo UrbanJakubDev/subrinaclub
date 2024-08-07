@@ -3,14 +3,14 @@
 import React from "react";
 import { Suspense } from "react";
 import Loader from "../../ui/loader";
-import SimpleStat from "../../ui/stats/simple";
+import SimpleStat from "../../ui/stats/cardsWidgets/simple";
 import SalesManagerStatsTable from "../../tables/salesManagerStatsTable";
 import LineChart from "../../ui/charts/line";
 import { Typography } from "@material-tailwind/react";
 import { yearSelectOptions } from "@/utils/dateFnc";
-import { KpiCard } from "../../ui/stats/KpiCard";
 import SimpleSelectInput from "../../ui/inputs/simpleSelectInput";
 import { set } from "react-hook-form";
+import KpiCard from "@/components/ui/stats/cardsWidgets/KpiCard";
 
 type SalesManagerStatsProps = {
   salesManager?: any;
@@ -216,7 +216,7 @@ export default function SalesManagerStats({
           />
 
           <div className="flex flex-col mx-auto w-full my-4 gap-2">
-            <SimpleStat label="Klubové body - Celkem" value={totalPoints} />
+            <SimpleStat title="Klubové konto" value={totalPoints} />
             <KpiCard title="Počet bodů za kvartál" price={yearAverage} percentage={yearAverageChange + "%"} color={yearAverageChange > 0 ? "green" : "red"}/>
             <KpiCard title="Počet zákazníků" price={numOfCusomers} percentage={numOfActiveCusomers - 50} color="green" icon="Aktivní" />
           </div>
@@ -224,11 +224,11 @@ export default function SalesManagerStats({
 
         <div className="flex flex-col justify-center gap-4 mx-auto w-2/3">
           <div className="flex justify-between gap-2">
-            <SimpleStat label="Celkem za členy v Q1" value={quarterSum(1)} />
-            <SimpleStat label="Celkem za členy v Q2" value={quarterSum(2)} />
-            <SimpleStat label="Celkem za členy v Q3" value={quarterSum(3)} />
-            <SimpleStat label="Celkem za členy v Q4" value={quarterSum(4)} />
-            <SimpleStat label="Celkem za rok" value={quarterSum(1) + quarterSum(2) + quarterSum(3) + quarterSum(4)} />
+            <SimpleStat title="Celkem za členy v Q1" value={quarterSum(1)} />
+            <SimpleStat title="Celkem za členy v Q2" value={quarterSum(2)} />
+            <SimpleStat title="Celkem za členy v Q3" value={quarterSum(3)} />
+            <SimpleStat title="Celkem za členy v Q4" value={quarterSum(4)} />
+            <SimpleStat title="Celkem za rok" value={quarterSum(1) + quarterSum(2) + quarterSum(3) + quarterSum(4)} />
           </div>
           <LineChart series={chartSeries} categories={chartCategories} title="Počet bodů za čtvrtletí" description="Počet bodů za členy, podle čtvrtletí pro obchodníka " />
         </div>

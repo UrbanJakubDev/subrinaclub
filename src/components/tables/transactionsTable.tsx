@@ -93,11 +93,6 @@ export default function TransactionsTable({ defaultData, detailLinkPath }: Props
             cell: info => info.getValue(),
          },
          {
-            accessorKey: 'description',
-            header: 'Poznámka',
-            cell: info => info.getValue(),
-         },
-         {
             accessorKey: 'acceptedBonusOrder',
             header: 'Příjetí objednávky bonusu',
             cell: info => info.getValue(),

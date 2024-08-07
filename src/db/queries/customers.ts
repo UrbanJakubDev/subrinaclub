@@ -1,6 +1,6 @@
-import { Customer } from '@prisma/client';
-import { notFound } from 'next/navigation';
-import { prisma } from '../pgDBClient';
+import { Customer } from '@prisma/client'
+import { notFound } from 'next/navigation'
+import { prisma } from '../pgDBClient'
 
 // basic CRUD operations for customers
 
@@ -9,21 +9,21 @@ export class CustomerService {
         // Generate a unique publicId for the customer
         customer.publicId = `${customer.registrationNumber}SU${Math.random()
             .toString(36)
-            .substr(2, 9)}`;
+            .substr(2, 9)}`
 
         // If 1 change to true, if 0 change to false
-        customer.dealerId = customer.dealerId || null;
-        customer.salesManagerId = customer.salesManagerId || null;
+        customer.dealerId = customer.dealerId || null
+        customer.salesManagerId = customer.salesManagerId || null
 
-        const currentYear = new Date().getFullYear();
-        const currentQuarter = Math.floor((new Date().getMonth() + 3) / 3);
-        const savingStartDate = `${currentYear}-${currentQuarter}`;
-        const savingEndDate = `${currentYear + 2}-${currentQuarter}`;
+        const currentYear = new Date().getFullYear()
+        const currentQuarter = Math.floor((new Date().getMonth() + 3) / 3)
+        const savingStartDate = `${currentYear}-${currentQuarter}`
+        const savingEndDate = `${currentYear + 2}-${currentQuarter}`
 
         // Create the customer
         const newCustomer = await prisma.customer.create({
             data: customer,
-        });
+        })
 
         // Create the lifetime account for the customer
         const newAccount = await prisma.account.create({
@@ -32,7 +32,7 @@ export class CustomerService {
                 createdAt: new Date(),
                 customerId: newCustomer.id,
             },
-        });
+        })
 
         // Create saving period for the account
         await prisma.savingPeriod.create({
@@ -42,9 +42,9 @@ export class CustomerService {
                 balance: 0,
                 accountId: newAccount.id,
             },
-        });
+        })
 
-        return newCustomer;
+        return newCustomer
     }
 
     // Read all customers and join sum of positive transactions for each customer and add sales manager full name but flatten the data
@@ -56,7 +56,15 @@ export class CustomerService {
                         transactions: {
                             select: {
                                 year: true,
+                                quarter: true,
                                 amount: true,
+                            },
+                        },
+                        savingPeriods: {
+                            select: {
+                                active: true,
+                                savingStartDate: true,
+                                savingEndDate: true,
                             },
                         },
                     },
@@ -64,52 +72,108 @@ export class CustomerService {
                 salesManager: {
                     select: {
                         fullName: true,
-                    },  
+                    },
+                },
+                dealer: {
+                    select: {
+                        fullName: true,
+                    },
                 },
             },
-        });
-        
-    
+        })
 
         // Calculate the total points for each customer if transctions are positive return as string
         customers.forEach(customer => {
-            customer.totalPoints = customer.accounts.reduce((total, account) => {
-                const sum = account.transactions.reduce((total, transaction) => {
-                    return transaction.amount > 0 ? total + transaction.amount : total;
-                }, 0);
-                return total + sum;
-            }, 0).toString();
-        });
+            customer.totalPoints = customer.accounts
+                .reduce((total, account) => {
+                    const sum = account.transactions.reduce((total, transaction) => {
+                        return transaction.amount > 0 ? total + transaction.amount : total
+                    }, 0)
+                    return total + sum
+                }, 0)
+                .toString()
+        })
+
+        // Calulate the points in this year for each customer
+        customers.forEach(customer => {
+            customer.currentYearPoints = customer.accounts
+                .reduce((total, account) => {
+                    const sum = account.transactions.reduce((total, transaction) => {
+                        const currentYear = new Date().getFullYear()
+                        return transaction.year === currentYear && transaction.amount > 0
+                            ? total + transaction.amount
+                            : total
+                    }, 0)
+                    return total + sum
+                }, 0)
+                .toString()
+        })
 
         // Check if customer have transactions in the current year and set the flag
         customers.forEach(customer => {
             customer.hasCurrentYearPoints = customer.accounts.some(account =>
                 account.transactions.some(transaction => {
-                    const currentYear = new Date().getFullYear();
-                    return transaction.year === currentYear;
+                    const currentYear = new Date().getFullYear()
+                    return transaction.year === currentYear
                 }),
-            );
-        });
+            )
+        })
 
         // Flatten the salesManager object
         customers.forEach(customer => {
-            customer.salesManager = customer.salesManager?.fullName;
-        });
-
+            customer.salesManager = customer.salesManager?.fullName
+            customer.dealer = customer.dealer?.fullName
+        })
 
         // Find last transaction year for each customer as string
         customers.forEach(customer => {
-            customer.lastTransactionYear = customer.accounts.reduce((lastYear, account) => {
-                const maxYear = account.transactions.reduce((lastYear, transaction) => {
-                    return transaction.year > lastYear ? transaction.year : lastYear;
-                }, 0);
-                return maxYear > lastYear ? maxYear : lastYear;
-            }, 0).toString();
-        });
-        
+            customer.lastTransactionYear = customer.accounts
+                .reduce((lastYear, account) => {
+                    const maxYear = account.transactions.reduce((lastYear, transaction) => {
+                        return transaction.year > lastYear ? transaction.year : lastYear
+                    }, 0)
+                    return maxYear > lastYear ? maxYear : lastYear
+                }, 0)
+                .toString()
+        })
 
+        // Function to parse and compare the dates
+        const isTransactionInPeriod = (transaction, startDate, endDate) => {
+            let [startYear, startQuarter] = startDate.split('-').map(Number)
+            let [endYear, endQuarter] = endDate.split('-').map(Number)
 
-        return customers;
+            return (
+                (transaction.year === startYear && transaction.quarter >= startQuarter) ||
+                (transaction.year === endYear && transaction.quarter <= endQuarter) ||
+                (transaction.year > startYear && transaction.year < endYear)
+            )
+        }
+
+        // Iterate over customers to calculate points in active saving periods
+        customers.forEach(customer => {
+            customer.pointsInActiveSavingPeriod = customer.accounts
+                .flatMap(account => {
+                    return account.savingPeriods
+                        .filter(savingPeriod => savingPeriod.active) // Only consider active saving periods
+                        .map(savingPeriod => {
+                            const transactionsInPeriod = account.transactions.filter(transaction =>
+                                isTransactionInPeriod(
+                                    transaction,
+                                    savingPeriod.savingStartDate,
+                                    savingPeriod.savingEndDate,
+                                ),
+                            )
+                            const pointsSum = transactionsInPeriod.reduce(
+                                (sum, transaction) => sum + transaction.amount,
+                                0,
+                            )
+                            return pointsSum
+                        })
+                })
+                .reduce((sum, points) => sum + points, 0).toString() // Sum all points from active saving periods
+        })
+
+        return customers
     }
 
     // Read a customer by ID
@@ -118,58 +182,56 @@ export class CustomerService {
             where: {
                 id: id,
             },
-        });
+        })
         if (!customer) {
-            notFound();
+            notFound()
         }
-        return customer;
+        return customer
     }
 
     // Update a customer by ID
     async updateCustomerById(id: number, customer: Customer): Promise<Customer> {
-        const { dealerId, salesManagerId, ...customerData } = customer;
-    
+        const { dealerId, salesManagerId, ...customerData } = customer
+
         try {
             // Create the data object with customerData
             const data: any = {
                 ...customerData,
-            };
-    
+            }
+
             // Conditionally add dealer connection to the data object
             if (dealerId !== undefined) {
                 data.dealer = {
                     connect: {
                         id: dealerId,
                     },
-                };
+                }
             }
-    
+
             // Conditionally add sales manager connection to the data object
             if (salesManagerId !== undefined) {
                 data.salesManager = {
                     connect: {
                         id: salesManagerId,
                     },
-                };
+                }
             }
-    
+
             // Update the customer
             const updatedCustomer = await prisma.customer.update({
                 where: {
                     id: id,
                 },
                 data: data,
-            });
-    
-            return updatedCustomer;
+            })
+
+            return updatedCustomer
         } catch (error) {
             // Handle error
-            console.error('Error updating customer:', error);
-            throw error;
+            console.error('Error updating customer:', error)
+            throw error
         }
     }
-    
-    
 
     // Restore a customer by ID (set the active flag to true)
     async restoreCustomerById(id: number): Promise<Customer> {
@@ -180,8 +242,8 @@ export class CustomerService {
             data: {
                 active: true,
             },
-        });
-        return restoredCustomer;
+        })
+        return restoredCustomer
     }
 
     async geetCustomersForReportSeznamObratu() {
@@ -215,7 +277,7 @@ export class CustomerService {
         WHERE
             t."type" = 'DEPOSIT'
         GROUP BY
-            c."registrationNumber"`;
+            c."registrationNumber"`
 
         const formattedResult = result.map(row => ({
             ...row,
@@ -235,9 +297,9 @@ export class CustomerService {
             '2012': Number(row['2012']),
             '2011': Number(row['2011']),
             '2010': Number(row['2010']),
-        }));
+        }))
 
-        return formattedResult;
+        return formattedResult
     }
 
     // Get all customers, join with accounts and transactions to get the total points
@@ -250,8 +312,8 @@ export class CustomerService {
                     },
                 },
             },
-        });
-        return customers;
+        })
+        return customers
     }
 
     // Get the max registrationNumber from the customers
@@ -263,8 +325,8 @@ export class CustomerService {
             orderBy: {
                 registrationNumber: 'desc',
             },
-        });
-        return maxRegistrationNumber.registrationNumber;
+        })
+        return maxRegistrationNumber.registrationNumber
     }
 
     // Find if user exists by ico or fullName
@@ -273,7 +335,7 @@ export class CustomerService {
             where: {
                 ico: ico,
             },
-        });
-        return customer;
+        })
+        return customer
     }
 }

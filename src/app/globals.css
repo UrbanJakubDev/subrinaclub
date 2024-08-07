@@ -50,3 +50,17 @@ table {
   table-layout: auto;
 }
 
+
+
+/* Basic table  */
+.basic-table {
+  @apply w-full;
+}
+
+.basic-table tbody tr:nth-child(odd) {
+  @apply bg-gray-50;
+}
+
+.basic-table tbody tr:hover {
+  @apply bg-gray-100;
+}

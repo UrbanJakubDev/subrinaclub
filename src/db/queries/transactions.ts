@@ -80,12 +80,12 @@ export async function getTransactionsByAccountId(accountId: number) {
  * @returns The newly created transaction.
  */
 export async function addTransaction(transaction: any) {
-    if (transaction.type === '1') {
-        transaction.type = 'DEPOSIT';
-    }
-
-    if (transaction.type === '2') {
+    
+    // If the amount is negative, the transaction type is "WITHDRAW"
+    if (transaction.amount < 0) {
         transaction.type = 'WITHDRAW';
+    } else {
+        transaction.type = 'DEPOSIT';
     }
 
     const newTransaction = await prisma.transaction.create({

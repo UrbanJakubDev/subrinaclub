@@ -27,12 +27,12 @@ export const transactionValidationSchema = yup.object().shape({
     quarter: yup.number().required(),
     amount: yup.number().required(),
     type: yup.string().required(),
-    description: yup.string(),
-    acceptedBonusOrder: yup.date(),
-    sentBonusOrder: yup.date(),
-    bonusName: yup.string(),
-    bonusAmount: yup.number(),
-    accountId: yup.number(),
+    description: yup.string().nullable(),
+    acceptedBonusOrder: yup.date().nullable(),
+    sentBonusOrder: yup.date().nullable(),
+    bonusName: yup.string().nullable(),
+    bonusAmount: yup.number().nullable(),
+    accountId: yup.number().nullable(),
 });
 
 export const accountValidationSchema = yup.object().shape({

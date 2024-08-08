@@ -18,7 +18,6 @@ const SimpleSelectInput = ({
   const [selectedValue, setSelectedValue] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    console.log("Setting value", value);
     if (value !== undefined) {
       setSelectedValue(String(value));
     }

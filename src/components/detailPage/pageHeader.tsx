@@ -14,9 +14,11 @@ type Props = {
   formUrl?: string;
   accountUrl?: string;
   statsUrl?: string;
+  openModal?: boolean;
+  modalId?: string;
 };
 
-export default function PageHeader({ userName, userId, active, formUrl, accountUrl, statsUrl }: Props) {
+export default function PageHeader({ userName, userId, active, formUrl, accountUrl, statsUrl, openModal, modalId }: Props) {
 
   // Get actual path for conditional rendering
   const pathname = usePathname()
@@ -45,6 +47,17 @@ export default function PageHeader({ userName, userId, active, formUrl, accountU
                 <span> Transakce</span>
               </Button>
             </Link>
+          )}
+
+          {openModal && (
+            <>
+              <Link href="#">
+                <Button onClick={() => handleOpenModal(modalId)}>
+                  <FontAwesomeIcon icon={faPlus} />
+                  <span> Přidat</span>
+                </Button>
+              </Link>
+            </>
           )}
 
           {formUrl && (

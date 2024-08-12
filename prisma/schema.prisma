@@ -133,6 +133,9 @@ model Transaction {
   account   Account @relation(fields: [accountId], references: [id])
   accountId Int
 
+  bonus   Bonus? @relation(fields: [bonusId], references: [id])
+  bonusId Int? 
+
   // Indexes
   @@index([id], name: "idx_transaction_id")
   @@index([year], name: "idx_transaction_year")
@@ -181,4 +184,22 @@ model SavingPeriod {
   // Indexes
   @@index([id], name: "idx_saving_period_id")
   @@index([accountId], name: "idx_saving_period_account_id")
+}
+
+model Bonus {
+  id        Int      @id @default(autoincrement())
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  name        String
+  description String? @default("")
+  points      Int?    @default(0)
+  price       Int?    @default(0)
+
+  // Define relations
+  transactions Transaction[]
+
+  // Indexes
+  @@index([id], name: "idx_bonus_id")
 }

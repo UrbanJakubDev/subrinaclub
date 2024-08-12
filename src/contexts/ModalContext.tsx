@@ -11,7 +11,9 @@ const ModalProvider = ({ children }: { children: ReactNode }) => {
   const [modalData, setModalData] = useState({ transactionId: null });
   const [modalSubmitted, setModalSubmitted] = useState(false);
 
-  const handleOpenModal = (modalId: string, transactionId: number | null = null) => {
+
+  // TODO: Change transactionId to data object
+  const handleOpenModal = (modalId: string, transactionId: number | any = null) => {
     setModalData({ transactionId });
     setOpenModal(modalId);
   };

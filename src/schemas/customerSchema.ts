@@ -30,7 +30,6 @@ export const transactionValidationSchema = yup.object().shape({
     description: yup.string().nullable(),
     acceptedBonusOrder: yup.date().nullable(),
     sentBonusOrder: yup.date().nullable(),
-    bonusName: yup.string().nullable(),
     bonusAmount: yup.number().nullable(),
     bonusId: yup.number().nullable(),
     accountId: yup.number().nullable(),

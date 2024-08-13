@@ -85,7 +85,7 @@ export async function getTransactionsByAccountId(accountId: number) {
     // Map the transactions to include a custom field `bonusNameSelect`
     return transactions.map(transaction => ({
         ...transaction,
-        bonusNameSelect: transaction.bonus?.name || null,
+        bonusName: transaction.bonus?.name || null,
     }))
 }
 

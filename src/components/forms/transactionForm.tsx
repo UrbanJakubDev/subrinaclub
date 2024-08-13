@@ -301,14 +301,6 @@ const TransactionForm = (props: Props) => {
                            errors={errors}
                            defaultValue={defaultValues.bonusAmount}
                         />
-                        <InputField
-                           label="Bonus - jméno"
-                           name="bonusName"
-                           register={register}
-                           errors={errors}
-                           defaultValue={defaultValues.bonusName}
-                        />
-
                         <Controller
                            name="bonusId"
                            control={control}

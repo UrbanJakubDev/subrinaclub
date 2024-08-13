@@ -109,11 +109,6 @@ export default function TransactionsTable({ defaultData, detailLinkPath }: Props
             cell: info => info.getValue(),
          },
          {
-            accessorKey: 'bonusNameSelect',
-            header: 'Jméno bonusu',
-            cell: info => info.getValue(),
-         },
-         {
             accessorKey: 'bonusAmount',
             header: 'Cena bonusu',
             cell: info => info.getValue(),

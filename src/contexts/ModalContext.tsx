@@ -30,7 +30,7 @@ const ModalProvider = ({ children }: { children: ReactNode }) => {
 
 
   return (
-    <ModalContext.Provider value={{ openModal, handleOpenModal, handleCloseModal, modalData, modalSubmitted, handleModalSubmitted }}>
+    <ModalContext.Provider value={{ openModal, handleOpenModal, handleCloseModal, modalData, modalSubmitted, handleModalSubmitted, setModalSubmitted }}>
     {children}
   </ModalContext.Provider>
   );

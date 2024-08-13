@@ -18,16 +18,11 @@ export default function BonusesTable({ defaultData, detailLinkPath }: Props) {
 
    // Get modal context
    const { handleOpenModal } = useModal();
-
    const onEdit = (data: any) => {
       handleOpenModal("bonusFormModal", data);
    }
 
-
-
-
    // Column definitions
-
    const columns = React.useMemo<ColumnDef<any>[]>(
       () => [
          {

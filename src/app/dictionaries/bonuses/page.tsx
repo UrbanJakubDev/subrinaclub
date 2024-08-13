@@ -1,3 +1,4 @@
+import BonusDataWrapper from '@/components/blocks/bonus/bonusDataWrapper';
 import BonusFormComponent from '@/components/blocks/bonus/bonusFormComponent';
 import PageComponent from '@/components/detailPage/pageComponent';
 import PageHeader from '@/components/detailPage/pageHeader';
@@ -18,10 +19,10 @@ export default async function BonusesPage() {
             userId='0'
             active
             openModal
-            modalId='bonusForm2'
+            modalId='bonusFormModal'
          />
          BonusesPage
-         <BonusesTable defaultData={bonuses} />
+         <BonusDataWrapper initalData={bonuses} />
          <BonusFormComponent />
       </PageComponent>
    )

@@ -49,3 +49,22 @@ export async function deleteBonusById(id: number) {
     });
     return bonus;
 }
+
+// Get bonuses for options select return only active bonuses and id and name columns but return them as value and label
+export async function getBonusesForOptions() {
+    const bonuses = await prisma.bonus.findMany({
+        where: {
+            active: true,
+        },
+        select: {
+            id: true,
+            name: true,
+        },
+    });
+    return bonuses.map((bonus) => {
+        return {
+            value: bonus.id,
+            label: bonus.name,
+        };
+    });
+}

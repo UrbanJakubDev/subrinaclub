@@ -32,6 +32,7 @@ export const transactionValidationSchema = yup.object().shape({
     sentBonusOrder: yup.date().nullable(),
     bonusName: yup.string().nullable(),
     bonusAmount: yup.number().nullable(),
+    bonusId: yup.number().nullable(),
     accountId: yup.number().nullable(),
 });
 

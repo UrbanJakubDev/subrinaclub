@@ -10,6 +10,7 @@ import MyTable from './ui/baseTable'
 import Button from '../ui/button'
 import { useModal } from '@/contexts/ModalContext'
 import { toast } from 'react-toastify'
+import Loader from '../ui/loader'
 
 type Props = {
    defaultData: any[]
@@ -108,6 +109,11 @@ export default function TransactionsTable({ defaultData, detailLinkPath }: Props
             cell: info => info.getValue(),
          },
          {
+            accessorKey: 'bonusNameSelect',
+            header: 'Jméno bonusu',
+            cell: info => info.getValue(),
+         },
+         {
             accessorKey: 'bonusAmount',
             header: 'Cena bonusu',
             cell: info => info.getValue(),
@@ -136,7 +142,7 @@ export default function TransactionsTable({ defaultData, detailLinkPath }: Props
    const [data, _setData] = React.useState(() => [...defaultData])
 
    if (!data) {
-      return <div>Loading...</div>
+      return <Loader />
    }
 
    return (
@@ -150,6 +156,9 @@ export default function TransactionsTable({ defaultData, detailLinkPath }: Props
          <p>Celková bilance bodů: {getTotal(defaultData)}</p>
          <p>Celková bilance kladných bodů: {getTotal(defaultData, "positive")}</p>
          <p>Celková bilance záporných bodů: {getTotal(defaultData, "negative")}</p>
+         <pre>
+            {JSON.stringify(data, null, 2)}
+         </pre>
       </>
    )
 }

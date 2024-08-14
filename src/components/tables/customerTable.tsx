@@ -14,6 +14,8 @@ type Props = {
 
 export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
 
+  const tableName = "zákazník";
+
   // Change the data registrationNumber to a string
   defaultData.forEach((row) => {
     row.registrationNumber = row.registrationNumber.toString();
@@ -158,6 +160,7 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         {...{
           data,
           columns,
+          tableName,
         }}
       />
     </>

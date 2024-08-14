@@ -12,6 +12,7 @@ import { useModal } from '@/contexts/ModalContext'
 import { toast } from 'react-toastify'
 import Loader from '../ui/loader'
 import { info } from 'console'
+import formatThousandDelimiter from '@/utils/formatFncs'
 
 type Props = {
    defaultData: any[]
@@ -97,7 +98,7 @@ export default function TransactionsTable({ defaultData, detailLinkPath }: Props
                   (sum, row) => sum + row.getValue<number>('amount'),
                   0
                );
-               return `Total: ${total}`;
+               return `${total}`;
             },
          },
          {
@@ -125,7 +126,7 @@ export default function TransactionsTable({ defaultData, detailLinkPath }: Props
                   (sum, row) => sum + row.getValue<number>('bonusAmount'),
                   0
                );
-               return `Total: ${total}`;
+               return formatThousandDelimiter(total);
             },
          },
          {
@@ -133,10 +134,10 @@ export default function TransactionsTable({ defaultData, detailLinkPath }: Props
             header: 'Akce',
             cell: row => (
                <div className="flex justify-center gap-2">
-                  <Button onClick={() => onEdit(row.row.original.id)}>
+                  <Button size='sm' onClick={() => onEdit(row.row.original.id)}>
                      <FontAwesomeIcon icon={faPenToSquare} />
                   </Button>
-                  <Button onClick={() => onDelete(row.row.original.id)}>
+                  <Button size='sm' onClick={() => onDelete(row.row.original.id)}>
                      <FontAwesomeIcon icon={faTrash} />
                   </Button>
                </div>

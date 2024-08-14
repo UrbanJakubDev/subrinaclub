@@ -28,6 +28,7 @@
     "react-dom": "^18",
     "react-hook-form": "^7.51.3",
     "react-toastify": "^10.0.5",
+    "xlsx": "^0.18.5",
     "yup": "^1.4.0"
   },
   "devDependencies": {
@@ -41,7 +42,7 @@
     "@storybook/react": "^8.2.7",
     "@storybook/test": "^8.2.7",
     "@types/node": "^20",
-    "@types/react":"18.2.42",
+    "@types/react": "18.2.42",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",

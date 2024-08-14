@@ -5,6 +5,8 @@ import React from "react";
 import Button from "../ui/button";
 import MyTable from "./ui/baseTable";
 import { Card } from "@material-tailwind/react";
+import { faAddressCard, faUser } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 type Props = {
   defaultData: any[];
@@ -19,6 +21,8 @@ export default function SalesManagerStatsTable({
   defaultData.forEach((data) => {
     data.registrationNumber = data.registrationNumber.toString();
   });
+
+  const tableName = "Sales Manager Stats";
 
   // Column definitions
   const columns = React.useMemo<ColumnDef<any>[]>(
@@ -74,7 +78,7 @@ export default function SalesManagerStatsTable({
         header: "Akce",
         cell: (info) => (
           <Link href={`/users/${info.row.original.customerID}/stats`}>
-            <Button variant="primary"> Detail </Button>
+            <Button size="sm" className="font-light"><FontAwesomeIcon icon={faUser} style={{color: "#ffffff",}} /> Detail </Button>
           </Link>
         ),
         enableColumnFilter: false,
@@ -92,6 +96,7 @@ export default function SalesManagerStatsTable({
         {...{
           data,
           columns,
+          tableName,
         }}
       />
     </>

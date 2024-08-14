@@ -16,6 +16,8 @@ type Props = {
 
 export default function BonusesTable({ defaultData, detailLinkPath }: Props) {
 
+   const tableName = "bonus";
+
    // Get modal context
    const { handleOpenModal } = useModal();
    const onEdit = (data: any) => {
@@ -83,6 +85,7 @@ export default function BonusesTable({ defaultData, detailLinkPath }: Props) {
             {...{
                data,
                columns,
+               tableName,
             }}
          />
       </>

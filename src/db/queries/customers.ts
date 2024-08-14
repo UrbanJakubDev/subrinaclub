@@ -91,7 +91,6 @@ export class CustomerService {
                     }, 0)
                     return total + sum
                 }, 0)
-                .toString()
         })
 
         // Calulate the points in this year for each customer
@@ -106,7 +105,6 @@ export class CustomerService {
                     }, 0)
                     return total + sum
                 }, 0)
-                .toString()
         })
 
         // Check if customer have transactions in the current year and set the flag

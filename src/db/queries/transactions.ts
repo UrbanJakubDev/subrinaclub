@@ -82,6 +82,19 @@ export async function getTransactionsByAccountId(accountId: number) {
             },
         },
     })
+
+    // replace date format 2023-11-19T23:00:00.000Z	 with 2023-11-19 on column acceptedBonusOrder and sentBonusOrder
+    transactions.forEach(transaction => {
+        if (transaction.acceptedBonusOrder) {
+            transaction.acceptedBonusOrder = transaction.acceptedBonusOrder.split('T')[0]
+        }
+        if (transaction.sentBonusOrder) {
+            transaction.sentBonusOrder = transaction.sentBonusOrder.split('T')[0]
+        }
+    })
+
+
+
     // Map the transactions to include a custom field `bonusNameSelect`
     return transactions.map(transaction => ({
         ...transaction,

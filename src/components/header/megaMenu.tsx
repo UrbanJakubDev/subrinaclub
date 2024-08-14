@@ -1,10 +1,7 @@
 "use client"
 import React from "react";
 import {
-   Navbar,
-   Collapse,
    Typography,
-   IconButton,
    List,
    ListItem,
    Menu,
@@ -15,27 +12,44 @@ import {
 import Logo from "./logo";
 import User from "./user";
 import Link from "next/link";
-import { it } from "node:test";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCoins, faMedal, faUser } from "@fortawesome/free-solid-svg-icons";
+import { icon } from "@fortawesome/fontawesome-svg-core";
 
 const newMenuItems = [
    {
-      title: "Lidé",
+      title: "Zákazníci",
       items: [
          {
-            title: "Zákazníci",
+            title: "Základní přehled",
             description: "Find the perfect solution for your needs.",
             link: "/users",
+            icon: faUser,
          },
          {
-            title: "Obchondíci",
+            title: "Šetřící období",
             description: "Find the perfect solution for your needs.",
-            link: "/dealers",
+            link: "/users",
+            icon: faCoins,
          },
+         {
+            title: "Stříbrná a zlatá pozice",
+            description: "Find the perfect solution for your needs.",
+            link: "/users",
+            icon: faMedal,
+         },
+      ],
+   },
+   {
+      title: "Obchodní zástupci",
+      items: [
          {
             title: "Obchodní zástupci",
             description: "Find the perfect solution for your needs.",
             link: "/sales-managers",
+            icon: faUser,
          },
+
       ],
    },
    {
@@ -57,14 +71,14 @@ const newMenuItems = [
       title: "Čísleníky",
       items: [
          {
-            title: "Číselník - bonusy",
+            title: "Premium Bonusy",
             description: "Find the perfect solution for your needs.",
             link: "/dictionaries/bonuses",
          },
          {
-            title: "Číselník - obchodníci",
+            title: "Obchodníci",
             description: "Find the perfect solution for your needs.",
-            link: "#",
+            link: "/dealers",
          },
       ],
    }
@@ -72,11 +86,10 @@ const newMenuItems = [
 
 function NavListMenu({ title, items }) {
    const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-   const renderItems = items.map(({ title, description, link }, key) => (
+   const renderItems = items.map(({ title, description, link, icon }, key) => (
       <Link href={link} key={key}>
          <MenuItem className="flex items-center gap-3 rounded-lg">
-            <div className="flex items-center justify-center rounded-lg !bg-blue-gray-50 p-2 ">
-            </div>
+            <FontAwesomeIcon icon={icon} />
             <div>
                <Typography
                   variant="h6"
@@ -115,7 +128,7 @@ function NavListMenu({ title, items }) {
             </Typography>
          </MenuHandler>
          <MenuList className="max-w-screen-xl rounded-xl">
-            <ul className="grid grid-cols-3 gap-y-2 outline-none outline-0">
+            <ul className=" outline-none outline-0">
                {renderItems}
             </ul>
          </MenuList>

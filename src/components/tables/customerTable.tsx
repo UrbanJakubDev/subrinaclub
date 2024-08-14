@@ -14,10 +14,10 @@ type Props = {
 
 export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
 
-   // Change the data registrationNumber to a string
-    defaultData.forEach((row) => {
-        row.registrationNumber = row.registrationNumber.toString();
-    });
+  // Change the data registrationNumber to a string
+  defaultData.forEach((row) => {
+    row.registrationNumber = row.registrationNumber.toString();
+  });
 
   // Column definitions
   const columns = React.useMemo<ColumnDef<any>[]>(
@@ -59,7 +59,7 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         header: "Telefon",
         cell: (info) => info.getValue(),
       },
- 
+
       {
         accessorKey: "ico",
         header: "IČ",
@@ -79,11 +79,25 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         accessorKey: "currentYearPoints",
         header: "Roční konto",
         cell: (info) => info.getValue(),
+        footer: (info) => {
+          const total = info.table.getFilteredRowModel().rows.reduce(
+            (sum, row) => sum + row.getValue<number>('currentYearPoints'),
+            0
+          );
+          return `${total}`;
+        },
       },
       {
         accessorKey: "totalPoints",
         header: "Klubové konto",
         cell: (info) => info.getValue(),
+        footer: (info) => {
+          const total = info.table.getFilteredRowModel().rows.reduce(
+            (sum, row) => sum + row.getValue<number>('totalPoints'),
+            0
+          );
+          return `${total}`;
+        },
       },
       {
         accessorKey: "pointsInActiveSavingPeriod",

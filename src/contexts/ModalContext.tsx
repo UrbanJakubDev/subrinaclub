@@ -11,7 +11,9 @@ const ModalProvider = ({ children }: { children: ReactNode }) => {
   const [modalData, setModalData] = useState({ transactionId: null });
   const [modalSubmitted, setModalSubmitted] = useState(false);
 
-  const handleOpenModal = (modalId: string, transactionId: number | null = null) => {
+
+  // TODO: Change transactionId to data object
+  const handleOpenModal = (modalId: string, transactionId: number | any = null) => {
     setModalData({ transactionId });
     setOpenModal(modalId);
   };
@@ -28,7 +30,7 @@ const ModalProvider = ({ children }: { children: ReactNode }) => {
 
 
   return (
-    <ModalContext.Provider value={{ openModal, handleOpenModal, handleCloseModal, modalData, modalSubmitted, handleModalSubmitted }}>
+    <ModalContext.Provider value={{ openModal, handleOpenModal, handleCloseModal, modalData, modalSubmitted, handleModalSubmitted, setModalSubmitted }}>
     {children}
   </ModalContext.Provider>
   );

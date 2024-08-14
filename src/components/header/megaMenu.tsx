@@ -15,6 +15,7 @@ import {
 import Logo from "./logo";
 import User from "./user";
 import Link from "next/link";
+import { it } from "node:test";
 
 const newMenuItems = [
    {
@@ -52,6 +53,21 @@ const newMenuItems = [
          },
       ],
    },
+   {
+      title: "Čísleníky",
+      items: [
+         {
+            title: "Číselník - bonusy",
+            description: "Find the perfect solution for your needs.",
+            link: "/dictionaries/bonuses",
+         },
+         {
+            title: "Číselník - obchodníci",
+            description: "Find the perfect solution for your needs.",
+            link: "#",
+         },
+      ],
+   }
 ];
 
 function NavListMenu({ title, items }) {

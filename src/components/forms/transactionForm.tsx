@@ -27,11 +27,36 @@ const TransactionForm = (props: Props) => {
    const [defaultValues, setDefaultValues] = useState<any>(null);
    const [showForm, setShowForm] = useState(false);
    const [transactionType, setTransactionType] = useState('DEPOSIT');
+   const [bonusesDial, setBonusesDial] = useState<any>(null);
 
    const modalTitle = `Transakce pro ${props.customer.fullName}`;
    const formTitle = `Aktivní šetřící období: ${props.savingPeriod.savingStartDate} - ${props.savingPeriod.savingEndDate}`;
 
    const { modalData, openModal, handleCloseModal } = useModal();
+
+
+   // Get bonuses for select input options
+   const getBonuses = async () => {
+      try {
+         const response = await fetch(`/api/dictionaries/bonuses/options`);
+         const result = await response.json();
+
+         if (!response.ok) {
+            throw new Error(result.message);
+         }
+
+         return result;
+      } catch (error) {
+         console.error('Error:', error);
+      }
+   };
+
+   // Get bonuses on component mount
+   useEffect(() => {
+      getBonuses().then((data) => setBonusesDial(data));
+   }
+      , []);
+
 
    const {
       register,
@@ -184,7 +209,7 @@ const TransactionForm = (props: Props) => {
          title={modalTitle}
          description={formTitle}
       >
-         {showForm && defaultValues && (
+         {showForm && defaultValues && bonusesDial && (
             <div className='p-4'>
                <form onSubmit={handleSubmit(onSubmit)}>
                   <div className='flex flex-row gap-4'>
@@ -276,12 +301,25 @@ const TransactionForm = (props: Props) => {
                            errors={errors}
                            defaultValue={defaultValues.bonusAmount}
                         />
-                        <InputField
-                           label="Bonus - jméno"
-                           name="bonusName"
-                           register={register}
-                           errors={errors}
-                           defaultValue={defaultValues.bonusName}
+                        <Controller
+                           name="bonusId"
+                           control={control}
+                           defaultValue={defaultValues.bonusId}
+                           render={({ field }) => (
+                              <div>
+                                 <SimpleSelectInput
+                                    label="Vybrat Bonus..."
+                                    options={bonusesDial}
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                 />
+                                 {errors.bonusId && (
+                                    <span className="text-red-500 text-xs">
+                                       {errors.bonusId.message}
+                                    </span>
+                                 )}
+                              </div>
+                           )}
                         />
                      </div>
                   )}

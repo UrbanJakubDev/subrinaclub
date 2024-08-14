@@ -1,7 +1,10 @@
 export default function Loader() {
   return (
-      <div className="flex justify-center items-center h-screen">
-         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+    <div id="overlay" className="fixed inset-0 bg-gray-900 bg-opacity-50 flex flex-col items-center justify-center">
+      <div className="spinner-border animate-spin inline-block w-12 h-12 border-4 border-t-transparent border-white rounded-full" role="status">
+        <span className="sr-only">Načítám...</span>
       </div>
+      <span className="text-white text-xl">Načítám...</span>
+    </div>
   );
 }

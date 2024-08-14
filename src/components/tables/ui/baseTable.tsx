@@ -128,9 +128,25 @@ export default function MyTable({
                      );
                   })}
                </tbody>
+               <tfoot>
+                  <h4>Celkem</h4>
+                  {table.getFooterGroups().map(footerGroup => (
+                     <tr key={footerGroup.id} className="border-t pt-4 font-semibold">
+                        {footerGroup.headers.map(footer => (
+                           <td key={footer.id} colSpan={footer.colSpan} className="text-left">
+                              <div className="py-1">
+                                 <div className="mx-2">
+                                    {flexRender(footer.column.columnDef.footer, footer.getContext())}
+                                 </div>
+                              </div>
+                           </td>
+                        ))}
+                     </tr>
+                  ))}
+               </tfoot>
             </table>
          </Card>
-         
+
          <div className="flex justify-center gap-2 mx-auto mt-6">
             <div className="flex gap-2">
                <Button

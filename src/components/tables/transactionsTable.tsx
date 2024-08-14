@@ -10,6 +10,8 @@ import MyTable from './ui/baseTable'
 import Button from '../ui/button'
 import { useModal } from '@/contexts/ModalContext'
 import { toast } from 'react-toastify'
+import Loader from '../ui/loader'
+import { info } from 'console'
 
 type Props = {
    defaultData: any[]
@@ -24,7 +26,6 @@ export default function TransactionsTable({ defaultData, detailLinkPath }: Props
    const { handleOpenModal } = useModal();
 
    const getTotal = (data: any[], type?: any) => {
-
       switch (type) {
          case 'positive':
             return data.reduce((acc, row) => row.amount > 0 ? acc + row.amount : acc, 0)
@@ -71,7 +72,7 @@ export default function TransactionsTable({ defaultData, detailLinkPath }: Props
       () => [
          {
             accessorKey: 'id',
-            header: 'ID',
+            header: 'ID transakce',
             cell: info => info.getValue(),
             enableColumnFilter: false
          },
@@ -91,6 +92,13 @@ export default function TransactionsTable({ defaultData, detailLinkPath }: Props
             accessorKey: 'amount',
             header: 'Body',
             cell: info => info.getValue(),
+            footer: (info) => {
+               const total = info.table.getFilteredRowModel().rows.reduce(
+                  (sum, row) => sum + row.getValue<number>('amount'),
+                  0
+               );
+               return `Total: ${total}`;
+            },
          },
          {
             accessorKey: 'acceptedBonusOrder',
@@ -111,7 +119,14 @@ export default function TransactionsTable({ defaultData, detailLinkPath }: Props
             accessorKey: 'bonusAmount',
             header: 'Cena bonusu',
             cell: info => info.getValue(),
-            enableColumnFilter: false
+            enableColumnFilter: false,
+            footer: (info) => {
+               const total = info.table.getFilteredRowModel().rows.reduce(
+                  (sum, row) => sum + row.getValue<number>('bonusAmount'),
+                  0
+               );
+               return `Total: ${total}`;
+            },
          },
          {
             accessorKey: 'action',
@@ -136,7 +151,7 @@ export default function TransactionsTable({ defaultData, detailLinkPath }: Props
    const [data, _setData] = React.useState(() => [...defaultData])
 
    if (!data) {
-      return <div>Loading...</div>
+      return <Loader />
    }
 
    return (

@@ -1,4 +1,4 @@
-import { prisma } from '../pgDBClient';
+import { prisma } from '../pgDBClient'
 
 // Get single transaction by ID
 export async function getTransactionById(id: number) {
@@ -6,11 +6,9 @@ export async function getTransactionById(id: number) {
         where: {
             id: id,
         },
-    });
-    return transaction;
+    })
+    return transaction
 }
-
-
 
 /**
  * Retrieves transactions based on the specified year and type.
@@ -45,6 +43,12 @@ export async function getTransactions(year: number, type: 'DEPOSIT' | 'WITHDRAW'
                     },
                 },
             },
+            bonusId: true,
+            bonus: {
+                select: {
+                    name: true,
+                },
+            },
         },
         where: {
             year: year,
@@ -53,8 +57,8 @@ export async function getTransactions(year: number, type: 'DEPOSIT' | 'WITHDRAW'
         orderBy: {
             year: 'desc',
         },
-    });
-    return transactions;
+    })
+    return transactions
 }
 
 /**
@@ -70,8 +74,32 @@ export async function getTransactionsByAccountId(accountId: number) {
         orderBy: {
             year: 'desc',
         },
-    });
-    return transactions;
+        include: {
+            bonus: {
+                select: {
+                    name: true,
+                },
+            },
+        },
+    })
+
+    // replace date format 2023-11-19T23:00:00.000Z	 with 2023-11-19 on column acceptedBonusOrder and sentBonusOrder
+    transactions.forEach(transaction => {
+        if (transaction.acceptedBonusOrder) {
+            transaction.acceptedBonusOrder = transaction.acceptedBonusOrder.split('T')[0]
+        }
+        if (transaction.sentBonusOrder) {
+            transaction.sentBonusOrder = transaction.sentBonusOrder.split('T')[0]
+        }
+    })
+
+
+
+    // Map the transactions to include a custom field `bonusNameSelect`
+    return transactions.map(transaction => ({
+        ...transaction,
+        bonusName: transaction.bonus?.name || null,
+    }))
 }
 
 /**
@@ -80,18 +108,17 @@ export async function getTransactionsByAccountId(accountId: number) {
  * @returns The newly created transaction.
  */
 export async function addTransaction(transaction: any) {
-    
     // If the amount is negative, the transaction type is "WITHDRAW"
     if (transaction.amount < 0) {
-        transaction.type = 'WITHDRAW';
+        transaction.type = 'WITHDRAW'
     } else {
-        transaction.type = 'DEPOSIT';
+        transaction.type = 'DEPOSIT'
     }
 
     const newTransaction = await prisma.transaction.create({
         data: transaction,
-    });
-    return newTransaction;
+    })
+    return newTransaction
 }
 
 /**
@@ -106,8 +133,8 @@ export async function updateTransactionById(id: number, transaction: any) {
             id: id,
         },
         data: transaction,
-    });
-    return updatedTransaction;
+    })
+    return updatedTransaction
 }
 
 // Advanced Querying
@@ -121,7 +148,7 @@ export async function getTotalDepositsByAccountId(accountId: number) {
         select: {
             balancePointsCorrection: true,
         },
-    });
+    })
 
     const totalDeposits = await prisma.account.findMany({
         where: {
@@ -134,15 +161,15 @@ export async function getTotalDepositsByAccountId(accountId: number) {
                 },
             },
         },
-    });
+    })
 
     // Sum the amounts of the transactions to get the total deposits for the account and add account.balancePointsCorrection to the sum
     const total = totalDeposits.reduce((acc, account) => {
         return account.transactions.reduce((acc, transaction) => {
-            return acc + transaction.amount;
-        }, 0);
-    }, 0);
-    return total + account.balancePointsCorrection;
+            return acc + transaction.amount
+        }, 0)
+    }, 0)
+    return total + account.balancePointsCorrection
 }
 
 // Get the total of deposits for selected year based on the account ID
@@ -156,9 +183,9 @@ export async function getTotalDepositsByAccountIdAndYear(accountId: number, year
             year: year,
             type: 'DEPOSIT',
         },
-    });
+    })
 
-    return totalDeposits._sum.amount || 0;
+    return totalDeposits._sum.amount || 0
 }
 
 // Get the sum of transaction for account ID and between two dates
@@ -167,8 +194,8 @@ export async function getSumOfTransactionsByAccountIdAndDate(
     startDate: string,
     endDate: string,
 ) {
-    let [startYear, startQuarter] = startDate.split('-');
-    let [endYear, endQuarter] = endDate.split('-');
+    let [startYear, startQuarter] = startDate.split('-')
+    let [endYear, endQuarter] = endDate.split('-')
 
     const sumResult = await prisma.transaction.aggregate({
         _sum: {
@@ -197,9 +224,9 @@ export async function getSumOfTransactionsByAccountIdAndDate(
                 },
             ],
         },
-    });
+    })
 
-    return sumResult._sum.amount || 0;
+    return sumResult._sum.amount || 0
 }
 
 // Get the list of transactions for the account ID and between two dates
@@ -208,8 +235,8 @@ export async function getTransactionsByAccountIdAndDate(
     startDate: string,
     endDate: string,
 ) {
-    let [startYear, startQuarter] = startDate.split('-');
-    let [endYear, endQuarter] = endDate.split('-');
+    let [startYear, startQuarter] = startDate.split('-')
+    let [endYear, endQuarter] = endDate.split('-')
 
     const transactions = await prisma.transaction.findMany({
         where: {
@@ -235,32 +262,31 @@ export async function getTransactionsByAccountIdAndDate(
                 },
             ],
         },
-    });
+    })
 
-    return transactions;
+    return transactions
 }
 
 // Get array of sum of points points for the account id by the year. Return array of points for each quarter
 export async function getQuarterPointsByAccountIdAndYear(accountId: number, year: number) {
-  const quarters = await prisma.transaction.groupBy({
-      by: ['year', 'quarter'],
-      where: {
-          accountId: accountId,
-          year: year,
-          type: 'DEPOSIT',
-      },
-      _sum: {
-          amount: true,
-      },
-  });
+    const quarters = await prisma.transaction.groupBy({
+        by: ['year', 'quarter'],
+        where: {
+            accountId: accountId,
+            year: year,
+            type: 'DEPOSIT',
+        },
+        _sum: {
+            amount: true,
+        },
+    })
 
-  return quarters.map(quarter => ({
-      year: quarter.year,
-      quarter: quarter.quarter,
-      sumPoints: quarter._sum.amount,
-  }));
+    return quarters.map(quarter => ({
+        year: quarter.year,
+        quarter: quarter.quarter,
+        sumPoints: quarter._sum.amount,
+    }))
 }
-
 
 // Remove transaction by ID
 export async function removeTransactionById(id: number) {
@@ -268,6 +294,6 @@ export async function removeTransactionById(id: number) {
         where: {
             id: id,
         },
-    });
-    return transaction;
+    })
+    return transaction
 }

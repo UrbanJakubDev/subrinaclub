@@ -16,6 +16,8 @@ export default function SalesManagerTable({
   defaultData,
   detailLinkPath,
 }: Props) {
+
+  const tableName = "salesManager";
   // Column definitions
   const columns = React.useMemo<ColumnDef<any>[]>(
     () => [
@@ -80,6 +82,7 @@ export default function SalesManagerTable({
         {...{
           data,
           columns,
+          tableName,
         }}
       />
     </>

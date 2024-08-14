@@ -13,6 +13,8 @@ type Props = {
 };
 
 export default function DealerTable({ defaultData, detailLinkPath }: Props) {
+
+  const tableName = "dealer";
   // Column definitions
   const columns = React.useMemo<ColumnDef<any>[]>(
     () => [
@@ -64,6 +66,7 @@ export default function DealerTable({ defaultData, detailLinkPath }: Props) {
         {...{
           data,
           columns,
+          tableName,
         }}
       />
     </>

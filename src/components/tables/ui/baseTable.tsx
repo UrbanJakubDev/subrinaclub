@@ -3,17 +3,20 @@ import { ColumnDef, PaginationState, useReactTable, getCoreRowModel, getSortedRo
 import React from "react"
 import Filter from "./baseTableFnc"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faCheck, faSort, faSortDown, faSortUp, faTimes, faXmark } from "@fortawesome/free-solid-svg-icons"
-import { Button, Card, Chip, Input, Option, Select } from "@material-tailwind/react"
+import { faCheck, faDownload, faRotate, faSort, faSortDown, faSortUp, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { Button, ButtonGroup, Card, Chip, Input } from "@material-tailwind/react";
+import { timestampToDate } from "@/utils/dateFnc"
 
 
 
 export default function MyTable({
    data,
    columns,
+   tableName,
 }: {
    data: any[]
    columns: ColumnDef<any>[]
+   tableName: string
 }) {
    const [pagination, setPagination] = React.useState<PaginationState>({
       pageIndex: 0,
@@ -41,23 +44,82 @@ export default function MyTable({
 
    // Render Chip
    const ChipComponent = ({ value }: { value: any }) => {
-      if (value > 3000) {
-         return <Chip color="amber" value={value} />;
-      } else if (value > 1000) {
-         return <Chip variant="ghost" value={value} />;
+      if (value > 2500) {
+         return (
+            <div className="flex items-center">
+               <Chip color="amber" value={value} className="text-center" />
+            </div>
+         );
+      } else if (value > 1200) {
+         return (
+            <div className="flex items-center">
+               <Chip variant="ghost" value={value} className="text-center" />
+            </div>
+         );
       } else {
          return value;
       }
    };
 
 
+   // Export table to xlsx file, this function is called when the export button is clicked, use column.header to get the column name
+   const exportTable = () => {
+      // Get timestamp now in format: YYYY-MM-DD-HH-MM with timezone 
+      const timestamp = timestampToDate(new Date().toISOString());
+
+
+      const header = table.getHeaderGroups().map(headerGroup => {
+         return headerGroup.headers.map(header => header.column.columnDef.header)
+      }).flat()
+
+      const data = table.getRowModel().rows.map(row => {
+         return row.getAllCells().map(cell => cell.getValue())
+      })
+
+      // Create a new workbook
+      const XLSX = require('xlsx');
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet([header, ...data]);
+      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+      XLSX.writeFile(wb, `${tableName}-${timestamp}.xlsx`);
+
+   }
+
+   const exportAll = () => {
+      // Get timestamp now
+      const timestamp = timestampToDate(new Date().toISOString());
+
+      // Extract all headers
+      const header = table.getAllColumns().map(column => column.columnDef.header);
+
+      // Extract all row data
+      const data = table.getCoreRowModel().rows.map(row => {
+         return row.getAllCells().map(cell => cell.getValue());
+      });
+
+      // Create a new workbook
+      const XLSX = require('xlsx');
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet([header, ...data]);
+      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+      XLSX.writeFile(wb, `${tableName}-${timestamp}-vše.xlsx`);
+   }
+
+
+
 
    return (
       <div className="w-scrren mx-auto overflow-auto">
          <Card className="p-4 text-gray-900">
-
-            <table className='text-sm basic-table'>
-               <thead className='border-b text-black'>
+            <div className="flex justify-end gap-2">
+               <ButtonGroup size="sm">
+                  <Button onClick={() => table.reset()} ><FontAwesomeIcon icon={faRotate} size="lg" style={{ color: "#fff", }} /></Button>
+                  <Button onClick={exportTable} className="font-light" ><FontAwesomeIcon icon={faDownload} style={{ color: "#ffffff", }} /> Export</Button>
+                  <Button onClick={exportAll} color="blue" className="font-light" ><FontAwesomeIcon icon={faDownload} style={{ color: "#ffffff", }} /> Export Vše</Button>
+               </ButtonGroup>
+            </div>
+            <table className='text-sm basic-table !text-gray-800'>
+               <thead className='border-b '>
                   {table.getHeaderGroups().map(headerGroup => (
                      <React.Fragment key={headerGroup.id}>
                         <tr>
@@ -116,6 +178,7 @@ export default function MyTable({
                                                 <FontAwesomeIcon icon={faXmark} style={{ color: "#ff0000", }} />
                                              )
                                           ) : (
+
                                              flexRender(cell.column.columnDef.cell, cell.getContext())
                                           )
                                        )
@@ -202,7 +265,7 @@ export default function MyTable({
                   value={table.getState().pagination.pageSize}
                   onChange={e => { table.setPageSize(Number(e.target.value)) }}
                >
-                  {[5, 10, 23, 30, 40, 50, 100, 150, 200, 300, 500].map(pageSize => (
+                  {[5, 10, 23, 30, 40, 50, 100, 150, 200, 300, 500, 5000].map(pageSize => (
                      <option key={pageSize} value={pageSize}>
                         Show {pageSize}
                      </option>
@@ -214,7 +277,6 @@ export default function MyTable({
             Zobrazeno {table.getRowModel().rows.length.toLocaleString()} z{' '}
             {table.getRowCount().toLocaleString()} záznamů.
          </div>
-         {/* <pre>{JSON.stringify(table.getState().pagination, null, 2)}</pre> */}
       </div>
    )
 }

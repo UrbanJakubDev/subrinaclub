@@ -162,7 +162,7 @@ export default function MyTable({
                         <tr key={row.id} className='text-left hover:bg-zinc-50 whitespace-nowrap'>
                            {row.getVisibleCells().map(cell => {
                               return (
-                                 <td key={cell.id} className=" whitespace-nowrap text-left max-w-32 text-wrap ">
+                                 <td key={cell.id} className=" whitespace-nowrap text-left max-w-44 text-wrap ">
                                     {
                                        // If the cell accssorKey is "totalPoints", render the value in bold
                                        cell.column.columnDef.accessorKey === 'totalPoints' ? (

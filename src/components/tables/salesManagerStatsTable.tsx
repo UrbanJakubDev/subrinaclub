@@ -33,8 +33,34 @@ export default function SalesManagerStatsTable({
         cell: (info) => info.getValue(),
       },
       {
+        accessorKey: "customerSalonName",
+        header: "Jméno salonu",
+        cell: (info) => info.getValue(),
+      },
+      {
+        accessorKey: "salonAddress",
+        header: "Adresa",
+        cell: (info) => info.getValue(),
+      },
+      {
+        accessorKey: "salonTown",
+        header: "Město",
+        cell: (info) => info.getValue(),
+      },
+      {
+        accessorKey: "salonPsc",
+        header: "PSČ",
+        cell: (info) => info.getValue(),
+      },
+      {
         accessorKey: "customerFullName",
         header: "Jméno",
+        cell: (info) => info.getValue(),
+        filterFn: "auto",
+      },
+      {
+        accessorKey: "phone",
+        header: "Telefon",
         cell: (info) => info.getValue(),
         filterFn: "auto",
       },
@@ -78,7 +104,7 @@ export default function SalesManagerStatsTable({
         header: "Akce",
         cell: (info) => (
           <Link href={`/users/${info.row.original.customerID}/stats`}>
-            <Button size="sm" className="font-light"><FontAwesomeIcon icon={faUser} style={{color: "#ffffff",}} /> Detail </Button>
+            <Button size="sm" className="font-light"><FontAwesomeIcon icon={faUser} style={{ color: "#ffffff", }} /> Detail </Button>
           </Link>
         ),
         enableColumnFilter: false,

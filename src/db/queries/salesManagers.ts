@@ -1,10 +1,20 @@
 import { prisma } from "../pgDBClient";
 
+// Basic CRUD operations for the 'salesManager' model
+/**
+ * Retrieves a list of sales managers from the database.
+ * @returns {Promise<Array<SalesManager>>} A promise that resolves to an array of sales managers.
+ */
 export async function getSalesManagers() {
   let salesManagers = await prisma.salesManager.findMany();
   return salesManagers;
 }
 
+/**
+ * Retrieves a sales manager by their ID.
+ * @param id - The ID of the sales manager.
+ * @returns A Promise that resolves to the sales manager object.
+ */
 export async function getSalesManagerById(id: number) {
   let salesManager = await prisma.salesManager.findUnique({
     where: {
@@ -14,6 +24,11 @@ export async function getSalesManagerById(id: number) {
   return salesManager;
 }
 
+/**
+ * Creates a new sales manager in the database.
+ * @param data - The data for the sales manager.
+ * @returns The created sales manager.
+ */
 export async function createSalesManager(data: any) {
   let salesManager = await prisma.salesManager.create({
     data: {
@@ -23,10 +38,15 @@ export async function createSalesManager(data: any) {
   return salesManager;
 }
 
+/**
+ * Updates a sales manager in the database.
+ * @param id - The ID of the sales manager to update.
+ * @param data - The updated data for the sales manager.
+ * @returns The updated sales manager object.
+ */
 export async function updateSalesManager(id: number, data: any) {
 
   data.registrationNumber = parseInt(data.registrationNumber);
-
   let salesManager = await prisma.salesManager.update({
     where: {
       id: id,
@@ -37,6 +57,30 @@ export async function updateSalesManager(id: number, data: any) {
   });
   return salesManager;
 }
+
+
+/**
+ * Retrieves sales managers for select options.
+ * @returns An array of sales managers with their id and name.
+ */
+export async function getSalesManagersForSelect() {
+  let salesManagers = await prisma.salesManager.findMany({
+    select: {
+      id: true,
+      fullName: true,
+    },
+  });
+  
+  return salesManagers.map((salesManager) => ({
+    id: salesManager.id,
+    name: salesManager.fullName,
+  }));
+}
+
+
+
+
+// Advanced queries for the 'salesManager' model
 
 export async function getCustomersListBySalesManagerId(salesManagerId: number) {
   let customers = await prisma.customer.findMany({
@@ -88,6 +132,11 @@ export async function getListOfTransactionsBySalesManagerId(
                 id: true,
                 fullName: true,
                 registrationNumber: true,
+                salonName: true,
+                address: true,
+                town: true,
+                psc: true,
+                phone: true,
                 dealer: {
                   select: {
                     fullName: true,
@@ -110,7 +159,12 @@ export async function getListOfTransactionsBySalesManagerId(
         year: transaction.year,
         quarter: transaction.quarter,
         registrationNumber: transaction.account.customer.registrationNumber,
-        dealerName: transaction.account.customer.dealer.fullName,
+        dealerName: transaction.account.customer.dealer?.fullName || "",
+        customerSalonName: transaction.account.customer.salonName || "",
+        salonAddress: transaction.account.customer.address || "",
+        salonTown: transaction.account.customer.town || "",
+        salonPsc: transaction.account.customer.psc || "",
+        phone: transaction.account.customer.phone || "",
       }));
 
     return formattedTransactions;
@@ -236,16 +290,4 @@ export async function getCustomerCountBySalesManagerIdAndStatus(
   return customerCount;
 }
 
-export async function getSalesManagersForSelect() {
-  let salesManagers = await prisma.salesManager.findMany({
-    select: {
-      id: true,
-      fullName: true,
-    },
-  });
-  
-  return salesManagers.map((salesManager) => ({
-    id: salesManager.id,
-    name: salesManager.fullName,
-  }));
-}
+

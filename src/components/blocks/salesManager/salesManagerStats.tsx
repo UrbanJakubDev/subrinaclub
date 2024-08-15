@@ -31,7 +31,6 @@ export default function SalesManagerStats({
   const [apiDataLastYear, setApiDataLastYear] = React.useState<any[]>([]);
   const [yearAverage, setYearAverage] = React.useState(0);
   const [yearAverageLastYear, setYearAverageLastYear] = React.useState(0);
-  const [yearAverageChange, setYearAverageChange] = React.useState(0);
   const salesManagerId = salesManager?.id;
   const [selectedYear, setSelectedYear] = React.useState(2023);
   const [chartSeries, setChartSeries] = React.useState<any[]>([
@@ -84,26 +83,6 @@ export default function SalesManagerStats({
     setChartSeries(series);
   }
 
-  // On API data change, calculate the year average
-  React.useEffect(() => {
-    if (apiData) {
-      setYearAverage(calcyYearAverage(apiData));
-    }
-  }, [apiData]);
-
-  // On API data last year change, update the chart series
-  React.useEffect(() => {
-    if (apiDataLastYear) {
-      setYearAverageLastYear(calcyYearAverage(apiDataLastYear));
-    }
-  }, [apiDataLastYear]);
-
-  // On year average change, calculate the percentage change
-  React.useEffect(() => {
-    setYearAverageChange(calcPercentageChange(yearAverage, yearAverageLastYear));
-  }, [yearAverage, yearAverageLastYear]);
-
-
 
   React.useEffect(() => {
     updateChartSeries();
@@ -135,29 +114,14 @@ export default function SalesManagerStats({
     return sum;
   }
 
-  // Sum API data.amount for average points for selected year
-  const calcyYearAverage = (data) => {
-    let sum = 0;
-    let count = 0;
-    data.forEach((transaction) => {
-      if (transaction.amount > 0) {
-        sum += transaction.amount;
-        count++;
-      }
-    });
-    return sum / 4;
-  }
-
   function calculateQuarterSums(data) {
     const result = {};
     data.forEach(entry => {
       const key = `${entry.customerID}_${entry.customerFullName}`;
       if (!result[key]) {
         result[key] = {
-          customerID: entry.customerID,
-          customerFullName: entry.customerFullName,
-          registrationNumber: entry.registrationNumber,
-          dealerName: entry.dealerName,
+          // Spread the entry to the result
+          ...entry,
           sumQ1: 0,
           sumQ2: 0,
           sumQ3: 0,
@@ -189,16 +153,12 @@ export default function SalesManagerStats({
         entry.totalPoints = customer.totalPoints;
       }
     });
+
     return Object.values(result);
   }
 
-  // Calculate percentage change between two values and round to 2 decimal places
-  const calcPercentageChange = (value1, value2) => {
-    return Math.round(((value1 - value2) / value2) * 100);
-  }
 
-
-  if (!salesManager || !apiData) {
+  if (!salesManager) {
     <Loader />;
   }
 
@@ -217,7 +177,6 @@ export default function SalesManagerStats({
 
           <div className="flex flex-col mx-auto w-full my-4 gap-2">
             <SimpleStat title="Klubové konto" value={totalPoints} />
-            <KpiCard title="Počet bodů za kvartál" price={yearAverage} percentage={yearAverageChange + "%"} color={yearAverageChange > 0 ? "green" : "red"}/>
             <KpiCard title="Počet zákazníků" price={numOfCusomers} percentage={numOfActiveCusomers - 50} color="green" icon="Aktivní" />
           </div>
         </div>
@@ -237,7 +196,9 @@ export default function SalesManagerStats({
       </div>
 
       {apiData.length > 0 ? <SalesManagerStatsTable detailLinkPath={"users/"} defaultData={calculateQuarterSums(apiData)} /> : <Loader />}
-
+      <pre>
+        {JSON.stringify(apiData, null, 2)}
+      </pre>
     </>
   );
 }

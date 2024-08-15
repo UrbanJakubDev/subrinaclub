@@ -28,8 +28,26 @@ export default function SalesManagerTable({
         enableColumnFilter: false,
       },
       {
+        accessorKey: "registrationNumber",
+        header: "Registrační číslo",
+        cell: (info) => info.getValue(),
+        enableColumnFilter: false,
+      },
+      {
+        accessorKey: "ico",
+        header: "IČO",
+        cell: (info) => info.getValue(),
+        enableColumnFilter: false,
+      },
+      {
         accessorKey: "fullName",
         header: "Jméno",
+        cell: (info) => info.getValue(),
+        filterFn: "auto",
+      },
+      {
+        accessorKey: "phone",
+        header: "Telefon",
         cell: (info) => info.getValue(),
         filterFn: "auto",
       },

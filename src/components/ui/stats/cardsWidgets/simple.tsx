@@ -14,7 +14,7 @@ const SimpleStat = ({ title, value, color, units }: Props) => {
   
 
   return (
-    <Card className="shadow-sm border border-gray-200 !rounded-lg grow">
+    <Card className="shadow-md border border-gray-200 !rounded-lg grow">
       <CardBody className="p-4">
         <div className="flex flex-col justify-between text-gray-900">
           <Typography variant="small" children={title} />

@@ -6,17 +6,20 @@ import Loader from "../../ui/loader";
 import SimpleStat from "../../ui/stats/cardsWidgets/simple";
 import SalesManagerStatsTable from "../../tables/salesManagerStatsTable";
 import LineChart from "../../ui/charts/line";
-import { Typography } from "@material-tailwind/react";
+import { Card, Typography } from "@material-tailwind/react";
 import { yearSelectOptions } from "@/utils/dateFnc";
 import SimpleSelectInput from "../../ui/inputs/simpleSelectInput";
 import { set } from "react-hook-form";
 import KpiCard from "@/components/ui/stats/cardsWidgets/KpiCard";
+import CustomersActiveWidget from "@/components/ui/stats/cardsWidgets/customersActiveWidget";
+import NoData from "@/components/ui/noData";
 
 type SalesManagerStatsProps = {
   salesManager?: any;
   totalPoints?: any;
   numOfCusomers?: any;
   numOfActiveCusomers?: any;
+  numOfSystemActiveCusomers?: any;
   customersTotalPoints?: any;
 };
 
@@ -25,12 +28,12 @@ export default function SalesManagerStats({
   totalPoints,
   numOfCusomers,
   numOfActiveCusomers,
+  numOfSystemActiveCusomers,
   customersTotalPoints,
 }: SalesManagerStatsProps) {
   const [apiData, setApiData] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState<boolean>(true);
   const [apiDataLastYear, setApiDataLastYear] = React.useState<any[]>([]);
-  const [yearAverage, setYearAverage] = React.useState(0);
-  const [yearAverageLastYear, setYearAverageLastYear] = React.useState(0);
   const salesManagerId = salesManager?.id;
   const [selectedYear, setSelectedYear] = React.useState(2023);
   const [chartSeries, setChartSeries] = React.useState<any[]>([
@@ -45,6 +48,7 @@ export default function SalesManagerStats({
 
 
   const fetchApi = async (year: Number) => {
+    setLoading(true);
     if (!salesManagerId || selectedYear === 0) {
       return;
     }
@@ -60,6 +64,8 @@ export default function SalesManagerStats({
 
     const response = await fetch(url, header);
     const data = await response.json();
+
+    setLoading(false);
     return data;
   };
 
@@ -164,24 +170,30 @@ export default function SalesManagerStats({
 
   return (
     <>
-      <div className="w-full flex gap-4 mb-4">
+      <div className="flex w-full gap-4 mb-4">
         <div className="w-1/3">
-          <Typography className="text-2xl font-bold" >{salesManager.fullName}</Typography>
-          <Typography className=" mb-2 font-light" >Statistika bodů pro obchodníka</Typography>
-          <SimpleSelectInput
-            label="Vybrat Rok..."
-            onChange={(value) => setSelectedYear(value)}
-            options={yearSelectOptions()}
-            value={selectedYear} // Ensure the value is also passed to maintain the controlled state
-          />
+          <Card className="shadow-md border p-4 border-gray-200 !rounded-lg grow">
+            <Typography className="text-2xl font-bold text-gray-900" >{salesManager.fullName}</Typography>
+            <Typography className="mb-2 font-light " >Statistika bodů pro obchodníka</Typography>
+            <SimpleSelectInput
+              label="Vybrat Rok..."
+              onChange={(value) => setSelectedYear(value)}
+              options={yearSelectOptions()}
+              value={selectedYear} // Ensure the value is also passed to maintain the controlled state
+            />
+          </Card>
 
-          <div className="flex flex-col mx-auto w-full my-4 gap-2">
+          <div className="flex flex-col w-full gap-2 mx-auto my-4">
             <SimpleStat title="Klubové konto" value={totalPoints} />
-            <KpiCard title="Počet zákazníků" price={numOfCusomers} percentage={numOfActiveCusomers - 50} color="green" icon="Aktivní" />
+            <CustomersActiveWidget
+              title="Aktivní zákazníci"
+              allCustomers={numOfCusomers}
+              systemActiveCustomers={numOfSystemActiveCusomers}
+              activeCustomers={numOfActiveCusomers} />
           </div>
         </div>
 
-        <div className="flex flex-col justify-center gap-4 mx-auto w-2/3">
+        <div className="flex flex-col justify-center w-2/3 h-full gap-4 mx-auto">
           <div className="flex justify-between gap-2">
             <SimpleStat title="Celkem za členy v Q1" value={quarterSum(1)} />
             <SimpleStat title="Celkem za členy v Q2" value={quarterSum(2)} />
@@ -195,10 +207,15 @@ export default function SalesManagerStats({
 
       </div>
 
-      {apiData.length > 0 ? <SalesManagerStatsTable detailLinkPath={"users/"} defaultData={calculateQuarterSums(apiData)} /> : <Loader />}
-      <pre>
-        {JSON.stringify(apiData, null, 2)}
-      </pre>
+      {loading ? (
+        <Loader />
+      ) : (
+        apiData.length > 0 ? (
+          <SalesManagerStatsTable detailLinkPath={"users/"} defaultData={calculateQuarterSums(apiData)} />
+        ) : (
+          <NoData />
+        )
+      )}
     </>
   );
 }

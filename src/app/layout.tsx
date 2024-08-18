@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Open_Sans } from "next/font/google";
 import "./globals.css";
 import NavIndex from "../components/header";
 import Footer from "../components/footer";
 import Toast from "@/components/ui/toast";
 import Script from "next/script";
 
-const inter = Inter({ subsets: ["latin"] });
+const os = Open_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -21,9 +21,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <Script  src="node_modules/@material-tailwind/html@latest/scripts/dialog.js" />
-      <body className={inter.className}>
+      <body className={os.className}>
         <NavIndex />
-        <main className="w-screen mx-auto overflow-hidden flex-grow pt-2 bg-gray-50">
+        <main className="flex-grow w-screen mx-auto overflow-hidden bg-blue-gray-50">
           {children}
         </main>
         <Footer />

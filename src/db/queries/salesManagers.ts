@@ -291,3 +291,25 @@ export async function getCustomerCountBySalesManagerIdAndStatus(
 }
 
 
+// Get count of customer which have active status and have some transactions in the current year
+export async function getActiveCustomersWithTransactionsBySalesManagerId(
+  salesManagerId: number,
+  year: number
+) {
+  const customerCount = await prisma.customer.count({
+    where: {
+      salesManagerId: salesManagerId,
+      active: true,
+      accounts: {
+        some: {
+          transactions: {
+            some: {
+              year: year,
+            },
+          },
+        },
+      },
+    },
+  });
+  return customerCount;
+}

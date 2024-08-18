@@ -1,6 +1,6 @@
 import PageHeader from "@/components/detailPage/pageHeader";
 import SalesManagerStats from "@/components/blocks/salesManager/salesManagerStats";
-import { getCustomerCountBySalesManagerId, getCustomerCountBySalesManagerIdAndStatus, getSalesManagerById, getTotalAmountOfTransactionsBySalesManagerId, getTotalPointsBySalesManagerId } from "@/db/queries/salesManagers";
+import { getActiveCustomersWithTransactionsBySalesManagerId, getCustomerCountBySalesManagerId, getCustomerCountBySalesManagerIdAndStatus, getSalesManagerById, getTotalAmountOfTransactionsBySalesManagerId, getTotalPointsBySalesManagerId } from "@/db/queries/salesManagers";
 import PageComponent from "@/components/detailPage/pageComponent";
 
 export default async function SalesManagersDetailStats({
@@ -13,7 +13,8 @@ export default async function SalesManagersDetailStats({
   const totalPoints = await getTotalAmountOfTransactionsBySalesManagerId(sales_manager_id);
   const customersClubPoints = await getTotalPointsBySalesManagerId(sales_manager_id);
   const numOfCusomers = await getCustomerCountBySalesManagerId(sales_manager_id);
-  const numOfActiveCusomers = await getCustomerCountBySalesManagerIdAndStatus(sales_manager_id, true);
+  const numOfActiveCusomers = await getActiveCustomersWithTransactionsBySalesManagerId(sales_manager_id, 2024);
+  const numOfSystemActiveCusomers = await getCustomerCountBySalesManagerIdAndStatus(sales_manager_id, true);
 
   if (!salesManager) {
     return <div>Uživatel nenalezen</div>;
@@ -33,6 +34,7 @@ export default async function SalesManagersDetailStats({
           totalPoints={totalPoints}
           numOfCusomers={numOfCusomers}
           numOfActiveCusomers={numOfActiveCusomers}
+          numOfSystemActiveCusomers={numOfSystemActiveCusomers}
           customersTotalPoints={customersClubPoints}
         />
       </div>

@@ -4,6 +4,6 @@ type Props = {}
 
 export default function FooterIndex({}: Props) {
   return (
-    <div className='min-w-full bg-white border-t border-black text-center py-2'>Subrina Club - 2024 ™</div>
+    <div className='w-screen py-2 text-center text-white bg-gray-900'>Subrina Club - 2024 ™</div>
   )
 }

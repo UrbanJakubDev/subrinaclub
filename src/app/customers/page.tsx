@@ -1,3 +1,4 @@
+import PageComponent from "@/components/detailPage/pageComponent";
 import CustomerTable from "@/components/tables/customerTable";
 import Button from "@/components/ui/button";
 import Loader from "@/components/ui/loader";
@@ -11,7 +12,7 @@ type Props = {};
 export default async function Users({ }: Props) {
   // Get all users
   const customerService = new CustomerService();
-  const customers = await customerService.getCustomers();
+  const customers = await customerService.getCustomers(true);
 
 
   if (!customers) {
@@ -19,16 +20,11 @@ export default async function Users({ }: Props) {
   }
 
   return (
-    <div className="p-6 content-container">
-      <div className="w-full flex justify-between my-2">
+    <PageComponent>
+      <div className="flex justify-between w-full my-2">
         <Typography variant="h3">Zákazníci - základní přehled</Typography>
-        <Button size="sm">
-          <Link href="/users/0">
-            Přidat zákazníka
-          </Link>
-        </Button>
       </div>
       <CustomerTable defaultData={customers} detailLinkPath="/users" />
-    </div>
+    </PageComponent>
   );
 }

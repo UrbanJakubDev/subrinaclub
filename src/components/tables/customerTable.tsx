@@ -3,9 +3,12 @@ import { faChartSimple, faPenToSquare } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
-import React from "react";
+import React, { use } from "react";
 import MyTable from "./ui/baseTable";
 import { Button } from "@material-tailwind/react";
+import { useModal } from "@/contexts/ModalContext";
+import { redirect } from "next/dist/server/api-utils";
+import { useRouter } from "next/navigation";
 
 type Props = {
   defaultData: any[];
@@ -14,7 +17,9 @@ type Props = {
 
 export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
 
+  const router = useRouter()
   const tableName = "zákazník";
+
 
   // Change the data registrationNumber to a string
   defaultData.forEach((row) => {
@@ -152,6 +157,7 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
     []
   );
 
+
   const [data, _setData] = React.useState(() => [...defaultData]);
 
   return (
@@ -161,6 +167,9 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
           data,
           columns,
           tableName,
+          onAddClick: () => {
+            router.push(`${detailLinkPath}/0`);
+          }
         }}
       />
     </>

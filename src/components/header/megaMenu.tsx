@@ -23,19 +23,19 @@ const newMenuItems = [
          {
             title: "Základní přehled",
             description: "Find the perfect solution for your needs.",
-            link: "/users",
+            link: "/customers",
             icon: faUser,
          },
          {
             title: "Šetřící období",
             description: "Find the perfect solution for your needs.",
-            link: "/users",
+            link: "/customers",
             icon: faCoins,
          },
          {
             title: "Stříbrná a zlatá pozice",
             description: "Find the perfect solution for your needs.",
-            link: "/users",
+            link: "/customers",
             icon: faMedal,
          },
       ],

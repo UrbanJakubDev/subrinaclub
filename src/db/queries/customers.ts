@@ -48,7 +48,7 @@ export class CustomerService {
     }
 
     // Read all customers and join sum of positive transactions for each customer and add sales manager full name but flatten the data
-    async getCustomers(): Promise<Customer[]> {
+    async getCustomers( active = true): Promise<Customer[]> {
         const customers = await prisma.customer.findMany({
             include: {
                 accounts: {
@@ -79,6 +79,9 @@ export class CustomerService {
                         fullName: true,
                     },
                 },
+            },
+            where: {
+                active: active,
             },
         })
 

@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCheck, faDownload, faRotate, faSort, faSortDown, faSortUp, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { Button, ButtonGroup, Card, Chip, Input } from "@material-tailwind/react";
 import { timestampToDate } from "@/utils/dateFnc"
+import { useModal } from "@/contexts/ModalContext";
 
 
 
@@ -13,16 +14,20 @@ export default function MyTable({
    data,
    columns,
    tableName,
+   onAddClick,
 }: {
    data: any[]
    columns: ColumnDef<any>[]
    tableName: string
+   onAddClick?: () => void
 }) {
    const [pagination, setPagination] = React.useState<PaginationState>({
       pageIndex: 0,
       pageSize: 50,
    })
    const [columnVisibility, setColumnVisibility] = React.useState({})
+
+   // Get modal context for the table
 
    const table = useReactTable({
       columns,
@@ -105,13 +110,17 @@ export default function MyTable({
       XLSX.writeFile(wb, `${tableName}-${timestamp}-vše.xlsx`);
    }
 
-
-
+   const handleAddClick = () => {
+      if (onAddClick) {
+         onAddClick()
+      }
+   }
 
    return (
-      <div className="w-scrren mx-auto overflow-auto">
+      <div className="mx-auto overflow-auto w-scrren">
          <Card className="p-4 text-gray-900">
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-between gap-2">
+               <Button size="sm" onClick={handleAddClick}>Přidat</Button>
                <ButtonGroup size="sm">
                   <Button onClick={() => table.reset()} ><FontAwesomeIcon icon={faRotate} size="lg" style={{ color: "#fff", }} /></Button>
                   <Button onClick={exportTable} className="font-light" ><FontAwesomeIcon icon={faDownload} style={{ color: "#ffffff", }} /> Export</Button>
@@ -162,7 +171,7 @@ export default function MyTable({
                         <tr key={row.id} className='text-left hover:bg-zinc-50 whitespace-nowrap'>
                            {row.getVisibleCells().map(cell => {
                               return (
-                                 <td key={cell.id} className=" whitespace-nowrap text-left max-w-44 text-wrap ">
+                                 <td key={cell.id} className="text-left whitespace-nowrap max-w-44 text-wrap">
                                     {
                                        // If the cell accssorKey is "totalPoints", render the value in bold
                                        cell.column.columnDef.accessorKey === 'totalPoints' ? (
@@ -192,20 +201,21 @@ export default function MyTable({
                   })}
                </tbody>
                <tfoot>
-                  <h4>Celkem</h4>
-                  {table.getFooterGroups().map(footerGroup => (
-                     <tr key={footerGroup.id} className="border-t pt-4 font-semibold">
-                        {footerGroup.headers.map(footer => (
-                           <td key={footer.id} colSpan={footer.colSpan} className="text-left">
-                              <div className="py-1">
-                                 <div className="mx-2">
-                                    {flexRender(footer.column.columnDef.footer, footer.getContext())}
+                  <>
+                     {table.getFooterGroups().map(footerGroup => (
+                        <tr key={footerGroup.id} className="pt-4 font-semibold border-t">
+                           {footerGroup.headers.map(footer => (
+                              <td key={footer.id} colSpan={footer.colSpan} className="text-left">
+                                 <div className="py-1">
+                                    <div className="mx-2">
+                                       {flexRender(footer.column.columnDef.footer, footer.getContext())}
+                                    </div>
                                  </div>
-                              </div>
-                           </td>
-                        ))}
-                     </tr>
-                  ))}
+                              </td>
+                           ))}
+                        </tr>
+                     ))}
+                  </>
                </tfoot>
             </table>
          </Card>
@@ -274,8 +284,7 @@ export default function MyTable({
             </div>
          </div>
          <div className='mt-2'>
-            Zobrazeno {table.getRowModel().rows.length.toLocaleString()} z{' '}
-            {table.getRowCount().toLocaleString()} záznamů.
+            {`Zobrazeno ${table.getRowModel().rows.length} z ${table.getRowCount()} záznamů.`}
          </div>
       </div>
    )

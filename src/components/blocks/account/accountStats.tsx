@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import React, { Suspense, useEffect, useState } from "react";
 import SimpleSelectInput from "../../ui/inputs/simpleSelectInput";
 import { IAccount, ICustomer } from "../../../interfaces/interfaces";
@@ -10,6 +10,7 @@ import KpiCard from "@/components/ui/stats/cardsWidgets/KpiCard";
 import SimpleStat from "@/components/ui/stats/cardsWidgets/simple";
 import ProductCardWidget from "@/components/ui/stats/cardsWidgets/ProductCardWidget";
 import { Button, Card, Typography } from "@material-tailwind/react";
+import Loader from "@/components/ui/loader";
 
 type Props = {
   customer: ICustomer;
@@ -238,26 +239,26 @@ export default function AccountStats({ customer, account, transactions }: Props)
   const chartData = convertToChartData(mostFavouriteProductValue);
 
   if (!chartData || !mostFavouriteProductValue) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
 
   return (
     <div className="flex flex-col gap-10">
-      <Card className="border bg-gray-100 p-4">
+      <Card className="p-4 bg-gray-100 border">
         <div className="mb-4">
           <Typography
             variant="h5"
-            className="color-gray-900 mb-4 "
+            className="mb-4 color-gray-900 "
             children={`Statistika bodů na účtu s id: ${account.id} pro zákazníka - ${customer.fullName}`}
           />
           {transactions.length > 0 && (
-              <LineChart
-                title="Vývoj bodů na Klubovém kontu"
-                description="Graf vývoje bodů za posledních 10 let"
-                series={series}
-                categories={categories}
-              />
+            <LineChart
+              title="Vývoj bodů na Klubovém kontu"
+              description="Graf vývoje bodů za posledních 10 let"
+              series={series}
+              categories={categories}
+            />
           )}
         </div>
         <div className="flex gap-4">
@@ -274,12 +275,12 @@ export default function AccountStats({ customer, account, transactions }: Props)
             <Button className="w-full" onClick={() => setSelectedYear(selectedYear - 1)}>-</Button>
           </div>
           <div className="w-full">
-            <div className="flex flex-row justify-stretch mx-auto gap-4 mb-4">
+            <div className="flex flex-row gap-4 mx-auto mb-4 justify-stretch">
               <SimpleStat title="Bodový stav na konci roku" value={clubAccountBalance} units="b." />
               <SimpleStat title="Celkově vybráno bonusů za" value={withdrawPrice} units="Kč" />
               <SimpleStat title={`Suma bodů získaných ve vybraném roce: ${selectedYear === 0 ? "Nevybráno" : selectedYear}`} value={sumPointsInYear(transactions, selectedYear)} />
             </div>
-            <div className="flex flex-row justify-stretch mx-auto gap-4">
+            <div className="flex flex-row gap-4 mx-auto justify-stretch">
               <KpiCard title={`Suma bodu za 1q ${selectedYear}`} percentage={""} price={sumTransactionPointsInQuarter(transactions, selectedYear, 1)} color={""} />
               <KpiCard title={`Suma bodu za 2q ${selectedYear}`} percentage={""} price={sumTransactionPointsInQuarter(transactions, selectedYear, 2)} color={""} />
               <KpiCard title={`Suma bodu za 3q ${selectedYear}`} percentage={""} price={sumTransactionPointsInQuarter(transactions, selectedYear, 3)} color={""} />
@@ -290,22 +291,22 @@ export default function AccountStats({ customer, account, transactions }: Props)
       </Card>
 
 
-      <Card className="border bg-gray-100 p-4">
+      <Card className="p-4 bg-gray-100 border">
         <Typography
           variant="h5"
-          className="color-gray-900 mb-4"
+          className="mb-4 color-gray-900"
           children="Nejoblíbenější produkty"
         />
         <div className="flex justify-between w-full gap-4">
           <div className="w-1/2">
             {chartData && (
-              <Suspense fallback={<div>Loading...</div>}>
-                <Donut data={chartData}
-                />  </Suspense>
+
+              <Donut data={chartData}
+              />
             )
             }
           </div>
-          <div className="grid grid-cols-3 w-full gap-4">
+          <div className="grid w-full grid-cols-3 gap-4">
             {Object.keys(mostFavouriteProductValue).map((key) => {
               return (
                 <div key={key} className="w-full">

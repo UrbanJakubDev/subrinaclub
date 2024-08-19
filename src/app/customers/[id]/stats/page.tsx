@@ -3,7 +3,6 @@ import PageComponent from "@/components/detailPage/pageComponent";
 import PageHeader from "@/components/detailPage/pageHeader";
 import TransactionForm from "@/components/forms/transactionForm";
 import TransactionsTable from "@/components/tables/transactionsTable";
-import Loader from "@/components/ui/loader";
 import { getAccountByUserId } from "@/db/queries/accounts";
 import { CustomerService } from "@/db/queries/customers";
 import { getTransactionsByAccountId } from "@/db/queries/transactions";
@@ -18,8 +17,8 @@ export default async function UserDetailStats({
 
   const customerService = new CustomerService();
 
-  const customer = (await customerService.getCustomerById(customer_id)) as ICustomer;
-  const account = (await getAccountByUserId(customer_id)) as IAccount;
+  const customer = await customerService.getCustomerById(customer_id) as ICustomer;
+  const account = await getAccountByUserId(customer_id) as IAccount;
   const transactions = await getTransactionsByAccountId(account.id);
   const savingPeriods = account?.savingPeriods;
   const activeSavingPeriod = savingPeriods.find((savingPeriod: any) => savingPeriod.active)

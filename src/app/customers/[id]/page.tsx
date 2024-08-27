@@ -8,13 +8,14 @@ import { CustomerService } from "@/db/queries/customers";
 import { DealerService } from "@/db/queries/dealers";
 import { getSalesManagersForSelect } from "@/db/queries/salesManagers";
 import { getSavingPeriodByUserId } from "@/db/queries/savingPeridos";
-import { getTransactionsByAccountId } from "@/db/queries/transactions";
+import { getTransactionsByAccountId, getTransactionsByAccountIdAndDate } from "@/db/queries/transactions";
 import { ICustomer } from "@/interfaces/interfaces";
 import { Suspense } from "react";
-import AccountDetail from "@/components/blocks/account/detail";
+import AccountDetail from "@/components/blocks/customer/account/detail";
 import SavingPeriodStats from "@/components/blocks/savingPeriod/savingPeriodStats";
 import TransactionForm from "@/components/forms/transactionForm";
 import PageComponent from "@/components/detailPage/pageComponent";
+import DetailDataWrapper from "@/components/blocks/customer/detailDataWrapper";
 
 export default async function UserDetail({
   params,
@@ -67,15 +68,15 @@ export default async function UserDetail({
   }
 
   const customerId = parseInt(params.id);
-  const [customer, account, savingPeriod] = await Promise.all([
-    customerService.getCustomerById(customerId),
-    getAccountByUserId(customerId),
-    getSavingPeriodByUserId(customerId),
+  const [customer, account] = await Promise.all([customerService.getCustomerById(customerId),getAccountByUserId(customerId),
   ]);
 
-  const transactions = await getTransactionsByAccountId(account.id);
+  const activeSavingPeriod = account?.savingPeriods.find((sp) => sp.active);
 
-  if (!customer) {
+  const transactions = await getTransactionsByAccountId(account.id);
+  const transactionsInPeriod = await getTransactionsByAccountIdAndDate(account.id, activeSavingPeriod.savingStartDate, activeSavingPeriod.savingEndDate);
+
+  if (!customer || !account || !transactions || !transactionsInPeriod) {
     return <Loader />;
   }
 
@@ -86,24 +87,25 @@ export default async function UserDetail({
         userName={customer.fullName || "Nový zákazník"}
         userId={customer.id.toString()}
         active={customer.active}
-        accountUrl={`/accounts/${account.id}`}
-        statsUrl={`/users/${customer.id}/stats`}
+        accountUrl={`/customers/${customer.id}/account`}
+        statsUrl={`/customers/${customer.id}/stats`}
+        addBtn
       />
       <div className="flex flex-grow gap-4 p-2">
         <div className="h-full w-full">
           <h2 className="text-lg font-semibold">{`Editace - ${customer.fullName}`}</h2>
           <small className=" text-gray-700">Přehled atributů pro ůčet s ID: {account.id}</small>
-          <Suspense fallback={<Loader />}>
+          {dealers && salesManagers && customer && (
             <CustomerForm customer={customer} dials={{ dealers, salesManagers }} />
-          </Suspense>
+          )}
+
         </div>
-        {customerId && account && transactions && (
-          <div className="h-full w-full flex flex-col gap-6">
-            <AccountDetail account={account} />
-            <SavingPeriodStats savingPeriod={savingPeriod} />
-            <TransactionForm accountId={account.id} customer={customer} savingPeriod={savingPeriod} />
-          </div>
-        )}
+        <DetailDataWrapper initialCustomer={customer} initData={
+          {
+            initTransactions: transactions,
+            initTransactionsInPeriod: transactionsInPeriod,
+          }
+        } />
       </div>
 
     </PageComponent>

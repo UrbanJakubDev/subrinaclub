@@ -6,9 +6,68 @@ export async function getTransactionById(id: number) {
         where: {
             id: id,
         },
+        include: {
+            account: {
+                select: {
+                    customer: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                },
+            },
+        },
+
     })
     return transaction
 }
+
+/**
+ * Adds a new transaction to the database.
+ * @param transaction - The transaction object to be added.
+ * @returns The newly created transaction.
+ */
+export async function addTransaction(transaction: any) {
+    // If the amount is negative, the transaction type is "WITHDRAW"
+    if (transaction.amount < 0) {
+        transaction.type = 'WITHDRAW'
+    } else {
+        transaction.type = 'DEPOSIT'
+    }
+
+    const newTransaction = await prisma.transaction.create({
+        data: transaction,
+    })
+    return newTransaction
+}
+
+/**
+ * Updates a transaction in the database.
+ * @param id - The ID of the transaction to be updated.
+ * @param transaction - The updated transaction object.
+ * @returns The updated transaction.
+ */
+export async function updateTransactionById(id: number, transaction: any) {
+    const updatedTransaction = await prisma.transaction.update({
+        where: {
+            id: id,
+        },
+        data: transaction,
+    })
+    return updatedTransaction
+}
+
+// Remove transaction by ID
+export async function removeTransactionById(id: number) {
+    const transaction = await prisma.transaction.delete({
+        where: {
+            id: id,
+        },
+    })
+    return transaction
+}
+
+
 
 /**
  * Retrieves transactions based on the specified year and type.
@@ -31,6 +90,7 @@ export async function getTransactions(year: number, type: 'DEPOSIT' | 'WITHDRAW'
                 select: {
                     customer: {
                         select: {
+                            id: true,
                             fullName: true,
                             town: true,
                             registrationNumber: true,
@@ -102,40 +162,7 @@ export async function getTransactionsByAccountId(accountId: number) {
     }))
 }
 
-/**
- * Adds a new transaction to the database.
- * @param transaction - The transaction object to be added.
- * @returns The newly created transaction.
- */
-export async function addTransaction(transaction: any) {
-    // If the amount is negative, the transaction type is "WITHDRAW"
-    if (transaction.amount < 0) {
-        transaction.type = 'WITHDRAW'
-    } else {
-        transaction.type = 'DEPOSIT'
-    }
 
-    const newTransaction = await prisma.transaction.create({
-        data: transaction,
-    })
-    return newTransaction
-}
-
-/**
- * Updates a transaction in the database.
- * @param id - The ID of the transaction to be updated.
- * @param transaction - The updated transaction object.
- * @returns The updated transaction.
- */
-export async function updateTransactionById(id: number, transaction: any) {
-    const updatedTransaction = await prisma.transaction.update({
-        where: {
-            id: id,
-        },
-        data: transaction,
-    })
-    return updatedTransaction
-}
 
 // Advanced Querying
 // Get the total of deposits over the years based on the account ID
@@ -288,12 +315,3 @@ export async function getQuarterPointsByAccountIdAndYear(accountId: number, year
     }))
 }
 
-// Remove transaction by ID
-export async function removeTransactionById(id: number) {
-    const transaction = await prisma.transaction.delete({
-        where: {
-            id: id,
-        },
-    })
-    return transaction
-}

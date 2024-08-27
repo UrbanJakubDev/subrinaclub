@@ -10,14 +10,6 @@ export default async function BonusesPage() {
 
    return (
       <PageComponent>
-         <PageHeader
-            userName='Všechny bonusy'
-            userId='0'
-            active
-            openModal
-            modalId='bonusFormModal'
-         />
-         BonusesPage
          <BonusDataWrapper initalData={bonuses} />
          <BonusFormComponent />
       </PageComponent>

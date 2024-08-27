@@ -1,5 +1,5 @@
 "use client"
-import { faPenToSquare, faChartSimple } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare, faChartSimple, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@material-tailwind/react";
 import { ColumnDef } from "@tanstack/react-table";
@@ -7,6 +7,7 @@ import Link from "next/link";
 import React from "react";
 import MyTable from "./ui/baseTable";
 import { useModal } from "@/contexts/ModalContext";
+import { toast } from "react-toastify";
 
 type Props = {
    defaultData: any[];
@@ -19,10 +20,37 @@ export default function BonusesTable({ defaultData, detailLinkPath }: Props) {
    const tableName = "bonus";
 
    // Get modal context
-   const { handleOpenModal } = useModal();
+   const { handleOpenModal, setModalSubmitted } = useModal();
    const onEdit = (data: any) => {
       handleOpenModal("bonusFormModal", data);
    }
+
+   const onAdd = () => {
+      handleOpenModal("bonusFormModal", {});
+   }
+
+   const deleteBonus = async (id: number) => {
+      try {
+         const response = await fetch(`/api/dictionaries/bonuses/${id}`, {
+            method: "DELETE",
+         });
+         if (!response.ok) {
+            throw new Error("Error deleting bonus");
+         }
+         const data = await response.json();
+         return data;
+      } catch (error) {
+         console.error("Failed to delete bonus", error);
+      }
+   }
+
+   const onDelete = (id: number) => {
+      if (confirm('Opravdu chcete smazat tento bonus?')) {
+         deleteBonus(id);
+         toast.success("Bonus byl smazán");
+         setModalSubmitted(true);
+      }
+   };
 
    // Column definitions
    const columns = React.useMemo<ColumnDef<any>[]>(
@@ -32,11 +60,6 @@ export default function BonusesTable({ defaultData, detailLinkPath }: Props) {
             header: "ID",
             cell: (info) => info.getValue(),
             filterFn: "auto",
-         },
-         {
-            accessorKey: "active",
-            header: "Aktivní",
-            cell: (info) => info.getValue(),
          },
          {
             accessorKey: "name",
@@ -68,6 +91,9 @@ export default function BonusesTable({ defaultData, detailLinkPath }: Props) {
                      <Button onClick={() => onEdit(row.row.original)}>
                         <FontAwesomeIcon icon={faPenToSquare} />
                      </Button>
+                     <Button onClick={() => onDelete(row.row.original.id)}>
+                        <FontAwesomeIcon icon={faTrash} />
+                     </Button>
                   </div>
                </div>
             ),
@@ -86,6 +112,8 @@ export default function BonusesTable({ defaultData, detailLinkPath }: Props) {
                data,
                columns,
                tableName,
+               addBtn: true,
+               onAddClick: onAdd,
             }}
          />
       </>

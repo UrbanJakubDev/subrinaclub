@@ -56,6 +56,7 @@ export interface ICustomer {
   salesManager?: ISalesManager;
   salesManagerSinceQ?: number;
   salesManagerSinceYear?: number;
+  accounts: IAccount[];
 }
 
 export interface IAccount {
@@ -66,6 +67,8 @@ export interface IAccount {
   openedAt: Date | null;
   closedAt: Date | null;
   customerId: number;
+  transactions: ITransaction[];
+  savingPeriods: ISavingPeriod[];
 }
 
 

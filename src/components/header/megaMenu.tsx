@@ -21,20 +21,20 @@ const newMenuItems = [
       title: "Zákazníci",
       items: [
          {
-            title: "Základní přehled",
-            description: "Find the perfect solution for your needs.",
+            title: "Přehled",
+            description: "Základní informace o zákaznících.",
             link: "/customers",
             icon: faUser,
          },
          {
             title: "Šetřící období",
-            description: "Find the perfect solution for your needs.",
+            description: "Přehled aktivních šetřících období. Hromadné akce.",
             link: "/customers",
             icon: faCoins,
          },
          {
             title: "Stříbrná a zlatá pozice",
-            description: "Find the perfect solution for your needs.",
+            description: "Vyhodnocení stříbrné a zlaté pozice.",
             link: "/customers",
             icon: faMedal,
          },
@@ -44,8 +44,8 @@ const newMenuItems = [
       title: "Obchodní zástupci",
       items: [
          {
-            title: "Obchodní zástupci",
-            description: "Find the perfect solution for your needs.",
+            title: "Přehled",
+            description: "Základní informace o obchodních zástupcích.",
             link: "/sales-managers",
             icon: faUser,
          },
@@ -72,13 +72,13 @@ const newMenuItems = [
       items: [
          {
             title: "Premium Bonusy",
-            description: "Find the perfect solution for your needs.",
+            description: "Čísleník premium bonusů.",
             link: "/dictionaries/bonuses",
          },
          {
             title: "Obchodníci",
-            description: "Find the perfect solution for your needs.",
-            link: "/dealers",
+            description: "Čísleník obchodníků.",
+            link: "/dictionaries/dealers",
          },
       ],
    }

@@ -1,5 +1,5 @@
 "use client"
-import { ColumnDef, PaginationState, useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel, getPaginationRowModel, flexRender } from "@tanstack/react-table"
+import { ColumnDef, PaginationState, useReactTable, getCoreRowModel, getSortedRowModel, getFilteredRowModel, getPaginationRowModel, flexRender, getFacetedRowModel } from "@tanstack/react-table"
 import React from "react"
 import Filter from "./baseTableFnc"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -14,11 +14,13 @@ export default function MyTable({
    data,
    columns,
    tableName,
+   addBtn,
    onAddClick,
 }: {
    data: any[]
    columns: ColumnDef<any>[]
    tableName: string
+   addBtn?: boolean
    onAddClick?: () => void
 }) {
    const [pagination, setPagination] = React.useState<PaginationState>({
@@ -47,24 +49,6 @@ export default function MyTable({
       // autoResetPageIndex: false, // turn off page index reset when sorting or filtering
    })
 
-   // Render Chip
-   const ChipComponent = ({ value }: { value: any }) => {
-      if (value > 2500) {
-         return (
-            <div className="flex items-center">
-               <Chip color="amber" value={value} className="text-center" />
-            </div>
-         );
-      } else if (value > 1200) {
-         return (
-            <div className="flex items-center">
-               <Chip variant="ghost" value={value} className="text-center" />
-            </div>
-         );
-      } else {
-         return value;
-      }
-   };
 
 
    // Export table to xlsx file, this function is called when the export button is clicked, use column.header to get the column name
@@ -86,7 +70,7 @@ export default function MyTable({
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.aoa_to_sheet([header, ...data]);
       XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-      XLSX.writeFile(wb, `${tableName}-${timestamp}.xlsx`);
+      XLSX.writeFile(wb, `${tableName}-${timestamp}.xls`);
 
    }
 
@@ -107,7 +91,7 @@ export default function MyTable({
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.aoa_to_sheet([header, ...data]);
       XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-      XLSX.writeFile(wb, `${tableName}-${timestamp}-vše.xlsx`);
+      XLSX.writeFile(wb, `${tableName}-${timestamp}-vše.xls`);
    }
 
    const handleAddClick = () => {
@@ -120,7 +104,7 @@ export default function MyTable({
       <div className="mx-auto overflow-auto w-scrren">
          <Card className="p-4 text-gray-900">
             <div className="flex justify-between gap-2">
-               <Button size="sm" onClick={handleAddClick}>Přidat</Button>
+               {addBtn ? <Button size="sm" className="font-light" onClick={handleAddClick}>Přidat</Button> : <span></span>}
                <ButtonGroup size="sm">
                   <Button onClick={() => table.reset()} ><FontAwesomeIcon icon={faRotate} size="lg" style={{ color: "#fff", }} /></Button>
                   <Button onClick={exportTable} className="font-light" ><FontAwesomeIcon icon={faDownload} style={{ color: "#ffffff", }} /> Export</Button>
@@ -172,27 +156,7 @@ export default function MyTable({
                            {row.getVisibleCells().map(cell => {
                               return (
                                  <td key={cell.id} className="text-left whitespace-nowrap max-w-44 text-wrap">
-                                    {
-                                       // If the cell accssorKey is "totalPoints", render the value in bold
-                                       cell.column.columnDef.accessorKey === 'totalPoints' ? (
-                                          <ChipComponent value={cell.getValue()} />
-                                       ) : (
-
-
-                                          // If the cell value is true or false, render a checkmark or an X
-                                          typeof cell.getValue() === 'boolean' ? (
-                                             cell.getValue() ? (
-                                                <FontAwesomeIcon icon={faCheck} style={{ color: "#00ff00", }} />
-                                             ) : (
-                                                <FontAwesomeIcon icon={faXmark} style={{ color: "#ff0000", }} />
-                                             )
-                                          ) : (
-
-                                             flexRender(cell.column.columnDef.cell, cell.getContext())
-                                          )
-                                       )
-
-                                    }
+                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                  </td>
                               );
                            })}

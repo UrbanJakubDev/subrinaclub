@@ -9,6 +9,7 @@ import { Button } from '@material-tailwind/react'
 import { createSavingPeriod, updateSavingPeriod } from '@/db/queries/savingPeridos'
 import { toast } from 'react-toastify'
 import { useModal } from '@/contexts/ModalContext'
+import { useCustomer } from '@/contexts/CustomerContext'
 
 
 type Props = {
@@ -18,7 +19,7 @@ type Props = {
    userName?: string
 }
 
-const SavingPeriodForm = ({ savingPeriod, account_id, userName, previousSavingPeriod }: Props) => {
+const SavingPeriodForm = ({ savingPeriod, previousSavingPeriod }: Props) => {
 
    const {
       register,
@@ -30,6 +31,10 @@ const SavingPeriodForm = ({ savingPeriod, account_id, userName, previousSavingPe
    });
 
    const { handleCloseModal } = useModal();
+   const { customer, account } = useCustomer();
+
+   const account_id = account?.id;
+   const userName = customer?.fullName;
 
    const addSavingPeriod = async (account_id: any, data: any) => {
       const response = await fetch(`/api/saving-periods?account_id=${account_id}`, {

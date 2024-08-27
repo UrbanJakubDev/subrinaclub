@@ -1,8 +1,8 @@
 "use client";
 import React, { Suspense, useEffect, useState } from "react";
-import SimpleSelectInput from "../../ui/inputs/simpleSelectInput";
-import { IAccount, ICustomer } from "../../../interfaces/interfaces";
-import { yearSelectOptions } from "../../../utils/dateFnc";
+import SimpleSelectInput from "../../../ui/inputs/simpleSelectInput";
+import { IAccount, ICustomer } from "../../../../interfaces/interfaces";
+import { yearSelectOptions } from "../../../../utils/dateFnc";
 import { sumPosPointsInTransactions } from "@/utils/functions";
 import LineChart from "@/components/ui/charts/line";
 import Donut from "@/components/ui/charts/donutChart";
@@ -11,11 +11,11 @@ import SimpleStat from "@/components/ui/stats/cardsWidgets/simple";
 import ProductCardWidget from "@/components/ui/stats/cardsWidgets/ProductCardWidget";
 import { Button, Card, Typography } from "@material-tailwind/react";
 import Loader from "@/components/ui/loader";
+import { useModal } from "@/contexts/ModalContext";
+import { useCustomer } from "@/contexts/CustomerContext";
 
 type Props = {
-  customer: ICustomer;
-  account: IAccount;
-  transactions: any[];
+  initData: any[];
 };
 
 interface ITransaction {
@@ -33,7 +33,13 @@ interface IProductData {
 }
 
 
-export default function AccountStats({ customer, account, transactions }: Props) {
+export default function AccountStats({ initData }: Props) {
+
+  const { customer, account } = useCustomer();
+  const [transactions, setTransactions] = useState<any[]>(initData);
+
+
+
   const [selectedYear, setSelectedYear] = React.useState(2024);
   const clubAccountBalance = sumPosPointsInTransactions(transactions);
 
@@ -56,12 +62,12 @@ export default function AccountStats({ customer, account, transactions }: Props)
     year: number
   ): number => {
     // Use filter to get transactions for the specified year with positive amounts
-    const validTransactions = transactions.filter((transaction) => {
+    const validTransactions = transactions?.filter((transaction) => {
       return transaction.year === year && transaction.amount > 0;
     });
 
     // Use reduce to sum the points from valid transactions
-    const sum = validTransactions.reduce((total, transaction) => {
+    const sum = validTransactions?.reduce((total, transaction) => {
       return total + transaction.amount;
     }, 0);
 
@@ -102,7 +108,7 @@ export default function AccountStats({ customer, account, transactions }: Props)
     const quarterSums: { [key: string]: number } = {};
 
     // Populate the map with sums
-    transactions.forEach((transaction) => {
+    transactions?.forEach((transaction) => {
       const key = `${transaction.year}-Q${transaction.quarter}`;
       if (!quarterSums[key]) {
         quarterSums[key] = 0;
@@ -152,7 +158,7 @@ export default function AccountStats({ customer, account, transactions }: Props)
   // Sum of points for the selected year and quarter for the account
   const sumTransactionPointsInQuarter = (transactions: ITransaction[], year: number, quarter: number): number => {
     // Filter transactions for the specified year and quarter with positive amounts
-    const validTransactions = transactions.filter((transaction) => {
+    const validTransactions = transactions?.filter((transaction) => {
       return transaction.year === year && transaction.quarter === quarter && transaction.amount > 0;
     });
 
@@ -170,11 +176,11 @@ export default function AccountStats({ customer, account, transactions }: Props)
   // Function to find the most favorite product based on transactions with negative amounts
   const mostFavouriteProduct = (transactions: ITransaction[]): IProductData[] => {
     // Filter transactions with negative amount
-    const negativeTransactions = transactions.filter(transaction => transaction.amount < 0);
+    const negativeTransactions = transactions?.filter(transaction => transaction.amount < 0);
 
     // Accumulate product data
     const productDataMap: { [key: string]: IProductData } = {};
-    negativeTransactions.forEach(transaction => {
+    negativeTransactions?.forEach(transaction => {
       const { bonusName, amount, bonusAmount } = transaction;
 
       // Use the bonusName as a key for now since bonusId is not available
@@ -209,10 +215,10 @@ export default function AccountStats({ customer, account, transactions }: Props)
   // Sum all bonusAmounts in transactions with type "withdraw"
   const sumWithdrawnPrice = (transactions: ITransaction[]): number => {
     // Filter transactions with negative amount
-    const negativeTransactions = transactions.filter(transaction => transaction.amount < 0);
+    const negativeTransactions = transactions?.filter(transaction => transaction.amount < 0);
 
     // Sum the bonusAmounts
-    const sum = negativeTransactions.reduce((total, transaction) => {
+    const sum = negativeTransactions?.reduce((total, transaction) => {
       return total + (transaction.bonusAmount ?? 0);
     }, 0);
 
@@ -238,7 +244,7 @@ export default function AccountStats({ customer, account, transactions }: Props)
 
   const chartData = convertToChartData(mostFavouriteProductValue);
 
-  if (!chartData || !mostFavouriteProductValue) {
+  if (!chartData || !mostFavouriteProductValue || !transactions || !customer) {
     return <Loader />;
   }
 
@@ -250,9 +256,8 @@ export default function AccountStats({ customer, account, transactions }: Props)
           <Typography
             variant="h5"
             className="mb-4 color-gray-900 "
-            children={`Statistika bodů na účtu s id: ${account.id} pro zákazníka - ${customer.fullName}`}
-          />
-          {transactions.length > 0 && (
+          >{`Statistika bodů na účtu s id: ${account?.id} pro zákazníka - ${customer.fullName}`}</Typography>
+          {transactions?.length > 0 && (
             <LineChart
               title="Vývoj bodů na Klubovém kontu"
               description="Graf vývoje bodů za posledních 10 let"
@@ -295,8 +300,7 @@ export default function AccountStats({ customer, account, transactions }: Props)
         <Typography
           variant="h5"
           className="mb-4 color-gray-900"
-          children="Nejoblíbenější produkty"
-        />
+        >Nejoblíbenější produkty</Typography>
         <div className="flex justify-between w-full gap-4">
           <div className="w-1/2">
             {chartData && (

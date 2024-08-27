@@ -2,6 +2,7 @@
 import BonusesTable from "@/components/tables/bonusesTable";
 import Loader from "@/components/ui/loader";
 import { useModal } from "@/contexts/ModalContext";
+import { Typography } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 
 type Props = {
@@ -39,7 +40,7 @@ export default function BonusDataWrapper({ initalData }: Props) {
 
       }
    }
-      , [modalSubmitted]);
+      , [modalSubmitted, setModalSubmitted]);
 
 
    if (!bonusData) {
@@ -47,8 +48,11 @@ export default function BonusDataWrapper({ initalData }: Props) {
    }
 
    return (
-      <>
+      <div className="w-2/3 mx-auto">
+         <div className="w-full mb-4 p-6 flex flex-row justify-between bg-white shadow-lg rounded-xl">
+            <Typography variant="h5" color="black" >Seznam bonusů</Typography>
+         </div>
          <BonusesTable defaultData={bonusData} />
-      </>
+      </div>
    )
 }

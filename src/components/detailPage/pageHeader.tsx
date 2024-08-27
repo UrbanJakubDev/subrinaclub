@@ -16,9 +16,10 @@ type Props = {
   statsUrl?: string;
   openModal?: boolean;
   modalId?: string;
+  addBtn?: boolean;
 };
 
-export default function PageHeader({ userName, userId, active, formUrl, accountUrl, statsUrl, openModal, modalId }: Props) {
+export default function PageHeader({ userName, userId, active, formUrl, accountUrl, statsUrl, openModal, modalId, addBtn }: Props) {
 
   // Get actual path for conditional rendering
   const pathname = usePathname()
@@ -40,7 +41,7 @@ export default function PageHeader({ userName, userId, active, formUrl, accountU
 
 
         <div className="flex gap-2">
-          {userId !== "0" && (
+          {userId !== "0" && addBtn &&(
             <Link href="#">
               <Button onClick={() => handleOpenModal('transactionForm')}>
                 <FontAwesomeIcon icon={faPlus} />

@@ -60,29 +60,25 @@ export default function SalesManagerTable({
         accessorKey: "action",
         header: "Akce",
         cell: (row) => (
-          <div className="flex">
-            <div className="flex justify-center gap-2">
+          <div className="flex gap-2 justify-end">
               <Link
                 href={`${detailLinkPath}/${row.row.original.id}`}
                 className="text-center"
               >
-                <Button variant="danger">
+                <Button size="sm">
                   <FontAwesomeIcon icon={faPenToSquare} />
                   {/* {row.row.original.id} */}
                 </Button>
               </Link>
-            </div>
-            <div className="flex justify-center gap-2">
               <Link
                 href={`${detailLinkPath}/${row.row.original.id}/stats`}
                 className="text-center"
               >
-                <Button variant="primary">
+                <Button size="sm">
                   <FontAwesomeIcon icon={faChartSimple} />
                   {/* {row.row.original.id} */}
                 </Button>
               </Link>
-            </div>
           </div>
         ),
         enableColumnFilter: false,

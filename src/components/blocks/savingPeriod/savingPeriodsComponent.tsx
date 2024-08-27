@@ -8,10 +8,9 @@ import { useModal } from '@/contexts/ModalContext';
 
 type Props = {
    savingPeriods: any;
-   account: any;
 }
 
-const SavingPeriodsComponent = ({ savingPeriods, account }: Props) => {
+const SavingPeriodsComponent = ({ savingPeriods }: Props) => {
 
    // Sorting saving periods by date of creation
    savingPeriods.sort((a: any, b: any) => {
@@ -21,6 +20,7 @@ const SavingPeriodsComponent = ({ savingPeriods, account }: Props) => {
    const activeSavingPeriod = savingPeriods.find((savingPeriod: any) => savingPeriod.active)
 
    const { handleOpenModal } = useModal();
+
 
    return (
       <Card className='p-4 my-4'>
@@ -38,7 +38,7 @@ const SavingPeriodsComponent = ({ savingPeriods, account }: Props) => {
             title='Nové šetřící období'
             description='Vyplňte formulář pro vytvoření nového šetřícího období'
          >
-            <SavingPeriodForm savingPeriod={{}} previousSavingPeriod={activeSavingPeriod} account_id={account.id} userName={account.customer.fullName} />
+            <SavingPeriodForm savingPeriod={{}} previousSavingPeriod={activeSavingPeriod} />
          </ModalComponent>
       </Card>
    )

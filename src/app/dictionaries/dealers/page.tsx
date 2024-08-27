@@ -7,9 +7,11 @@ export default async function Dealers() {
   const dealers = await dealerService.getDealers();
 
   return (
-    <div className="content-container">
-      <h1>Dealers</h1>
-      <DealerTable defaultData={dealers} detailLinkPath="/dealers" />
+    <div className="content-container w-2/3">
+      <div className="w-full mb-4 p-6 flex flex-row justify-between bg-white rounded-xl">
+        <h5 className="text-black font-semibold">Seznam velkoobchodníků</h5>
+      </div>
+      <DealerTable defaultData={dealers} detailLinkPath="/dictionaries/dealers" />
     </div>
   );
 }

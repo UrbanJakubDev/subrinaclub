@@ -48,7 +48,7 @@ export class CustomerService {
     }
 
     // Read all customers and join sum of positive transactions for each customer and add sales manager full name but flatten the data
-    async getCustomers( active = true): Promise<Customer[]> {
+    async getCustomers(active: boolean = true): Promise<Customer[]> {
         const customers = await prisma.customer.findMany({
             include: {
                 accounts: {
@@ -87,27 +87,25 @@ export class CustomerService {
 
         // Calculate the total points for each customer if transctions are positive return as string
         customers.forEach(customer => {
-            customer.totalPoints = customer.accounts
-                .reduce((total, account) => {
-                    const sum = account.transactions.reduce((total, transaction) => {
-                        return transaction.amount > 0 ? total + transaction.amount : total
-                    }, 0)
-                    return total + sum
+            customer.totalPoints = customer.accounts.reduce((total, account) => {
+                const sum = account.transactions.reduce((total, transaction) => {
+                    return transaction.amount > 0 ? total + transaction.amount : total
                 }, 0)
+                return total + sum
+            }, 0)
         })
 
         // Calulate the points in this year for each customer
         customers.forEach(customer => {
-            customer.currentYearPoints = customer.accounts
-                .reduce((total, account) => {
-                    const sum = account.transactions.reduce((total, transaction) => {
-                        const currentYear = new Date().getFullYear()
-                        return transaction.year === currentYear && transaction.amount > 0
-                            ? total + transaction.amount
-                            : total
-                    }, 0)
-                    return total + sum
+            customer.currentYearPoints = customer.accounts.reduce((total, account) => {
+                const sum = account.transactions.reduce((total, transaction) => {
+                    const currentYear = new Date().getFullYear()
+                    return transaction.year === currentYear && transaction.amount > 0
+                        ? total + transaction.amount
+                        : total
                 }, 0)
+                return total + sum
+            }, 0)
         })
 
         // Check if customer have transactions in the current year and set the flag
@@ -171,7 +169,7 @@ export class CustomerService {
                             return pointsSum
                         })
                 })
-                .reduce((sum, points) => sum + points, 0).toString() // Sum all points from active saving periods
+                .reduce((sum, points) => sum + points, 0)
         })
 
         return customers
@@ -182,6 +180,17 @@ export class CustomerService {
         const customer = await prisma.customer.findUnique({
             where: {
                 id: id,
+            },
+            include: {
+                accounts: {
+                    include: {
+                        savingPeriods: {
+                            where: {
+                                active: true,
+                            },
+                        },
+                    },
+                },
             },
         })
         if (!customer) {
@@ -250,9 +259,11 @@ export class CustomerService {
     async geetCustomersForReportSeznamObratu() {
         const result = await prisma.$queryRaw`SELECT
             c."registrationNumber",
+            max(c.id) as "id",
             max(c."fullName") as "fullName",
             max(c."town") as "town",
             max(c."salonName") as "salonName",
+            max(sm."fullName") as "salesManager",
             sum(t.amount) as "clubScore",
             sum(case when t."year" = 2024 then t.amount else 0 end) as "2024",
             sum(case when t."year" = 2023 then t.amount else 0 end) as "2023",
@@ -275,6 +286,8 @@ export class CustomerService {
             "Account" a ON c.id = a."customerId"
         JOIN
             "Transaction" t ON t."accountId" = a.id
+        JOIN 
+            "SalesManager" sm ON c."salesManagerId" = sm.id
         WHERE
             t."type" = 'DEPOSIT'
         GROUP BY

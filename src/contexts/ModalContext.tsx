@@ -1,7 +1,7 @@
 "use client"
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-const ModalContext = createContext();
+const ModalContext = createContext({});
 
 export const useModal = () => useContext(ModalContext);
 

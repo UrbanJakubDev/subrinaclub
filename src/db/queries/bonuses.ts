@@ -1,9 +1,12 @@
-import { prisma } from '../pgDBClient';
-
+import { prisma } from '../pgDBClient'
 
 export async function getAllBonuses() {
-    const bonuses = (await prisma.bonus.findMany()).sort((a, b) => a.id - b.id);
-    return bonuses;
+    const bonuses = (
+        await prisma.bonus.findMany({
+            where: { active: true },
+        })
+    ).sort((a, b) => a.id - b.id)
+    return bonuses
 }
 
 export async function getBonusById(id: number) {
@@ -11,8 +14,8 @@ export async function getBonusById(id: number) {
         where: {
             id: id,
         },
-    });
-    return bonus;
+    })
+    return bonus
 }
 
 export async function createBonus(data: any) {
@@ -20,8 +23,8 @@ export async function createBonus(data: any) {
         data: {
             ...data,
         },
-    });
-    return bonus;
+    })
+    return bonus
 }
 
 export async function updateBonusById(id: number, data: any) {
@@ -32,10 +35,9 @@ export async function updateBonusById(id: number, data: any) {
         data: {
             ...data,
         },
-    });
-    return bonus;
+    })
+    return bonus
 }
-
 
 // Soft delete bonus set active to false
 export async function deleteBonusById(id: number) {
@@ -46,8 +48,8 @@ export async function deleteBonusById(id: number) {
         data: {
             active: false,
         },
-    });
-    return bonus;
+    })
+    return bonus
 }
 
 // Get bonuses for options select return only active bonuses and id and name columns but return them as value and label
@@ -60,11 +62,11 @@ export async function getBonusesForOptions() {
             id: true,
             name: true,
         },
-    });
-    return bonuses.map((bonus) => {
+    })
+    return bonuses.map(bonus => {
         return {
             value: bonus.id,
             label: bonus.name,
-        };
-    });
+        }
+    })
 }

@@ -1,5 +1,5 @@
 'use client'
-import { faListSquares, faPenToSquare } from '@fortawesome/free-solid-svg-icons'
+import { faListSquares, faPenToSquare, faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
    ColumnDef
@@ -7,6 +7,7 @@ import {
 import Link from 'next/link'
 import React from 'react'
 import MyTable from '../ui/baseTable'
+import { Button } from '@material-tailwind/react'
 
 type Props = {
    defaultData: any[]
@@ -33,9 +34,9 @@ export default function ReportBonusTable({ defaultData, detailLinkPath }: Props)
    // Change year to string
    defaultData.forEach((row) => {
       row.year = row.year.toString()
-      row.quarter = row.quarter.toString() 
+      row.quarter = row.quarter.toString()
    })
-  
+
 
    // Column definitions
    const columns = React.useMemo<ColumnDef<any>[]>(
@@ -106,24 +107,16 @@ export default function ReportBonusTable({ defaultData, detailLinkPath }: Props)
             cell: info => info.getValue(),
             enableColumnFilter: false
          },
-         // {
-         //    accessorKey: 'action',
-         //    header: 'Akce',
-         //    cell: row => (
-         //       <div className="flex justify-center gap-2">
-         //          <Link
-         //             href={`${detailLinkPath}/${row.row.original.id}`}
-         //             className="text-center"
-         //          >
-         //             <Button variant='danger' >
-         //             <FontAwesomeIcon icon={faPenToSquare} />
-         //             {/* {row.row.original.id} */}
-         //             </Button>
-         //          </Link>
-         //       </div>
-         //    ),
-         //    enableColumnFilter: false
-         // },
+         {
+            accessorKey: "actions",
+            header: "Akce",
+            cell: (info) => (
+               <Link href={`/customers/${info.row.original.account.customer.id}`}>
+                  <Button size="sm" className="font-light"><FontAwesomeIcon icon={faUser} style={{ color: "#ffffff", }} /> Detail </Button>
+               </Link>
+            ),
+            enableColumnFilter: false,
+         },
       ],
       // eslint-disable-next-line react-hooks/exhaustive-deps
       []
@@ -141,6 +134,7 @@ export default function ReportBonusTable({ defaultData, detailLinkPath }: Props)
             {...{
                data,
                columns,
+               tableName: 'Premium bonusy'
             }}
          />
          <p>Celková bilance bodů: {getTotal(defaultData)}</p>

@@ -1,9 +1,12 @@
 import { KpiCardProgress } from '../../ui/stats/cardsWidgets/KpiCardProgress';
 import LineChart from '../../ui/charts/line';
-import { getSumOfTransactionsByAccountIdAndDate, getTransactionsByAccountIdAndDate } from '@/db/queries/transactions';
+import Skeleton from '@/components/ui/skeleton';
 
 type Props = {
   savingPeriod: any;
+  transactions: any;
+  points: number;
+  isLoading: boolean;
 }
 
 interface Series {
@@ -16,21 +19,17 @@ interface ChartData {
   categories: string[];
 }
 
-const SavingPeriodStats = async ({ savingPeriod }: Props) => {
+export default function SavingPeriodStats({ savingPeriod, transactions, points, isLoading }: Props) {
 
   // TODO: Modify the model to have the date as a string in the format YYYY-QQ
   let startDate = savingPeriod.savingStartDate
   let endDate = savingPeriod.savingEndDate
 
-  // Get the points for the saving period
-  const points = await getSumOfTransactionsByAccountIdAndDate(savingPeriod.accountId, startDate, endDate)
-  const transationsInSavingPeriod = await getTransactionsByAccountIdAndDate(savingPeriod.accountId, startDate, endDate)
 
-
+  // Get the points for the saving period and the transactions in the saving period for Chart
   const getSumOfTransactionsForChart = (transactions: any, startDate: String, endDate: String) => {
     const [startYear, startQuarter] = startDate.split("-");
     const [endYear, endQuarter] = endDate.split("-");
-
 
     // Initialize a map to store the sums per quarter
     const quarterSums: { [key: string]: number } = {};
@@ -78,11 +77,14 @@ const SavingPeriodStats = async ({ savingPeriod }: Props) => {
     };
   }
 
-  const { series, categories } = getSumOfTransactionsForChart(transationsInSavingPeriod, startDate, endDate);
+  const { series, categories } = getSumOfTransactionsForChart(transactions, startDate, endDate);
+
+  if (isLoading || !savingPeriod || !transactions) {
+    <Skeleton />
+  }
 
   return (
     <div className='pt-2'>
-
       <div className='flex gap-4 pb-4'>
         <KpiCardProgress title={`Dvouleté šetřící období od ${startDate} do ${endDate}`} points={points} color={savingPeriod.balancePointsCorrection > 0 ? "green" : "red"} icon={<i className="fas fa-arrow-up"></i>} />
       </div>
@@ -95,5 +97,3 @@ const SavingPeriodStats = async ({ savingPeriod }: Props) => {
     </div>
   )
 }
-
-export default SavingPeriodStats

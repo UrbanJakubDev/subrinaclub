@@ -1,12 +1,10 @@
-import AccountStats from "@/components/blocks/account/accountStats";
+import StatsDataWrapper from "@/components/blocks/customer/statsDataWrapper";
 import PageComponent from "@/components/detailPage/pageComponent";
 import PageHeader from "@/components/detailPage/pageHeader";
 import TransactionForm from "@/components/forms/transactionForm";
-import TransactionsTable from "@/components/tables/transactionsTable";
-import { getAccountByUserId } from "@/db/queries/accounts";
 import { CustomerService } from "@/db/queries/customers";
 import { getTransactionsByAccountId } from "@/db/queries/transactions";
-import { IAccount, ICustomer } from "@/interfaces/interfaces";
+import { ICustomer } from "@/interfaces/interfaces";
 
 export default async function UserDetailStats({
   params,
@@ -17,11 +15,8 @@ export default async function UserDetailStats({
 
   const customerService = new CustomerService();
 
-  const customer = await customerService.getCustomerById(customer_id) as ICustomer;
-  const account = await getAccountByUserId(customer_id) as IAccount;
-  const transactions = await getTransactionsByAccountId(account.id);
-  const savingPeriods = account?.savingPeriods;
-  const activeSavingPeriod = savingPeriods.find((savingPeriod: any) => savingPeriod.active)
+  const customer = await customerService.getCustomerById(customer_id) as unknown as ICustomer;
+  const transactions = await getTransactionsByAccountId(customer.accounts[0].id);
 
   return (
     <PageComponent>
@@ -29,18 +24,11 @@ export default async function UserDetailStats({
         userName={customer.fullName}
         userId={customer.id.toString()}
         active={customer.active}
-        accountUrl={`/accounts/${account.id}`}
-        formUrl={`/users/${customer.id}`}
+        accountUrl={`/customers/${customer.id}/account`}
+        formUrl={`/customers/${customer.id}`}
+        addBtn
       />
-      <div className="content-container p-6 my-2">
-        <AccountStats customer={customer} account={account} transactions={transactions} />
-      </div>
-      <div className="content-container p-6 my-2 ">
-        <h2>Přehled všech transakcí</h2>
-        <TransactionsTable defaultData={transactions} />
-      </div>
-      <TransactionForm accountId={account.id} customer={customer} savingPeriod={activeSavingPeriod} />
+      <StatsDataWrapper initialCustomer={customer} initialTransactions={transactions} />
     </PageComponent>
   );
 }
-

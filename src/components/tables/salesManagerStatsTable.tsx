@@ -7,6 +7,7 @@ import MyTable from "./ui/baseTable";
 import { Card } from "@material-tailwind/react";
 import { faAddressCard, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import formatThousandDelimiter from "@/utils/formatFncs";
 
 type Props = {
   defaultData: any[];
@@ -30,80 +31,93 @@ export default function SalesManagerStatsTable({
       {
         accessorKey: "registrationNumber",
         header: "Registrační číslo",
-        cell: (info) => info.getValue(),
       },
       {
         accessorKey: "customerSalonName",
         header: "Jméno salonu",
-        cell: (info) => info.getValue(),
       },
       {
         accessorKey: "salonAddress",
         header: "Adresa",
-        cell: (info) => info.getValue(),
       },
       {
         accessorKey: "salonTown",
         header: "Město",
-        cell: (info) => info.getValue(),
       },
       {
         accessorKey: "salonPsc",
         header: "PSČ",
-        cell: (info) => info.getValue(),
       },
       {
         accessorKey: "customerFullName",
         header: "Jméno",
-        cell: (info) => info.getValue(),
         filterFn: "auto",
       },
       {
         accessorKey: "phone",
         header: "Telefon",
-        cell: (info) => info.getValue(),
         filterFn: "auto",
       },
       {
         accessorKey: "dealerName",
         header: "Jméno Obchodníka",
-        cell: (info) => info.getValue(),
       },
       {
         accessorKey: "sumQ1",
         header: "Suma za Q1",
-        cell: (info) => info.getValue(),
-        enableColumnFilter: false,
+        footer: (info) => {
+          const total = info.table.getFilteredRowModel().rows.reduce(
+            (sum, row) => sum + row.getValue<number>('sumQ1'),
+            0
+          );
+          return `${formatThousandDelimiter(total)}`;
+        },
       },
       {
         accessorKey: "sumQ2",
         header: "Suma za Q2",
         cell: (info) => info.getValue(),
-        enableColumnFilter: false,
+        footer: (info) => {
+          const total = info.table.getFilteredRowModel().rows.reduce(
+            (sum, row) => sum + row.getValue<number>('sumQ2'),
+            0
+          );
+          return `${formatThousandDelimiter(total)}`;
+        },
       },
       {
         accessorKey: "sumQ3",
         header: "Suma za Q3",
         cell: (info) => info.getValue(),
-        enableColumnFilter: false,
+        footer: (info) => {
+          const total = info.table.getFilteredRowModel().rows.reduce(
+            (sum, row) => sum + row.getValue<number>('sumQ3'),
+            0
+          );
+          return `${formatThousandDelimiter(total)}`;
+        },
       },
       {
         accessorKey: "sumQ4",
         header: "Suma za Q4",
         cell: (info) => info.getValue(),
-        enableColumnFilter: false,
+        footer: (info) => {
+          const total = info.table.getFilteredRowModel().rows.reduce(
+            (sum, row) => sum + row.getValue<number>('sumQ4'),
+            0
+          );
+          return `${formatThousandDelimiter(total)}`;
+        },
       },
       {
         accessorKey: "totalPoints",
         header: "Klubové konto",
-        cell: (info) => info.getValue(),
-        enableColumnFilter: false,
       },
       {
         accessorKey: "actions",
         header: "Akce",
         cell: (info) => (
-          <Link href={`/users/${info.row.original.customerID}/stats`}>
+          <Link href={`/customers/${info.row.original.customerID}/stats`}>
             <Button size="sm" className="font-light"><FontAwesomeIcon icon={faUser} style={{ color: "#ffffff", }} /> Detail </Button>
           </Link>
         ),

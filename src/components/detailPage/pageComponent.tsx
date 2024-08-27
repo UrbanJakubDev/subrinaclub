@@ -1,3 +1,4 @@
+import CustomerProvider from '@/contexts/CustomerContext'
 import ModalProvider from '@/contexts/ModalContext'
 import React from 'react'
 
@@ -13,11 +14,13 @@ const PageComponent = ({ children }: Props) => {
 
 
    return (
-      <ModalProvider>
-         <div className="content-container p-6 my-2 flex flex-col h-11/12" >
-            {children}
-         </div>
-      </ModalProvider>
+      <CustomerProvider>
+         <ModalProvider>
+            <div className="content-container p-6 my-2 flex flex-col h-11/12" >
+               {children}
+            </div>
+         </ModalProvider>
+      </CustomerProvider>
    )
 }
 

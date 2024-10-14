@@ -1,3 +1,5 @@
+
+
 import { prisma } from "../pgDBClient";
 
 // Basic CRUD operations for the 'salesManager' model
@@ -24,12 +26,20 @@ export async function getSalesManagerById(id: number) {
   return salesManager;
 }
 
+export async function get() {
+  let salesManagers = await prisma.salesManager.findMany();
+  return salesManagers;
+}
+
 /**
  * Creates a new sales manager in the database.
  * @param data - The data for the sales manager.
  * @returns The created sales manager.
  */
-export async function createSalesManager(data: any) {
+export async function create(data: any) {
+
+  data.publicId = Math.floor(Math.random()).toString();
+  data.registrationNumber = parseInt(data.registrationNumber);
   let salesManager = await prisma.salesManager.create({
     data: {
       ...data,
@@ -44,7 +54,7 @@ export async function createSalesManager(data: any) {
  * @param data - The updated data for the sales manager.
  * @returns The updated sales manager object.
  */
-export async function updateSalesManager(id: number, data: any) {
+export async function update(id: number, data: any) {
 
   data.registrationNumber = parseInt(data.registrationNumber);
   let salesManager = await prisma.salesManager.update({

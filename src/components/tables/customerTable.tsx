@@ -155,7 +155,7 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
       },
       {
         accessorKey: "action",
-        header: "Akce",
+        header: "",
         cell: (row) => (
           <div className="flex gap-1">
             <div className="flex justify-center gap-2">
@@ -183,6 +183,7 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
           </div>
         ),
         enableColumnFilter: false,
+        enableSorting: false,
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps

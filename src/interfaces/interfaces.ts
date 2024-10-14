@@ -21,11 +21,11 @@ export interface ISalesManager {
   registrationNumber: number;
   fullName: string;
   publicId: string;
-  birthDateD: Date | null;
+  birthDate: Date | null;
   ico: string;
   phone: string;
   email: string;
-  registratedSinceD: Date | null;
+  registratedSince: Date | null;
   salonName: string;
   address: string;
   town: string;

@@ -1,54 +1,59 @@
-"use client"
-import { dbDateToInputDate } from "@/utils/dateFnc";
+'use client'
+import React from "react";
+import { useFormContext } from "react-hook-form";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { Input, Typography } from "@material-tailwind/react";
+import { format, parseISO, isValid, isDate } from "date-fns";
 
-const InputDateFiled = ({ label, name, type, defaultValue, register, errors, onChange, helperText }: any) => {
+type InputDateFieldProps = {
+   label: string;
+   name: string;
+   defaultValue?: string | null | undefined;
+   helperText?: string;
+   errors?: any;
+};
 
+const InputDateField = ({ label, name, defaultValue, helperText, errors }: InputDateFieldProps) => {
+   const { register, setValue, getValues } = useFormContext();
 
-   let inputVal = dbDateToInputDate(defaultValue);
+   // Ensure that defaultValue is a valid string before parsing
+   const initialDate = defaultValue && typeof defaultValue === 'string' && isValid(parseISO(defaultValue)) 
+      ? parseISO(defaultValue) 
+      : null;
 
-   // If not default value, set it to Postrges null date
-   (!defaultValue) && (inputVal = "0000-00-00");
-  
+   const handleDateChange = (date: Date | null) => {
+      setValue(name, date ? format(date, "yyyy-MM-dd") : "");  // Format the date or set it to an empty string if null
+   };
 
-   if (!register) return (
-      <div className="flex flex-col">
-         <Input
-            label={label}
-            type="text"
-            defaultValue={inputVal} // Set default value
-            onChange={(e) => { onChange(e.target.value) }}
-         />
-         <Typography
-            variant="small"
-            color="gray"
-            className="mt-2 flex justify-end gap-1 font-normal text-[0.7rem]"
-         >
-            {helperText}
-         </Typography>
-      </div>
-   );
+   const currentValue = getValues(name);
 
+   // Ensure that the value returned by getValues is a valid string before parsing
+   const parsedDate = currentValue && typeof currentValue === 'string' && isValid(parseISO(currentValue))
+      ? parseISO(currentValue)
+      : (isDate(currentValue) ? currentValue : null);
 
    return (
-      <div className="flex flex-col">
-         <Input
-            label={label}
-            type="text"
-            defaultValue={inputVal} // Set default value
-            {...register(name)} // Pass the register function
+      <div>
+         <DatePicker
+            selected={parsedDate || initialDate}
+            onChange={(date) => handleDateChange(date)}
+            dateFormat="yyyy-MM-dd"
+            showYearDropdown
+            scrollableYearDropdown
+            placeholderText="YYYY-MM-DD"
+            customInput={
+               <Input
+                  crossOrigin={undefined} size="md"
+                  label={label}
+                  error={errors?.[name]}
+                  {...register(name)} />
+            }
          />
-         <Typography
-            variant="small"
-            color="gray"
-            className="mt-2 flex justify-end gap-1 font-normal text-[0.7rem]"
-         >
-            {helperText}
-         </Typography>
+         {helperText && <Typography variant="small">{helperText}</Typography>}
+         {errors?.[name] && <Typography color="red">{errors[name]?.message}</Typography>}
       </div>
    );
 };
 
-
-
-export default InputDateFiled;
+export default InputDateField;

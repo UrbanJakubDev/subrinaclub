@@ -364,7 +364,7 @@ export default function CustomerForm({ customer, dials }: Props) {
                     <Button onClick={handleSubmit(onSubmit)} disabled={!canSaveCustomer}>
                         Uložit
                     </Button>
-                    <Button color="red" onClick={() => router.push('/users')}>
+                    <Button color="red" onClick={() => router.push('/customers')}>
                         Zrušit
                     </Button>
                 </div>

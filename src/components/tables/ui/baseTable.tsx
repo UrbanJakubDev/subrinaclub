@@ -101,7 +101,7 @@ export default function MyTable({
    }
 
    return (
-      <div className="mx-auto overflow-auto w-scrren">
+      <div className="mx-auto overflow-auto w-fit">
          <Card className="p-4 text-gray-900">
             <div className="flex justify-between gap-2">
                {addBtn ? <Button size="sm" className="font-light" onClick={handleAddClick}>Přidat</Button> : <span></span>}
@@ -155,7 +155,7 @@ export default function MyTable({
                         <tr key={row.id} className='text-left hover:bg-zinc-50 whitespace-nowrap'>
                            {row.getVisibleCells().map(cell => {
                               return (
-                                 <td key={cell.id} className="text-left whitespace-nowrap max-w-44 text-wrap">
+                                 <td key={cell.id} className="text-left whitespace-nowrap max-w-44 text-wrap px-2">
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                  </td>
                               );

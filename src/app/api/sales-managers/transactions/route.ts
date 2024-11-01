@@ -1,4 +1,4 @@
-import { getListOfTransactionsBySalesManagerId } from "@/db/queries/salesManagers";
+import { getListOfTransactionsBySalesManagerId } from "@/lib/db/queries/salesManagers";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {

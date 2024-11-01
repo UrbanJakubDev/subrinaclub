@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { deleteBonusById, getBonusById, updateBonusById } from '@/db/queries/bonuses'
+import { deleteBonusById, getBonusById, updateBonusById } from '@/lib/db/queries/bonuses'
 import { propTypesResize } from '@material-tailwind/react/types/components/input'
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {

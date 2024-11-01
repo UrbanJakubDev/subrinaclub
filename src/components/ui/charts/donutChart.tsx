@@ -12,10 +12,10 @@ type DonutProps = {
  
  export default function Donut({ data }: DonutProps) {
    return (
-     <Card className='shadow-sm border border-gray-200 !rounded-lg'>
+     <div className=''>
        <div className="donut">
          <Chart options={data.options} series={data.series} type="donut" width="600" />
        </div>
-     </Card>
+     </div>
    );
  }

@@ -1,36 +1,108 @@
-"use client";
-import { Select, Option } from "@material-tailwind/react";
-import { ChangeEvent } from "react";
+"use client"
 
+import { Select, Option, Typography } from "@material-tailwind/react"
+import { useFormContext } from 'react-hook-form'
+import { useEffect, useState } from 'react'
+
+type SelectOption = {
+  value: number
+  label: string
+}
 
 type SelectFieldProps = {
-  label: string;
-  name?: string;
-  options: any[];
-  defaultValue: string | number | undefined;
-  register?: any;
-  onChange?: (e: ChangeEvent<HTMLSelectElement>) => void;
-  errors?: any;
-  value?: any;
-};
+  label: string
+  name: string
+  options: SelectOption[]
+  defaultValue?: number
+  disabled?: boolean
+  customClass?: string
+  helperText?: string
+}
 
-const SelectField = ({ label, name, options, defaultValue, register, onChange, errors, value }: SelectFieldProps) => {
+const SelectField = ({
+  label,
+  name,
+  options,
+  defaultValue,
+  disabled,
+  customClass,
+  helperText
+}: SelectFieldProps) => {
+  const { register, setValue, watch, formState: { errors } } = useFormContext()
+  const value = watch(name)
+  const [displayLabel, setDisplayLabel] = useState("")
+
+  // Set default value and update display label
+  useEffect(() => {
+    if (defaultValue !== undefined) {
+      setValue(name, defaultValue)
+      // Find and set the label for the default value
+      const option = options.find(opt => opt.value === defaultValue)
+      if (option) {
+        setDisplayLabel(option.label)
+      }
+    }
+  }, [defaultValue, name, setValue, options])
+
+  // Update display label when value changes
+  useEffect(() => {
+    const option = options.find(opt => opt.value === value)
+    if (option) {
+      setDisplayLabel(option.label)
+    } else {
+      setDisplayLabel("")
+    }
+  }, [value, options])
+
+  // Register field
+  register(name)
+
   return (
-    <div className="flex flex-col">
+    <div className={customClass}>
       <Select
         label={label}
-        value={defaultValue}
-        {...register(name)} // Register the select field with React Hook Form
+        value={value?.toString() ?? ''}
+        onChange={(newValue) => {
+          setValue(name, newValue ? parseInt(newValue) : null)
+          // Update display label
+          const option = options.find(opt => opt.value === parseInt(newValue))
+          if (option) {
+            setDisplayLabel(option.label)
+          }
+        }}
+        disabled={disabled}
+        error={!!errors[name]}
+        selected={() => (
+          displayLabel ? (
+            <span className="truncate">
+              {displayLabel}
+            </span>
+          ) : null
+        )}
       >
-        {options.map((option: any) => (
-          <Option key={option.id} value={option.id}>
-            {option.name || option.fullName || option.title || option}
+        <Option value="">Vyberte...</Option>
+        {options.map((option) => (
+          <Option 
+            key={option.value} 
+            value={option.value.toString()}
+          >
+            {option.label}
           </Option>
         ))}
       </Select>
-      {errors && <span className="text-red-500 text-xs">{errors[name]?.message}</span>}
+      
+      {helperText && (
+        <Typography variant="small" className="mt-2 flex items-center gap-1 font-normal">
+          {helperText}
+        </Typography>
+      )}
+      {errors[name] && (
+        <Typography variant="small" color="red" className="flex items-center gap-1 font-normal">
+          {errors[name]?.message as string}
+        </Typography>
+      )}
     </div>
-  );
-};
+  )
+}
 
-export default SelectField;
+export default SelectField

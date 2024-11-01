@@ -2,7 +2,7 @@ import {
     createSavingPeriod,
     getSavingPeriodById,
     updateSavingPeriod,
-} from '@/db/queries/savingPeridos';
+} from '@/lib/db/queries/savingPeridos';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {

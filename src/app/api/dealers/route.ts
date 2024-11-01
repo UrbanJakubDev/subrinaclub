@@ -1,4 +1,4 @@
-import { getDealerById } from "@/db/queries/dealers";
+import { getDealerById } from "@/lib/db/queries/dealers";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {

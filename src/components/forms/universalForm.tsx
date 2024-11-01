@@ -29,7 +29,7 @@ export default function UniversalForm<T extends FieldValues>({
       defaultValues: initialData
    });
 
-   const { handleSubmit, reset, formState: { isSubmitting } } = methods;
+   const { handleSubmit, reset, formState: { isSubmitting, errors } } = methods;
 
    // Sync the form with updated initialData
    useEffect(() => {
@@ -59,6 +59,16 @@ export default function UniversalForm<T extends FieldValues>({
    return (
       <Card className="mx-auto p-4 w-fit">
          <FormProvider {...methods}>
+
+            {
+               errors && (
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                     <strong className="font-bold">Chyba!</strong>
+                     <span className="block sm:inline"> {Object.values(errors).map((error: any) => error.message).join(', ')}</span>
+                  </div>
+               )
+            }
+
             <form onSubmit={handleSubmit(processForm)}>
                {children(methods)}
                {/* Submit and Cancel buttons */}

@@ -5,7 +5,7 @@ import { useFormContext } from 'react-hook-form';
 type TextAreaFieldProps = {
   label: string;
   name: string;
-  defaultValue?: string;
+  defaultValue?: string | null | undefined;
 };
 
 const TextAreaField = ({ label, name, defaultValue }: TextAreaFieldProps) => {

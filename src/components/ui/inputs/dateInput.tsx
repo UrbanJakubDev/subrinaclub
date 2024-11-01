@@ -9,7 +9,7 @@ import { format, parseISO, isValid, isDate } from "date-fns";
 type InputDateFieldProps = {
    label: string;
    name: string;
-   defaultValue?: string | null | undefined;
+   defaultValue?: string | null | undefined | Date;
    helperText?: string;
    errors?: any;
 };

@@ -5,7 +5,7 @@ import {
     getTransactionsByAccountId,
     removeTransactionById,
     updateTransactionById,
-} from '@/db/queries/transactions'
+} from '@/lib/db/queries/transactions'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {

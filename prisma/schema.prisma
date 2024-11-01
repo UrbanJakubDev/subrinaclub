@@ -7,11 +7,20 @@ datasource dbPG {
   url      = env("PG_DATABASE_URL")
 }
 
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+}
+
+enum SavingPeriodStatus {
+  ACTIVE
+  CLOSED
+}
+
 // New models for the new database
 
 model Dealer {
   id        Int     @id @unique @default(autoincrement())
-  public_id String  @unique
   active    Boolean @default(true)
 
   // DB ganerated fields for created and updated
@@ -31,8 +40,7 @@ model Dealer {
   note               String?   @dbPG.Text
 
   // Relations
-  customers Customer[]
-
+  customers     Customer[]
   salesManagers SalesManager[]
 
   // Indexes
@@ -41,7 +49,6 @@ model Dealer {
 
 model SalesManager {
   id        Int      @id @unique @default(autoincrement())
-  publicId  String   @unique
   active    Boolean  @default(true)
   // DB ganerated fields for created and updated
   createdAt DateTime @default(now())
@@ -76,12 +83,12 @@ model Customer {
   updatedAt DateTime @default(now()) @updatedAt
 
   fullName           String    @dbPG.VarChar(255)
-  birthDateD         DateTime? @dbPG.Date
+  birthDate         DateTime? @dbPG.Date
   registrationNumber Int       @default(0)
   ico                String?   @dbPG.VarChar(40)
   phone              String?   @dbPG.VarChar(50)
   email              String?   @default("") @dbPG.VarChar(100)
-  registratedSinceD  DateTime? @dbPG.Date
+  registratedSince  DateTime? @dbPG.Date
   salonName          String?   @dbPG.VarChar(255)
   address            String?   @dbPG.VarChar(255)
   town               String?   @dbPG.VarChar(255)
@@ -97,7 +104,7 @@ model Customer {
   salesManagerSinceQ    Int?          @default(0)
   salesManagerSinceYear Int?          @default(0)
 
-  accounts Account[]
+  account Account?
 
   // Add indexes for the customer
   @@index([id], name: "idx_customer_id")
@@ -105,85 +112,80 @@ model Customer {
   @@index([salesManagerId], name: "idx_customer_sales_manager_id")
 }
 
-enum TransactionType {
-  DEPOSIT
-  WITHDRAW
-}
-
 model Transaction {
   id        Int      @id @default(autoincrement())
-  // DB ganerated fields for created and updated
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
   year        Int
   quarter     Int
-  amount      Int
-  points      Int             @default(0)
+  points      Int
   type        TransactionType
   description String?
 
-  acceptedBonusOrder String?
-  sentBonusOrder     String?
-  bonusName          String?
-  bonusAmount        Int?    @default(0)
+  acceptedBonusOrder String? // Format: YYYY-Q
+  sentBonusOrder     String? // Format: YYYY-Q
   bonusPoints        Int?    @default(0)
 
-  // Define relations
   account   Account @relation(fields: [accountId], references: [id])
   accountId Int
 
   bonus   Bonus? @relation(fields: [bonusId], references: [id])
-  bonusId Int? 
+  bonusId Int?
 
-  // Indexes
-  @@index([id], name: "idx_transaction_id")
-  @@index([year], name: "idx_transaction_year")
-  @@index([quarter], name: "idx_transaction_quarter")
-  @@index([accountId], name: "idx_transaction_account_id")
+  savingPeriod   SavingPeriod @relation(fields: [savingPeriodId], references: [id])
+  savingPeriodId Int          @default(0)
+
+  @@index([accountId, year, quarter])
+  @@index([savingPeriodId])
 }
 
 model Account {
   id        Int      @id @default(autoincrement())
   active    Boolean  @default(true)
-  // DB ganerated fields for created and updated
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  balance                 Float @default(0)
-  balancePointsCorrection Float @default(0)
+  lifetimePoints    Int @default(0)
+  currentYearPoints Int @default(0)
+  totalDepositedPoints     Int @default(0)
+  totalWithdrawnPonits    Int @default(0)
 
-  // Define relations
+  customerId Int      @unique
   customer   Customer @relation(fields: [customerId], references: [id])
-  customerId Int
 
-  // Define relations
   transactions  Transaction[]
   savingPeriods SavingPeriod[]
 
-  // Indexes
-  @@index([id], name: "idx_account_id")
-  @@index([customerId], name: "idx_account_customer_id")
+  @@index([id])
+  @@index([customerId])
 }
 
 model SavingPeriod {
-  id        Int      @id @default(autoincrement())
-  active    Boolean  @default(true)
-  // DB ganerated fields for created and updated
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id        Int                @id @default(autoincrement())
+  status    SavingPeriodStatus @default(ACTIVE)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @default(now()) @updatedAt
 
-  savingStartDate String?
-  savingEndDate   String?
-  balance         Float
+  startYear    Int @default(0)
+  startQuarter Int @default(0)
+  endYear      Int @default(0)
+  endQuarter   Int @default(0)
 
-  // Define relations
-  account   Account @relation(fields: [accountId], references: [id])
-  accountId Int
+  availablePoints Int @default(0)
+  totalDepositedPoints   Int @default(0)
+  totalWithdrawnPonits  Int @default(0)
 
-  // Indexes
-  @@index([id], name: "idx_saving_period_id")
-  @@index([accountId], name: "idx_saving_period_account_id")
+  closedAt    DateTime?
+  closeReason String?
+
+  account      Account       @relation(fields: [accountId], references: [id])
+  accountId    Int
+  transactions Transaction[]
+
+  @@index([accountId, status])
+  @@index([startYear, startQuarter])
+  @@index([endYear, endQuarter])
 }
 
 model Bonus {

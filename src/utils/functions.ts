@@ -1,4 +1,4 @@
-import { ITransaction } from "@/interfaces/interfaces";
+import { ITransaction } from "@/types/interfaces";
 
 /**
  * Calculates the sum of positive points in an array of transactions.
@@ -8,7 +8,7 @@ import { ITransaction } from "@/interfaces/interfaces";
  */
 export const sumPosPointsInTransactions = (transactions: ITransaction[]) => {
     let sum = 0;
-    transactions.forEach((transaction: ITransaction) => {
+    transactions?.forEach((transaction: ITransaction) => {
        // Sum points if greater than 0
        if (transaction.amount > 0) {
           sum += transaction.amount;

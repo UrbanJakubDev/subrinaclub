@@ -10,17 +10,17 @@ export const yearSelectOptions = () => {
   const currentYear = new Date().getFullYear();
   const years = [];
   for (let i = currentYear; i >= 2010; i--) {
-    years.push({ id: i, name: i.toString() });
+    years.push({ value: i, label: i.toString() });
   }
   return years;
 };
 
 export const quarterSelectOptions = () => {
   return [
-    { id: 1, name: "1" },
-    { id: 2, name: "2" },
-    { id: 3, name: "3" },
-    { id: 4, name: "4" },
+    { value: 1, label: "1" },
+    { value: 2, label: "2" },
+    { value: 3, label: "3" },
+    { value: 4, label: "4" },
   ];
 };
 

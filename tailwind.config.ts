@@ -17,6 +17,8 @@ const config: Config = withMT({
       },
       colors: {
         brand: "#8D354E",
+        "royal-gold": "#F5BD02",
+        "chrome-silver": "#D8DBDE",
       },
       textShadow: {
         sm: "0 1px 2px var(--tw-shadow-color)",

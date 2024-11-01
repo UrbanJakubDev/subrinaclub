@@ -1,39 +1,36 @@
 "use client"
 import { Input, Typography } from "@material-tailwind/react";
+import { useFormContext } from 'react-hook-form';
 
 type InputFieldProps = {
   label: string;
   name: string;
   type?: string;
-  defaultValue?: string | number;
-  register: any;
+  defaultValue?: string | number | null | undefined;
   disabled?: boolean;
-  errors?: any;
   customClass?: string;
   helperText?: string;
 };
 
-const InputField = ({ label, name, type, defaultValue, register, disabled, errors, customClass, helperText }: InputFieldProps) => {
+const InputField = ({ label, name, type = "text", defaultValue, disabled, customClass, helperText }: InputFieldProps) => {
+  const { register, formState: { errors } } = useFormContext();
 
   return (
     <div className={customClass}>
       <Input
-        size="md"
-        error={errors[name] ? true : false}
+        crossOrigin={undefined} size="md"
+        error={!!errors[name]} // Check if there's an error for the field
         label={label}
-        type={type ? type : "text"}
+        type={type}
         defaultValue={defaultValue} // Set default value
-        {...register(name)} // Pass the register function
-        readOnly={disabled}
-      />
-      <span className="mt-2 flex items-center gap-1 font-normal" >{helperText}</span>
-      {errors[name] && <span className="text-red-500">{errors[name].message}</span>}
+        {...register(name)} // Use register from useFormContext
+        readOnly={disabled} />
+      {helperText && (
+        <span className="mt-2 flex items-center gap-1 font-normal">{helperText}</span>
+      )}
+      {errors[name] && <span className="text-red-500">{errors[name]?.message}</span>}
     </div>
   );
 };
-
-
-
-
 
 export default InputField;

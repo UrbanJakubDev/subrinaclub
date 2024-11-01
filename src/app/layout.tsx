@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Open_Sans } from "next/font/google";
 import "./globals.css";
-import NavIndex from "../components/header";
-import Footer from "../components/footer";
+import NavIndex from "../components/features/header";
+import Footer from "../components/features/footer";
 import Toast from "@/components/ui/toast";
 import Script from "next/script";
 
@@ -23,7 +23,7 @@ export default function RootLayout({
       <Script  src="node_modules/@material-tailwind/html@latest/scripts/dialog.js" />
       <body className={os.className}>
         <NavIndex />
-        <main className="flex-grow w-screen mx-auto overflow-hidden bg-blue-gray-50">
+        <main className="flex-grow w-screen mx-auto overflow-hidden bg-gray-100">
           {children}
         </main>
         <Footer />

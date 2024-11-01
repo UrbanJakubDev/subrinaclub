@@ -1,4 +1,4 @@
-import { createBonus, getAllBonuses, getBonusById } from '@/db/queries/bonuses'
+import { createBonus, getAllBonuses, getBonusById } from '@/lib/db/queries/bonuses'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {

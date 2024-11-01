@@ -1,7 +1,7 @@
 // pages/api/sales-managers.ts
 
 // Import NextResponse
-import { createSalesManager, getListOfTransactionsBySalesManagerId, getSalesManagerById, updateSalesManager } from "@/db/queries/salesManagers";
+import { createSalesManager, getListOfTransactionsBySalesManagerId, getSalesManagerById, updateSalesManager } from "@/lib/db/queries/salesManagers";
 import { NextApiRequest, NextApiResponse } from "next";
 import { NextResponse } from "next/server";
 

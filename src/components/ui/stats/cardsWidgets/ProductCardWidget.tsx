@@ -22,7 +22,7 @@ const ProductCardWidget: React.FC<ProductCardWidgetPropsType> = ({ title, count,
 
 
    return (
-      <Card className="shadow-sm border border-gray-200 !rounded-lg grow">
+      <Card className="shadow-md border border-gray-300 !rounded-lg grow">
          <CardBody className="p-4">
             <div className=" text-gray-900 text-center">
                <Typography variant="small" children={title} color="gray" />

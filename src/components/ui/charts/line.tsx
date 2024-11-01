@@ -98,7 +98,7 @@ export default function LineChart({ title, description, series, categories }: Pr
 
 
    return (
-      <Card>
+      <div>
          <CardHeader
             floated={false}
             shadow={false}
@@ -126,6 +126,6 @@ export default function LineChart({ title, description, series, categories }: Pr
                <Chart {...chartConfig} />
             )}
          </CardBody>
-      </Card>
+      </div>
    );
 }

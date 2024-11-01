@@ -1,4 +1,4 @@
-import { ITransaction } from "@/interfaces/interfaces";
+import { ITransaction } from "@/types/interfaces";
 
 /**
  * Calculates the sum of positive points in an array of transactions.

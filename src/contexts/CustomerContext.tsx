@@ -1,43 +1,42 @@
 
 'use client';
+import { Customer } from '@/types/customer';
+import { Account, SavingPeriod } from '@/types/types';
 import React, { createContext, useContext, useState, useMemo, useCallback } from 'react';
-import { ICustomer, IAccount, ISavingPeriod } from '@/interfaces/interfaces';
 
 interface ICustomerContext {
-   customer: ICustomer | null;
-   account: IAccount | null;
-   activeSavingPeriod: ISavingPeriod | null;
-   updateCustomer: (customer: ICustomer) => void;
-   updateActiveSavingPeriod: (newPeriod: ISavingPeriod) => void;
+   customer: Customer | null;
+   account: Account | null;
+   activeSavingPeriod: SavingPeriod | null;
+   updateCustomer: (customer: Customer) => void;
+   updateActiveSavingPeriod: (newPeriod: SavingPeriod) => void;
 }
 
 const CustomerContext = createContext<ICustomerContext | undefined>(undefined);
 
 export const CustomerProvider = ({ children }) => {
-   const [customer, setCustomer] = useState<ICustomer | null>(null);
+   const [customer, setCustomer] = useState<Customer | null>(null);
 
    // Memoized account based on customer data
    const account = useMemo(() => {
-      return customer && customer.accounts.length > 0 ? customer.accounts[0] : null;
+      return customer && customer.account
    }, [customer]);
 
-   // Memoized active saving period based on account data
+   // Memoized active saving period based on account data where status is "ACTIVE"
    const activeSavingPeriod = useMemo(() => {
-      return account && account.savingPeriods.length > 0
-         ? account.savingPeriods.find(period => period.active) || null
-         : null;
+      return account && account.savingPeriod && account.savingPeriod;
    }, [account]);
 
-   const updateCustomer = useCallback((newCustomer: ICustomer) => {
+   const updateCustomer = useCallback((newCustomer: Customer) => {
       setCustomer(newCustomer);
    }, []);
 
-   const updateActiveSavingPeriod = useCallback((newPeriod: ISavingPeriod) => {
+   const updateActiveSavingPeriod = useCallback((newPeriod: SavingPeriod) => {
       if (account) {
-         const updatedPeriods = account.savingPeriods.map(period =>
+         const updatedPeriods = account.savingPeriod.map(period =>
             period.id === newPeriod.id ? newPeriod : period
          );
-         account.savingPeriods = updatedPeriods;
+         account.savingPeriod = updatedPeriods;
       }
    }, [account]);
 

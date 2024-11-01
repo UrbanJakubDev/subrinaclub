@@ -1,32 +1,23 @@
 'use server'
 import { revalidatePath } from 'next/cache'
-import { ISalesManager } from "@/interfaces/interfaces"
-import { create, get, update } from '@/db/queries/salesManagers'
+import { SalesManager } from '@/types/salesmanager'
+import { salesManagerService } from '@/lib/services/salesManager'
 
 
-export async function getSalesManagers() {
-    const result = await get()
-    return result
-}
 
-export async function addSalesManager(data: ISalesManager) {
-    const result = await create(data)
+export async function addSalesManagerServerAction(data: SalesManager) {
+    const result = await salesManagerService.create(data)
     revalidatePath('sales-managers/')
     return result
 }
 
-export async function updateSalesManager(id: string, data: ISalesManager) {
-    const result = await update(parseInt(id), data)
+export async function updateSalesManagerServerAction(id: string, data: SalesManager) {
+    const result = await salesManagerService.update(Number(id), data)
     revalidatePath('sales-managers/')
     return result
 }
 
-export async function deleteSalesManager(id: string) {
-    const result = await update(parseInt(id), { active: false })
-    revalidatePath('sales-managers/')
-    return result
-}
 
-export async function refreshSalesManagersData() {
+export async function refreshSalesManagersDataServerAction() {
     revalidatePath('sales-managers/')
 }

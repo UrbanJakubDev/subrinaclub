@@ -1,4 +1,4 @@
-import { getTransactionsByAccountIdAndDate } from '@/db/queries/transactions'
+import { getTransactionsByAccountIdAndDate } from '@/lib/db/queries/transactions'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAccountById, updateAccountById } from '../../../db/queries/accounts';
+import { getAccountById, updateAccountById } from '../../../lib/db/queries/accounts';
 
 // GET Account by ID
 export async function GET(request: Request) {

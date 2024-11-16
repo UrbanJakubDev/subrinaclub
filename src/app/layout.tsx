@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Open_Sans } from "next/font/google";
 import "./globals.css";
-import Nav from "../components/header/navbar";
-import NavIndex from "../components/header";
-import Footer from "../components/footer";
+import NavIndex from "../components/features/header";
+import Footer from "../components/features/footer";
+import Toast from "@/components/ui/toast";
+import Script from "next/script";
 
-const inter = Inter({ subsets: ["latin"] });
+const os = Open_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -19,14 +20,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-
-      <body className={inter.className}>
+      <Script  src="node_modules/@material-tailwind/html@latest/scripts/dialog.js" />
+      <body className={os.className}>
         <NavIndex />
-        <main className="bg-white my-8 mx-auto overflow-hidden flex-grow ">
-        {children}
+        <main className="flex-grow w-screen mx-auto overflow-hidden bg-gray-100">
+          {children}
         </main>
         <Footer />
-        </body>
+        <Toast />
+      </body>
     </html>
   );
 }

@@ -2,13 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+
 :root {
-  @apply bg-zinc-300
+  background-color: var(--bg-zinc-100);
 }
 
-@media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: dark) {
   :root {
-    @apply bg-zinc-300
+    background-color: var(--bg-zinc-800);
   }
 }
 
@@ -20,11 +21,45 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
-    @apply min-h-screen flex flex-col justify-between flex-grow-0 min-w-full;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-grow: 0;
+  min-width: 100%;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+
+.content-container {
+  width: 11/12;
+  max-width: 1800px;
+  margin: 0 auto;
+  overflow: auto;
+}
+
+
+table {
+  width: 100%;
+  table-layout: auto;
+}
+
+
+
+/* Basic table  */
+.basic-table {
+  @apply w-full;
+}
+
+.basic-table tbody tr:nth-child(odd) {
+  @apply bg-gray-50;
+}
+
+.basic-table tbody tr:hover {
+  @apply bg-gray-100;
 }

@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Customer" ALTER COLUMN "birthDate" SET DATA TYPE VARCHAR(50),
+ALTER COLUMN "registratedSince" SET DATA TYPE VARCHAR(50);

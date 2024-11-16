@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE "Account" ADD COLUMN     "balance" DOUBLE PRECISION NOT NULL DEFAULT 0,
+ADD COLUMN     "balancePointsCorrection" DOUBLE PRECISION NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE "Transaction" ADD COLUMN     "bonusPoints" INTEGER DEFAULT 0,
+ADD COLUMN     "points" INTEGER NOT NULL DEFAULT 0,
+ALTER COLUMN "bonusAmount" SET DEFAULT 0;

@@ -1,6 +1,4 @@
 import PageTopBar from '@/components/ui/pageTopBar'
-import CustomerProvider from '@/contexts/CustomerContext'
-import ModalProvider from '@/contexts/ModalContext'
 import React from 'react'
 
 type Props = {
@@ -12,12 +10,10 @@ const PageComponent = ({ children }: Props) => {
 
    // Context of the page who stores the state of the page for show modal, on click events etc.
    return (
-      <ModalProvider>
       <div className="content-container p-6 my-2 flex flex-col h-11/12" >
          <PageTopBar />
          {children}
       </div>
-      </ModalProvider>
    )
 }
 

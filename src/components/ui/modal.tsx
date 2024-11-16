@@ -1,20 +1,27 @@
 "use client";
-import { useModal } from '@/contexts/ModalContext';
 import { Typography } from '@material-tailwind/react';
 import React from 'react';
+import { useModalStore } from '@/stores/ModalStore';
 
 type Props = {
   children: React.ReactNode;
   title: string;
   description?: string;
   modalId: string;
+  onClose?: () => void;
 };
 
 const ModalComponent = ({ children, title, description, modalId }: Props) => {
-  const { openModal, handleCloseModal } = useModal();
-  const isModalOpen = openModal === modalId;
+  const { modalId: currentModalId, actions } = useModalStore();
+  const isModalOpen = currentModalId === modalId;
 
   if (!isModalOpen) return null;
+
+  const handleClose = () => {
+    actions.closeModal();
+  };
+
+
 
   return (
     <div className="fixed z-10 inset-0 overflow-y-auto">
@@ -26,8 +33,8 @@ const ModalComponent = ({ children, title, description, modalId }: Props) => {
 
         {/* Modal */}
         <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-        <div className="bg-white px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <div onClick={handleCloseModal} className='bg-black text-white rounded-full w-8 h-8 text-center pt-1 font-bold hover:cursor-pointer hover:drop-shadow-xl'>
+          <div className="bg-white px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <div onClick={handleClose} className='bg-black text-white rounded-full w-8 h-8 text-center pt-1 font-bold hover:cursor-pointer hover:drop-shadow-xl'>
               X
             </div>
           </div>
@@ -42,11 +49,10 @@ const ModalComponent = ({ children, title, description, modalId }: Props) => {
               </div>
             </div>
           </div>
-          
         </div>
       </div>
     </div>
-  );
+  )
 };
 
 export default ModalComponent;

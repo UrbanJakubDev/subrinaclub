@@ -2,77 +2,119 @@ import { CustomerRepository } from "@/lib/repositories/CustomerRepository";
 import { CreateCustomerDTO, UpdateCustomerDTO } from "./validation";
 import { Customer } from "@/types/customer";
 import { CustomerResponseDTO, CustomerSelectDTO, CustomerWithAccountDataAndActiveSavingPeriodDTO } from "./types";
+import { Prisma } from "@prisma/client";
 
 export class CustomerService {
+   prisma: any;
    constructor(private customerRepository: CustomerRepository) { }
+
 
    async create(data: CreateCustomerDTO): Promise<Customer> {
       const maxRegNumber = await this.customerRepository.getMaxRegistrationNumber();
+      const nextNumber = maxRegNumber + 1;
 
-      const { relations, cleanData } = this.processInputData(data);
+      // Prepare relations object
+      const relations = {
+         ...(data.dealerId && { dealer: { connect: { id: data.dealerId } } }),
+         ...(data.salesManagerId && { salesManager: { connect: { id: data.salesManagerId } } }),
+      };
 
-      return this.customerRepository.create({
-         data: {
-            ...cleanData,
-            registrationNumber: maxRegNumber + 1,
-            active: true,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            publicId: 'C' + (maxRegNumber + 1).toString().padStart(4, '0'),
-            ...relations
-         },
-         include: {
-            dealer: true,
-            salesManager: true
+      // Remove relation IDs from main data
+      const { dealerId, salesManagerId, ...customerData } = data;
+
+      try {
+         // Create customer with nested account creation
+         const customer = await this.customerRepository.create({
+            data: {
+               ...customerData,
+               registrationNumber: nextNumber,
+               publicId: `C${nextNumber.toString().padStart(4, '0')}`,
+               active: true,
+               createdAt: new Date(),
+               updatedAt: new Date(),
+               ...relations,
+               // Create account in the same operation
+               account: {
+                  create: {
+                     active: true,
+                     lifetimePoints: 0,
+                     currentYearPoints: 0,
+                     totalDepositedPoints: 0,
+                     totalWithdrawnPonits: 0,
+                     createdAt: new Date(),
+                     updatedAt: new Date()
+                  }
+               }
+            },
+            include: {
+               dealer: true,
+               salesManager: true,
+               account: true
+            }
+         });
+
+         return customer;
+      } catch (error) {
+         if (error.code === 'P2002') {
+            throw new BadRequestException('Customer with this ID already exists');
          }
-      });
+         throw error;
+      }
    }
 
    async update(id: number, data: UpdateCustomerDTO): Promise<Customer> {
-      await this.get(id);
+      try {
+         // Check if customer exists
+         await this.get(id);
 
-      const { relations, cleanData } = this.processInputData(data);
+         // Handle relations
+         const relations = {};
 
-      return this.customerRepository.update({
-         where: { id },
-         data: {
-            ...cleanData,
-            ...relations,
-            updatedAt: new Date()
-         },
-         include: {
-            dealer: true,
-            salesManager: true
+         // Handle dealer relation
+         if ('dealerId' in data) {
+            relations.dealer = data.dealerId === null
+               ? { disconnect: true }
+               : { connect: { id: data.dealerId } };
          }
-      });
-   }
 
-   private processInputData(data: CreateCustomerDTO | UpdateCustomerDTO) {
-      const {
-         dealerId,
-         salesManagerId,
-         id: _id,
-         publicId: _publicId,
-         createdAt: _createdAt,
-         updatedAt: _updatedAt,
-         account: _account,
-         ...cleanData
-      } = data as any;
-
-      const relations = {
-         ...(dealerId !== undefined && {
-            dealer: dealerId === null
+         // Handle sales manager relation
+         if ('salesManagerId' in data) {
+            relations.salesManager = data.salesManagerId === null
                ? { disconnect: true }
-               : { connect: { id: dealerId } }
-         }),
-         ...(salesManagerId !== undefined && {
-            salesManager: salesManagerId === null
-               ? { disconnect: true }
-               : { connect: { id: salesManagerId } }
-         })
-      };
+               : { connect: { id: data.salesManagerId } };
+         }
 
-      return { relations, cleanData };
+         // Clean up the data object
+         const {
+            id: _id,
+            dealerId,
+            salesManagerId,
+            account,  // Remove account from update data
+            ...cleanData
+         } = data;
+
+         // Create repository input
+         const updateInput = {
+            where: { id },
+            data: {
+               ...cleanData,
+               ...relations,
+               updatedAt: new Date()
+            },
+            include: {
+               dealer: true,
+               salesManager: true,
+               account: true
+            }
+         };
+
+         return await this.customerRepository.update(id, updateInput);
+      } catch (error) {
+         if (error?.code === 'P2025') {
+            throw new Error(`Customer with ID ${id} not found`);
+         }
+         throw error;
+      }
    }
 
    async delete(id: number): Promise<Customer> {
@@ -96,12 +138,31 @@ export class CustomerService {
    }
 
    async getAll(): Promise<CustomerResponseDTO[]> {
-      return this.customerRepository.findAll({
+      const customers = await this.customerRepository.findAll({
          include: {
             dealer: true,
-            salesManager: true
+            salesManager: true,
+            account: {
+               include: {
+                  savingPeriods: {
+                     where: {
+                        status: 'ACTIVE'
+                     }
+                  }
+               }
+            }
          }
       });
+
+      // Flatten the account.savingPeriods array to a single saving period
+      customers.forEach(customer => {
+         if (customer.account?.savingPeriods?.length) {
+            customer.account.savingPeriod = customer.account.savingPeriods[0];
+            delete customer.account.savingPeriods;
+         }
+      });
+
+      return customers;
    }
 
    async getCustomersForSelect(): Promise<CustomerSelectDTO[]> {
@@ -131,5 +192,9 @@ export class CustomerService {
       return result;
    }
 
-  
+   async getNextRegistrationNumber(): Promise<number> {
+      const maxRegNumber = await this.customerRepository.getMaxRegistrationNumber();
+      return maxRegNumber + 1;
+   }
+
 }

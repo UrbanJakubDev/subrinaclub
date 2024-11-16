@@ -14,36 +14,37 @@ interface SeriesData {
    color?: string;
 }
 
-interface ChartProps {
+interface ColumnChartProps {
    title: string;
    description: string;
    series: SeriesData[];
    categories: string[];
    colors?: string[];
-   chartType?: 'line' | 'bar' | 'area';
-   icon?: React.ReactNode;
    height?: number;
    stacked?: boolean;
-   tooltip?: {
-      theme?: 'light' | 'dark';
-      custom?: (dataPointIndex: any) => string;
-   };
+   horizontal?: boolean;
+   columnWidth?: string;
+   borderRadius?: number;
+   yAxisTitle?: string;
+   showValues?: boolean;
 }
 
-const defaultColors = ["#020617", "#3B82F6", "#10B981", "#F59E0B", "#EF4444"];
+const defaultColors = ["#3B82F6", "#10B981", "#EF4444", "#F59E0B", "#8B5CF6"];
 
-export default function LineChart({ 
+export default function ColumnChart({ 
    title, 
    description, 
    series, 
    categories,
    colors = defaultColors,
-   chartType = 'line',
-   icon,
    height = 240,
    stacked = false,
-   tooltip = { theme: 'dark' }
-}: ChartProps) {
+   horizontal = false,
+   columnWidth = "50%",
+   borderRadius = 4,
+   yAxisTitle,
+   showValues = false
+}: ColumnChartProps) {
 
    // Merge provided colors with series data
    const seriesWithColors = series.map((s, index) => ({
@@ -52,45 +53,57 @@ export default function LineChart({
    }));
 
    const chartConfig = {
-      type: chartType,
+      type: horizontal ? "bar" : "bar",
       height: height,
       series: seriesWithColors,
       options: {
          chart: {
+            stacked: stacked,
             toolbar: {
                show: false,
             },
-            stacked: stacked,
             animations: {
                enabled: true,
                easing: 'easeinout',
                speed: 800,
+               animateGradually: {
+                  enabled: true,
+                  delay: 150
+               },
+               dynamicAnimation: {
+                  enabled: true,
+                  speed: 350
+               }
             },
          },
-         stroke: {
-            curve: 'smooth',
-            width: chartType === 'area' ? 2 : 3,
-         },
-         title: {
-            show: "",
-         },
-         dataLabels: {
-            enabled: false,
-         },
-         colors: seriesWithColors.map(s => s.color),
          plotOptions: {
             bar: {
-               columnWidth: "40%",
-               borderRadius: 2,
+               horizontal: horizontal,
+               columnWidth: columnWidth,
+               borderRadius: borderRadius,
+               dataLabels: {
+                  position: horizontal ? 'start' : 'top',
+               },
             },
          },
-         xaxis: {
-            axisTicks: {
-               show: false,
+         dataLabels: {
+            enabled: showValues,
+            formatter: (value: number) => value.toLocaleString(),
+            style: {
+               fontSize: '12px',
+               colors: ["#333"]
             },
+            offsetY: -20,
+         },
+         colors: seriesWithColors.map(s => s.color),
+         xaxis: {
+            categories: categories,
             axisBorder: {
                show: false,
             },
+            axisTicks: {
+               show: false,
+            },
             labels: {
                style: {
                   colors: "#616161",
@@ -98,12 +111,21 @@ export default function LineChart({
                   fontFamily: "inherit",
                   fontWeight: 400,
                },
-               rotate: -45,
+               rotate: horizontal ? 0 : -45,
                rotateAlways: false,
+               trim: true,
+               minHeight: 40,
             },
-            categories: categories,
          },
          yaxis: {
+            title: {
+               text: yAxisTitle,
+               style: {
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  color: '#616161'
+               }
+            },
             labels: {
                style: {
                   colors: "#616161",
@@ -111,50 +133,53 @@ export default function LineChart({
                   fontFamily: "inherit",
                   fontWeight: 400,
                },
-               formatter: (value: number) => Math.round(value).toString(),
+               formatter: (value: number) => value.toLocaleString(),
             },
          },
          grid: {
             show: true,
             borderColor: "#dddddd",
             strokeDashArray: 5,
+            position: 'back',
             xaxis: {
                lines: {
-                  show: true,
-               },
+                  show: false
+               }
+            },
+            yaxis: {
+               lines: {
+                  show: true
+               }
             },
             padding: {
-               top: 5,
+               top: 0,
                right: 20,
+               bottom: 0,
+               left: 20
             },
-         },
-         fill: {
-            opacity: chartType === 'area' ? 0.2 : 0.8,
-            type: chartType === 'area' ? 'gradient' : 'solid',
-            gradient: {
-               shade: 'light',
-               type: "vertical",
-               shadeIntensity: 0.5,
-               opacityFrom: 0.7,
-               opacityTo: 0.2,
-            },
-         },
-         tooltip: {
-            theme: tooltip.theme,
-            custom: tooltip.custom,
-            y: {
-               formatter: (value: number) => `${value.toLocaleString()} points`,
-            },
-            intersect: false,
-            shared: true,
          },
          legend: {
             position: 'top',
-            horizontalAlign: 'right',
-            offsetY: -10,
+            horizontalAlign: 'center',
+            offsetY: 10,
+            markers: {
+               radius: 4,
+            },
+            itemMargin: {
+               horizontal: 10,
+               vertical: 0
+            },
             labels: {
                colors: "#616161"
             },
+         },
+         tooltip: {
+            shared: true,
+            intersect: false,
+            y: {
+               formatter: (value: number) => value.toLocaleString() + ' points'
+            },
+            theme: 'dark',
          },
       },
    };
@@ -168,7 +193,7 @@ export default function LineChart({
             className="flex flex-col gap-4 rounded-none md:flex-row md:items-center"
          >
             <div className="w-max rounded-lg bg-gray-900 p-5 text-white">
-               {icon || <FontAwesomeIcon icon={faSackDollar} style={{ color: "#ffffff" }} />}
+               <FontAwesomeIcon icon={faSackDollar} style={{ color: "#ffffff" }} />
             </div>
             <div>
                <Typography variant="h6" color="blue-gray">
@@ -183,7 +208,7 @@ export default function LineChart({
                </Typography>
             </div>
          </CardHeader>
-         <CardBody className="px-2 pb-0 w-full overflow-x-auto">
+         <CardBody className="">
             {series && categories && (
                <Chart {...chartConfig} />
             )}

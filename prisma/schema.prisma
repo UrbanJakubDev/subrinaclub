@@ -20,8 +20,8 @@ enum SavingPeriodStatus {
 // New models for the new database
 
 model Dealer {
-  id        Int     @id @unique @default(autoincrement())
-  active    Boolean @default(true)
+  id     Int     @id @unique @default(autoincrement())
+  active Boolean @default(true)
 
   // DB ganerated fields for created and updated
   createdAt DateTime @default(now())
@@ -83,12 +83,12 @@ model Customer {
   updatedAt DateTime @default(now()) @updatedAt
 
   fullName           String    @dbPG.VarChar(255)
-  birthDate         DateTime? @dbPG.Date
+  birthDate          DateTime? @dbPG.Date
   registrationNumber Int       @default(0)
   ico                String?   @dbPG.VarChar(40)
   phone              String?   @dbPG.VarChar(50)
   email              String?   @default("") @dbPG.VarChar(100)
-  registratedSince  DateTime? @dbPG.Date
+  registratedSince   DateTime? @dbPG.Date
   salonName          String?   @dbPG.VarChar(255)
   address            String?   @dbPG.VarChar(255)
   town               String?   @dbPG.VarChar(255)
@@ -119,13 +119,14 @@ model Transaction {
 
   year        Int
   quarter     Int
+  quarterDateTime DateTime
   points      Int
   type        TransactionType
   description String?
 
-  acceptedBonusOrder String? // Format: YYYY-Q
-  sentBonusOrder     String? // Format: YYYY-Q
-  bonusPoints        Int?    @default(0)
+  acceptedBonusOrder DateTime? 
+  sentBonusOrder     DateTime? 
+  bonusPrice        Int?    @default(0)
 
   account   Account @relation(fields: [accountId], references: [id])
   accountId Int
@@ -146,10 +147,10 @@ model Account {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  lifetimePoints    Int @default(0)
-  currentYearPoints Int @default(0)
-  totalDepositedPoints     Int @default(0)
-  totalWithdrawnPonits    Int @default(0)
+  lifetimePoints       Int @default(0)
+  currentYearPoints    Int @default(0)
+  totalDepositedPoints Int @default(0)
+  totalWithdrawnPonits Int @default(0)
 
   customerId Int      @unique
   customer   Customer @relation(fields: [customerId], references: [id])
@@ -172,9 +173,12 @@ model SavingPeriod {
   endYear      Int @default(0)
   endQuarter   Int @default(0)
 
-  availablePoints Int @default(0)
-  totalDepositedPoints   Int @default(0)
-  totalWithdrawnPonits  Int @default(0)
+  startDateTime DateTime
+  endDateTime   DateTime
+
+  availablePoints      Int @default(0)
+  totalDepositedPoints Int @default(0)
+  totalWithdrawnPoints Int @default(0)
 
   closedAt    DateTime?
   closeReason String?

@@ -1,3 +1,5 @@
+import { Account } from "./types"
+
 export type Customer = {
    id: number
    publicId : string
@@ -20,7 +22,5 @@ export type Customer = {
    salesManagerId: number | null
    salesManagerSinceQ: number | null
    salesManagerSinceYear: number | null
-
-   // TODO: Add account type
-   account: any
+   account: Account
  }

@@ -9,7 +9,7 @@ import { Button, Chip } from "@material-tailwind/react";
 import { useRouter } from "next/navigation";
 import { transform } from "next/dist/build/swc";
 import { format } from "path";
-import formatThousandDelimiter from "@/utils/formatFncs";
+import formatThousandDelimiter from "@/lib/utils/formatFncs";
 import ActionButtons from "@/components/tables/ui/actionButtons";
 import StatusChip from "@/components/tables/ui/statusChip";
 
@@ -88,63 +88,80 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         header: "IČ",
       },
       {
-        accessorKey: "salesManager",
+        accessorKey: "salesManager.fullName",
         header: "OZ",
         filterFn: "includesString"
       },
       {
-        accessorKey: "dealer",
+        accessorKey: "dealer.fullName",
         header: "Velkoobchod",
         filterFn: "includesString"
       },
       {
-        accessorKey: "currentYearPoints",
+        accessorKey: "account.currentYearPoints",
         header: "Roční konto",
         cell: (info) => info.getValue(),
         footer: (info) => {
-          const total = info.table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + row.getValue<number>('currentYearPoints'),
+          const total = info.table
+          .getFilteredRowModel()
+          .rows.reduce(
+            (sum, row) => {
+              // Safely access the nested value
+              const points = row.original.account?.currentYearPoints ?? 0;
+              return sum + points;
+            },
             0
           );
           return `${formatThousandDelimiter(total)}`;
         },
       },
       {
-        accessorKey: "totalPoints",
+        accessorKey: "account.lifetimePoints",
         header: "Klubové konto",
-        cell: (info) => (<ChipComponent value={info.getValue()} />),
+        cell: (info) => <ChipComponent value={info.getValue()} />,
         footer: (info) => {
-          const total = info.table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + row.getValue<number>('totalPoints'),
+          const total = info.table
+          .getFilteredRowModel()
+          .rows.reduce(
+            (sum, row) => {
+              // Safely access the nested value
+              const points = row.original.account?.lifetimePoints ?? 0;
+              return sum + points;
+            },
             0
           );
           return `${formatThousandDelimiter(total)}`;
         },
       },
       {
-        accessorKey: "pointsInActiveSavingPeriod",
+        accessorKey: "account.savingPeriod.availablePoints",
         header: "Průběžné konto",
         footer: (info) => {
-          const total = info.table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + row.getValue<number>('pointsInActiveSavingPeriod'),
+          const total = info.table
+          .getFilteredRowModel()
+          .rows.reduce(
+            (sum, row) => {
+              // Safely access the nested value
+              const points = row.original.account?.savingPeriod?.availablePoints ?? 0;
+              return sum + points;
+            },
             0
           );
           return `${formatThousandDelimiter(total)}`;
         },
       },
       {
-        accessorKey: "lastTransactionYear",
-        header: "Posledni aktivita",
-      },
-      {
-        accessorKey: "hasCurrentYearPoints", // Keep the raw boolean value here
+        accessorKey: "hasCurrentYearPoints",
         header: "Aktivní",
+        // Use accessorFn to compute the value instead of relying on raw data
+        accessorFn: (row) => {
+          const lifetimePoints = row.account?.lifetimePoints ?? 0;
+          return lifetimePoints > 0;
+        },
         cell: ({ getValue }) => <StatusChip status={getValue()} />,
         filterFn: (row, columnId, filterValue) => {
           const cellValue = row.getValue(columnId);
-          // Convert filterValue to a boolean
           const boolFilterValue = filterValue === "true";
-          // Return true if the cell value matches the filter value or no filter is applied
           return filterValue === "" || cellValue === boolFilterValue;
         },
       },
@@ -178,7 +195,7 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
           tableName,
           addBtn: true,
           onAddClick: () => {
-            router.push(`${detailLinkPath}/0`);
+            router.push(`${detailLinkPath}/new`);
           }
         }}
       />

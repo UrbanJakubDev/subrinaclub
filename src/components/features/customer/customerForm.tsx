@@ -33,9 +33,10 @@ const newCustomer: CreateCustomerDTO = {
     salesManagerSinceYear: null,
 }
 
-export default function CustomerForm({ initialCustomerData, dials }: CustomerFormProps) {
+export default function CustomerForm({ initialCustomerData, dials, nextRegNumber }: CustomerFormProps) {
     const router = useRouter()
     const [customerData, setCustomerData] = React.useState<Customer>(initialCustomerData || newCustomer as Customer)
+
 
     // Fetch customer by ico or full name if customer is new after ico or full name is set
     // const checkCustomer = async () => {
@@ -104,7 +105,7 @@ export default function CustomerForm({ initialCustomerData, dials }: CustomerFor
                             label="Registrační číslo"
                             type="number"
                             name="registrationNumber"
-                            defaultValue={customerData.registrationNumber.toString()}
+                            defaultValue={customerData.registrationNumber ? customerData.registrationNumber.toString() : nextRegNumber}
                             disabled
                         />
                         <InputField

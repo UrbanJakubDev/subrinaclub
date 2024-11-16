@@ -1,4 +1,5 @@
-import { Account } from "./types"
+import { Bonus } from "./bonus"
+import { Account, SavingPeriod } from "./types"
 
 export interface Transaction {
    id: number
@@ -6,9 +7,24 @@ export interface Transaction {
    createdAt: Date
    updatedAt: Date
 
+   year: number
+   quarter: number
+   quarterDateTime: Date
    points: number
-   description: string
+   type: string
+   description: string | null
 
-   accountId: number
+   acceptedBonusOrder: Date | null
+   sentBonusOrder: Date | null
+   bonusPrice: number | null
+
    account: Account
-}
+   accountId: number
+
+   bonus: Bonus
+   bonusId: number
+
+   savingPeriod: SavingPeriod
+   savingPeriodId: number
+   
+}P 

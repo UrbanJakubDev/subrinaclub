@@ -20,7 +20,7 @@ import {
   faSortUp
 } from "@fortawesome/free-solid-svg-icons"
 import { Button, ButtonGroup, Card, Input } from "@material-tailwind/react"
-import { timestampToDate } from "@/utils/dateFnc"
+import { timestampToDate } from "@/lib/utils/dateFnc"
 import Filter from "./baseTableFnc"
 
 interface TableProps {

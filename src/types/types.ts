@@ -1,4 +1,5 @@
 import { Customer } from "./customer";
+import { Transaction } from "./transaction";
 
 export interface SelectOption {
    value: string | number;
@@ -10,7 +11,7 @@ export type Account = {
    active: boolean
    createdAt: Date
    updatedAt: Date
-   lifeTimePoints: number
+   lifetimePoints: number
    currentYearPoints: number
    totalDepositedPoints: number
    totalWithdrawnPoints: number
@@ -19,16 +20,16 @@ export type Account = {
    customer: Customer
 
    // TODO: Add transactions type
-   transactions: any[]
+   transactions: Transaction[]
 
    // TODO: Add savingPeriods type
-   savingPeriods: any[]
+   savingPeriods: SavingPeriod[]
 }
 
 
 export type SavingPeriod = {
    id: number
-   active: boolean
+   status: 'ACTIVE' | 'INACTIVE' | 'CLOSED'
    createdAt: Date
    updatedAt: Date
 
@@ -36,6 +37,9 @@ export type SavingPeriod = {
    startQuarter: number
    endYear: number
    endQuarter: number
+
+   startDateTime: Date
+   endDateTime: Date
 
    availablePoints: number
    totalDepositedPoints: number

@@ -80,17 +80,17 @@ const SelectField = ({
           ) : null
         )}
       >
-        <Option value="">Vyberte...</Option>
+        <Option value="0">Vyberte...</Option>
         {options.map((option) => (
-          <Option 
-            key={option.value} 
+          <Option
+            key={option.value}
             value={option.value.toString()}
           >
             {option.label}
           </Option>
         ))}
       </Select>
-      
+
       {helperText && (
         <Typography variant="small" className="mt-2 flex items-center gap-1 font-normal">
           {helperText}

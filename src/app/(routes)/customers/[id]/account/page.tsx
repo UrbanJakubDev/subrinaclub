@@ -1,5 +1,5 @@
 
-import DetailDataWrapper from "@/components/features/customer/detailDataWrapper";
+import DetailDataWrapper from "@/components/features/customer/AccountDataView";
 import SavingPeriodsComponent from "@/components/features/savingPeriod/savingPeriodsComponent";
 import PageComponent from "@/components/features/detailPage/pageComponent";
 import PageHeader from '@/components/features/detailPage/pageHeader';

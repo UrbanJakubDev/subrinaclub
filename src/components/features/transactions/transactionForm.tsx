@@ -7,20 +7,19 @@ import Loader from '../../ui/loader';
 import { Typography } from '@material-tailwind/react';
 import UniversalForm from '../../forms/universalForm';
 import SelectField from '../../ui/inputs/selectInput';
-import { quarterSelectOptions, yearSelectOptions } from '@/utils/dateFnc';
+import { quarterSelectOptions, yearSelectOptions } from '@/lib/utils/dateFnc';
 import { Transaction } from '@/types/transaction';
 import { transactionValidationSchema } from '@/lib/services/transaction/validation';
+import Skeleton from '@/components/ui/skeleton';
 
 
 const newTransaction: Transaction = {
-   id: 0,
-   accountId: 0,
    year: 0,
    quarter: 0,
-   amount: 0,
+   points: 1,
    acceptedBonusOrder: null,
    sentBonusOrder: null,
-   bonusAmount: 0,
+   bonusPrice: 0,
    bonusId: 0,
    description: '',
 };
@@ -28,92 +27,56 @@ const newTransaction: Transaction = {
 
 type Props = {
    transaction: Transaction
+   bonusesDial?: any
+   onSubmit: (data: Transaction) => Promise<Transaction>
 };
 
 
 
-const TransactionForm = ({ transaction }: Props) => {
+const TransactionForm = ({ transaction, bonusesDial, onSubmit }: Props) => {
 
-   const [transactionData, setTransactionData] = useState<Transaction>(transaction || newTransaction);
-   const [bonusesDial, setBonusesDial] = useState<any>(null);
-   const [transactionType, setTransactionType] = useState('DEPOSIT');
-
-
-   // Fetch bonuses and transaction data
-   const fetchBonuses = useCallback(async () => {
-      try {
-         const response = await fetch(`/api/dictionaries/bonuses/options`);
-         if (!response.ok) throw new Error('Failed to fetch bonuses');
-         setBonusesDial(await response.json());
-      } catch (error) {
-         console.error('Error fetching bonuses:', error);
-      }
-   }, []);
-
-   // Send request to create or update transaction
-   const createOrUpdateTransaction = async (data: Transaction) => {
-      try {
-         const response = await fetch(`/api/transactions`, {
-            method: data.id ? 'PUT' : 'POST',
-            headers: {
-               'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-         });
-
-         if (!response.ok) {
-            throw new Error('Failed to create or update transaction');
-         }
-
-         const result = await response.json();
-         setTransactionData(result);
-         toast.success(data.id ? 'Transaction updated' : 'Transaction created');
-      } catch (error) {
-         console.error('Error creating or updating transaction:', error);
-         toast.error('Failed to create or update transaction');
-      }
-   }
+   const [transactionData, setTransactionData] = useState<Transaction>();
+   const yearDial = yearSelectOptions();
+   const quarterDial = quarterSelectOptions();
 
    useEffect(() => {
-      fetchBonuses();
-   }, [transactionData]);
+      if (transaction) {
+         setTransactionData(transaction);
+      } else {
+         setTransactionData(newTransaction);
+      }
+   }, [transaction]);
 
 
-   const handleSubmit = async (data: Transaction) => {
-      alert('submit');
-      await createOrUpdateTransaction(data);
-   };
-
-   if (!bonusesDial) {
-      return <Loader />;
+   if (!bonusesDial || !transactionData) {
+      return <Skeleton />;
    }
 
    return (
       <UniversalForm<Transaction>
          initialData={transactionData}
          validationSchema={transactionValidationSchema}
-         onSubmit={handleSubmit}
-         successMessage={transactionData.id ? "Prodejce byl úspěšně upraven." : "Prodejce byl úspěšně vytvořen."}
+         onSubmit={onSubmit}
       >
          {() => (
-            <>
+            <div className='gap-4 mt-8'>
                <div className="flex flex-row gap-4">
                   <SelectField
                      label="Rok"
                      name="year"
-                     options={yearSelectOptions()}
-                  // defaultValue={savingPeriod.year}
+                     options={yearDial}
+                     defaultValue={transactionData.year || new Date().getFullYear()}
                   />
 
                   <SelectField
                      label="Čtvrtletí"
                      name="quarter"
-                     options={quarterSelectOptions()}
-                  // defaultValue={savingPeriod.quarter}
+                     options={quarterDial}
+                     defaultValue={transactionData.quarter || 1}
                   />
                </div>
 
-               <div className="my-4">
+               <div className="my-4 flex flex-col gap-4">
                   <InputField
                      label="Množství"
                      type="number"
@@ -127,7 +90,7 @@ const TransactionForm = ({ transaction }: Props) => {
                </div>
 
 
-               <div className="mb-4">
+               <div className="mb-4 flex flex-col gap-4">
                   <Typography>Vyběr bodů</Typography>
                   <InputField
                      label="Popis"
@@ -142,18 +105,18 @@ const TransactionForm = ({ transaction }: Props) => {
                   <InputField
                      label="Bonus - cena"
                      type="number"
-                     name="bonusAmount"
+                     name="bonusPrice"
                      defaultValue={0}
                   />
                   <SelectField
                      label="Bonus"
                      name="bonusId"
                      options={bonusesDial}
-                     defaultValue={transactionData.bonusId}
+                     defaultValue={transactionData.bonusId || "0"}
                   />
                </div>
 
-            </>
+            </div>
 
          )}
       </UniversalForm>

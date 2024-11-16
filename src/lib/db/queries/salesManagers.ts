@@ -1,6 +1,6 @@
 
 
-import { SalesManagerSelect } from "@/interfaces/types";
+import { SalesManagerSelectDTO } from "@/lib/services/salesManager/types";
 import { prisma } from "../pgDBClient";
 
 // Basic CRUD operations for the 'salesManager' model
@@ -73,7 +73,7 @@ export async function updateSalesManagerInDB(id: number, data: any) {
  * Retrieves sales managers for select options.
  * @returns An array of sales managers with their id and name.
  */
-export async function fetchSalesManagersOptionsFromDB(): Promise<SalesManagerSelect[]> {
+export async function fetchSalesManagersOptionsFromDB(): Promise<SalesManagerSelectDTO[]> {
   const res = await prisma.salesManager.findMany({
     select: {
       id: true,
@@ -104,7 +104,7 @@ export async function getCustomersListBySalesManagerId(salesManagerId: number) {
 
 interface TransactionWithCustomerName {
   id: number;
-  amount: number;
+  points: number;
   // Add any other fields from the 'transaction' model as needed
   customerFullName: string;
   year: number;
@@ -132,7 +132,7 @@ export async function getListOfTransactionsBySalesManagerId(
       },
       select: {
         id: true,
-        amount: true,
+        points: true,
         year: true,
         quarter: true,
         description: true,
@@ -164,7 +164,7 @@ export async function getListOfTransactionsBySalesManagerId(
     const formattedTransactions: TransactionWithCustomerName[] =
       transactions.map((transaction) => ({
         id: transaction.id,
-        amount: transaction.amount,
+        points: transaction.points,
         customerFullName: transaction.account.customer.fullName,
         customerID: transaction.account.customer.id,
         year: transaction.year,
@@ -211,12 +211,12 @@ export async function getTotalPointsBySalesManagerId(
           id: true,
           transactions: {
             select: {
-              amount: true,
+              points: true,
               year: true,
               quarter: true,
             },
             where: {
-              amount: {
+              points: {
                 gt: 0,
               },
             },
@@ -229,20 +229,13 @@ export async function getTotalPointsBySalesManagerId(
   // Calculate the total points for each customer
   const customersWithTotalPoints: CustomerWithTotalPoints[] = customers.map(
     (customer) => {
-      const totalPoints = customer.account.reduce((total, account) => {
-        return (
-          total +
-          account.transactions.reduce((total, transaction) => {
-            return total + transaction.amount;
-          }, 0)
-        );
-      }, 0);
-
+      const totalPoints = customer.account.transactions.reduce(
+        (acc, transaction) => acc + transaction.points,
+        0
+      );
       return {
         id: customer.id,
         fullName: customer.fullName,
-        registrationNumber: customer.registrationNumber,
-        account: customer.account,
         totalPoints: totalPoints,
       };
     }
@@ -252,11 +245,11 @@ export async function getTotalPointsBySalesManagerId(
   return customersWithTotalPoints;
 }
 
-// Get total amount of transactions for a sales manager lifetime
-export async function getTotalAmountOfTransactionsBySalesManagerId(
+// Get total points of transactions for a sales manager lifetime
+export async function getTotalpointsOfTransactionsBySalesManagerId(
   salesManagerId: number
 ) {
-  const totalAmount = await prisma.transaction.aggregate({
+  const totalpoints = await prisma.transaction.aggregate({
     where: {
       account: {
         customer: {
@@ -265,10 +258,10 @@ export async function getTotalAmountOfTransactionsBySalesManagerId(
       },
     },
     _sum: {
-      amount: true,
+      points: true,
     },
   });
-  return totalAmount._sum.amount || 0;
+  return totalpoints._sum.points || 0;
 }
 
 // Get count of customers for a sales manager

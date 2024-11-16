@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@material-tailwind/react";
 import type { ButtonStyleTypes } from "@material-tailwind/react";
 import { useModal } from "@/contexts/ModalContext";
+import { useModalStore } from "@/stores/ModalStore";
 
 type Props = {
   userName: string;
@@ -25,7 +26,7 @@ export default function PageHeader({ userName, userId, active, formUrl, accountU
   const pathname = usePathname()
   const router = useRouter()
 
-  const { handleOpenModal } = useModal();
+  const { actions } = useModalStore();
 
   // Get first part of the path
   const path = pathname.split("/")[1]
@@ -43,7 +44,7 @@ export default function PageHeader({ userName, userId, active, formUrl, accountU
         <div className="flex gap-2">
           {userId !== "0" && addBtn && (
             <Link href="#">
-              <Button onClick={() => handleOpenModal('transactionForm')}>
+              <Button onClick={() => actions.openModal('transactionForm')}>
                 <FontAwesomeIcon icon={faPlus} />
                 <span> Transakce</span>
               </Button>

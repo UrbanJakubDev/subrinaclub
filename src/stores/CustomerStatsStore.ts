@@ -6,6 +6,7 @@ import { Customer } from '@/types/customer'
 import { Transaction } from '@/types/transaction'
 import { SavingPeriod } from '@/types/types'
 import { revalidatePath } from 'next/cache'
+import { CustomerWithAccountDataAndActiveSavingPeriodDTO } from '@/lib/services/customer/types'
 
 
 
@@ -15,7 +16,7 @@ export interface ValidationError {
 }
 
 export interface StatsState {
-   customer: Customer | null
+   customer: CustomerWithAccountDataAndActiveSavingPeriodDTO | null
    transactions: Transaction[]
    isLoading: boolean
    error: string | null
@@ -24,7 +25,7 @@ export interface StatsState {
 }
 
 export interface StatsActions {
-   initialize: (customer: Customer, transactions: Transaction[]) => void
+   initialize: (customer: CustomerWithAccountDataAndActiveSavingPeriodDTO, transactions: Transaction[]) => void
    getActiveSavingPeriod: () => SavingPeriod | null
    getTransactionsForActiveSavingPeriod: () => Transaction[]
    addTransaction: (transaction: CreateTransactionInput) => void
@@ -58,9 +59,8 @@ export const createStatsStore = (initState: StatsState = defaultInitState) => {
             // Memoize the getters to prevent infinite updates
             getActiveSavingPeriod: () => {
                const { customer } = get()
-               const savingPeriods = customer?.account.savingPeriods
-               if (!savingPeriods) return null
-               return savingPeriods.find(p => p.status === 'ACTIVE') || null
+               const savingPeriod = customer?.account.savingPeriod as SavingPeriod || null
+               return savingPeriod
             },
 
             getTransactionsForActiveSavingPeriod: () => {

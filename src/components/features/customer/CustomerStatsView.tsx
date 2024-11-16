@@ -10,10 +10,11 @@ import AccountInfoCard from "./accountInfoCard";
 import AccountStats from "./account/accountStats";
 import TransactionsTable from "../transactions/transactionsTable";
 import SavingPeriodStats from "../savingPeriod/savingPeriodStats";
+import { CustomerWithAccountDataAndActiveSavingPeriodDTO } from "@/lib/services/customer/types";
 
 
 type CustomerStatsViewProps = {
-   initialCustomer: Customer
+   initialCustomer: CustomerWithAccountDataAndActiveSavingPeriodDTO
    initialTransactions: Transaction[]
 }
 
@@ -24,7 +25,7 @@ export default function CustomerStatsView({ initialCustomer, initialTransactions
    const transactions = useStatsStore(state => state.transactions)
    const isLoading = useStatsStore(state => state.isLoading)
    const activePeriod = useStatsStore(state => state.getActiveSavingPeriod())
-   // const periodTransactions = useStatsStore(state => state.getTransactionsForActiveSavingPeriod())
+   const periodTransactions = useStatsStore(state => state.getTransactionsForActiveSavingPeriod())
    const refreshTransactionsFromServer = useStatsStore(state => state.refreshTransactionsFromServer)
 
    useEffect(() => {

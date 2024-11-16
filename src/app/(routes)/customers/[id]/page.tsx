@@ -15,6 +15,7 @@ type CustomerDetailProps = {
 
 export default async function UserDetail({ params }: CustomerDetailProps) {
   const isNewCustomer = params.id === "new";
+ 
 
   // Load dealers and sales managers for select options
   const dealers = await fetchDealersForOptionsFromDB();
@@ -37,7 +38,7 @@ export default async function UserDetail({ params }: CustomerDetailProps) {
   }
 
   const customerId = parseInt(params.id);
-  const customer = await getCustomerById(customerId);
+  const customer = await customerService.get(customerId)
 
   return (
 

@@ -2,7 +2,7 @@
 import { Card, CardBody, CardFooter } from "@material-tailwind/react";
 import Typography from "../../typography";
 import React from 'react'
-import formatThousandDelimiter from "@/utils/formatFncs";
+import formatThousandDelimiter from "@/lib/utils/formatFncs";
 
 type ProductCardWidgetPropsType = {
    title: string;

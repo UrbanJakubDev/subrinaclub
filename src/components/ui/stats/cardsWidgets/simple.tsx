@@ -1,5 +1,5 @@
 'use client'
-import formatThousandDelimiter from '@/utils/formatFncs';
+import formatThousandDelimiter from '@/lib/utils/formatFncs';
 import { Card, CardBody, Typography } from '@material-tailwind/react';
 import React, { useState, useEffect } from 'react';
 

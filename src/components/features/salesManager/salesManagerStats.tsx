@@ -7,7 +7,7 @@ import SimpleStat from "../../ui/stats/cardsWidgets/simple";
 import SalesManagerStatsTable from "./salesManagerStatsTable";
 import LineChart from "../../ui/charts/line";
 import { Card, Typography } from "@material-tailwind/react";
-import { yearSelectOptions } from "@/utils/dateFnc";
+import { yearSelectOptions } from "@/lib/utils/dateFnc";
 import SimpleSelectInput from "../../ui/inputs/simpleSelectInput";
 import { set } from "react-hook-form";
 import KpiCard from "@/components/ui/stats/cardsWidgets/KpiCard";

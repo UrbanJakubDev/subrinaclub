@@ -5,8 +5,8 @@ import {
     getActiveCustomersWithTransactionsBySalesManagerId,
     getCustomerCountBySalesManagerId,
     getCustomerCountBySalesManagerIdAndStatus,
-    getTotalAmountOfTransactionsBySalesManagerId,
     getTotalPointsBySalesManagerId,
+    getTotalpointsOfTransactionsBySalesManagerId,
 } from '@/lib/db/queries/salesManagers'
 import PageComponent from '@/components/features/detailPage/pageComponent'
 
@@ -17,7 +17,7 @@ export default async function SalesManagersDetailStats({
 }) {
     let sales_manager_id = parseInt(params.id)
     const salesManager = await fetchSalesManagerByIdFromDB(sales_manager_id as number)
-    const totalPoints = await getTotalAmountOfTransactionsBySalesManagerId(sales_manager_id)
+    const totalPoints = await getTotalpointsOfTransactionsBySalesManagerId(sales_manager_id)
     const customersClubPoints = await getTotalPointsBySalesManagerId(sales_manager_id)
     const numberCustomers = await getCustomerCountBySalesManagerId(sales_manager_id)
     const numOfActiveCustomers = await getActiveCustomersWithTransactionsBySalesManagerId(sales_manager_id, 2024)

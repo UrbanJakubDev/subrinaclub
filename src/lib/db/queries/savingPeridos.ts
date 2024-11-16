@@ -2,7 +2,7 @@
    This file cotains basic set of CRUD operations for savingPeriods table.
 */
 
-import { returnLastQuarter } from '@/utils/dateFnc';
+import { returnLastQuarter } from '@/lib/utils/dateFnc';
 import { prisma } from '../pgDBClient';
 
 export default async function getAllSavingPeriods() {

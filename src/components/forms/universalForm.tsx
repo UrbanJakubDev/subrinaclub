@@ -6,13 +6,14 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { toast } from 'react-toastify';
 import Loader from '../ui/loader';
 import { Button, Card } from '@material-tailwind/react';
+import Skeleton from '../ui/skeleton';
 
 interface UniversalFormProps<T extends FieldValues> {
    initialData: T;
    validationSchema: any;
    onSubmit: (data: T) => Promise<T>;
    children: (methods: UseFormReturn<T>) => React.ReactNode;
-   successMessage: string;
+   successMessage?: string;
 }
 
 export default function UniversalForm<T extends FieldValues>({
@@ -45,7 +46,9 @@ export default function UniversalForm<T extends FieldValues>({
          const result = await onSubmit(data);
          setFormData(result);
          reset(result);
-         toast.success(successMessage);
+         if (successMessage) {
+            toast.success(successMessage);
+         }  
       } catch (error) {
          toast.error('An error occurred while submitting the form.' + error);
       }
@@ -53,7 +56,7 @@ export default function UniversalForm<T extends FieldValues>({
 
    // Prevent form from rendering until formData is ready
    if (!formData) {
-      return <Loader />;  // Optionally add a loading spinner
+      return <Skeleton />;  // Optionally add a loading spinner
    }
 
    return (
@@ -69,7 +72,7 @@ export default function UniversalForm<T extends FieldValues>({
                )
             }
 
-            <form onSubmit={handleSubmit(processForm)}>
+            <form onSubmit={handleSubmit(processForm)} >
                {children(methods)}
                {/* Submit and Cancel buttons */}
                <div className="w-full flex justify-end gap-3 mt-4">

@@ -5,6 +5,7 @@ import PageComponent from "@/components/features/detailPage/pageComponent";
 import { fetchDealersForOptionsFromDB } from "@/lib/db/queries/dealers";
 import { fetchSalesManagersOptionsFromDB } from "@/lib/db/queries/salesManagers";
 import CustomerForm from "@/components/features/customer/customerForm";
+import { customerService } from "@/lib/services/customer";
 
 
 type CustomerDetailProps = {
@@ -14,6 +15,7 @@ type CustomerDetailProps = {
 
 export default async function UserDetail({ params }: CustomerDetailProps) {
   const isNewCustomer = params.id === "new";
+ 
 
   // Load dealers and sales managers for select options
   const dealers = await fetchDealersForOptionsFromDB();
@@ -23,17 +25,20 @@ export default async function UserDetail({ params }: CustomerDetailProps) {
 
 
   if (isNewCustomer) {
+    // Get last customer registration number
+    const nextRegistrationNumber = await customerService.getNextRegistrationNumber();
+
     return (
       <PageComponent>
         <div className="mx-auto w-8/12">
-          <CustomerForm dials={{dealers, salesManagers}} />
+          <CustomerForm dials={{dealers, salesManagers}} nextRegNumber={nextRegistrationNumber} />
         </div>
       </PageComponent>
     );
   }
 
   const customerId = parseInt(params.id);
-  const customer = await getCustomerById(customerId);
+  const customer = await customerService.get(customerId)
 
   return (
 
@@ -50,7 +55,6 @@ export default async function UserDetail({ params }: CustomerDetailProps) {
           <h2 className="text-lg font-semibold">{`Editace - ${customer.fullName}`}</h2>
           <CustomerForm initialCustomerData={customer} dials={{ dealers, salesManagers }} />
         </div>
-        {/* <DetailDataWrapper initialCustomer={customer} /> */}
 
       </div>
 

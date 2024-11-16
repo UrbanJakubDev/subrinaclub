@@ -28,6 +28,7 @@ export interface CustomerSelectDTO extends SelectOption {}
 export type CustomerFormProps = {
    initialCustomerData?: any
    dials?: any
+   nextRegNumber?: any
 }
 
 
@@ -35,13 +36,9 @@ export interface CustomerCardProps {
    customer: CustomerResponseDTO;
  }
 
- export interface AccountInfoCardProps {
-   // TODO: Define the type of the customer prop
-   account: any;
-   customer: any;
- }
 
 
+// TODO: Fix account attribute type
 export interface CustomerWithAccountDataAndActiveSavingPeriodDTO {
    id: number;
    active: boolean;

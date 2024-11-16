@@ -10,8 +10,8 @@ export const sumPosPointsInTransactions = (transactions: ITransaction[]) => {
     let sum = 0;
     transactions?.forEach((transaction: ITransaction) => {
        // Sum points if greater than 0
-       if (transaction.amount > 0) {
-          sum += transaction.amount;
+       if (transaction.points > 0) {
+          sum += transaction.points;
        }
     });
     return sum;
@@ -27,8 +27,8 @@ export const sumNegPointsInTransactions = (transactions: ITransaction[]) => {
     let sum = 0;
     transactions.forEach((transaction: ITransaction) => {
        // Sum points if less than 0
-       if (transaction.amount < 0) {
-          sum += transaction.amount;
+       if (transaction.points < 0) {
+          sum += transaction.points;
        }
     });
     return sum;
@@ -44,7 +44,7 @@ export const balanceInTransactions = (transactions: ITransaction[]) => {
     let sum = 0;
     transactions.forEach((transaction: ITransaction) => {
        // Sum all points
-       sum += transaction.amount;
+       sum += transaction.points;
     });
     return sum;
  }

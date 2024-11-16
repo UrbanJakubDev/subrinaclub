@@ -1,8 +1,8 @@
 "use client";
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, use, useEffect, useState } from "react";
 import SimpleSelectInput from "../../../ui/inputs/simpleSelectInput";
-import { yearSelectOptions } from "../../../../utils/dateFnc";
-import { sumPosPointsInTransactions } from "@/utils/functions";
+import { yearSelectOptions } from "../../../../lib/utils/dateFnc";
+import { sumPosPointsInTransactions } from "@/lib/utils/functions";
 import LineChart from "@/components/ui/charts/line";
 import Donut from "@/components/ui/charts/donutChart";
 import KpiCard from "@/components/ui/stats/cardsWidgets/KpiCard";
@@ -11,11 +11,8 @@ import ProductCardWidget from "@/components/ui/stats/cardsWidgets/ProductCardWid
 import { Button, Card, Typography } from "@material-tailwind/react";
 import Loader from "@/components/ui/loader";
 import { useModal } from "@/contexts/ModalContext";
-import { useCustomer } from "@/contexts/CustomerContext";
+import { useStatsStore } from "@/stores/CustomerStatsStore";
 
-type Props = {
-  initData: any[];
-};
 
 interface ITransaction {
   points: number;
@@ -32,15 +29,14 @@ interface IProductData {
 }
 
 
-export default function AccountStats({ initData }: Props) {
+export default function AccountStats() {
 
-  const { customer, account } = useCustomer();
-  const [transactions, setTransactions] = useState<any[]>(initData);
+  const customer = useStatsStore(state => state.customer);
+  const transactions = useStatsStore(state => state.transactions);
 
-
-
+  // State for the selected year
   const [selectedYear, setSelectedYear] = React.useState(2024);
-  const clubAccountBalance = sumPosPointsInTransactions(transactions);
+  const clubAccountBalance = customer?.account?.lifetimePoints;
 
   // Date for the year balance calculation
   const [yearBalanceDate, setYearBalanceDate] = useState(new Date("2024-01-01"));
@@ -60,20 +56,21 @@ export default function AccountStats({ initData }: Props) {
     transactions: ITransaction[],
     year: number
   ): number => {
-    // Use filter to get transactions for the specified year with positive pointss
-    const validTransactions = transactions?.filter((transaction) => {
+    if (!Array.isArray(transactions)) return 0;
+    
+    const validTransactions = transactions.filter((transaction) => {
       return transaction.year === year && transaction.points > 0;
     });
 
-    // Use reduce to sum the points from valid transactions
-    const sum = validTransactions?.reduce((total, transaction) => {
+    return validTransactions.reduce((total, transaction) => {
       return total + transaction.points;
     }, 0);
-
-    return sum;
   };
 
   function sumNextTwoYears(startingDate: Date, data: any): number {
+    // Early return if data is not an array
+    if (!Array.isArray(data)) return 0;
+
     // Extract the starting year from the starting date
     const startingYear = startingDate.getFullYear();
 
@@ -91,7 +88,7 @@ export default function AccountStats({ initData }: Props) {
         quartersToSum.includes(point.quarter);
     });
 
-    // Sum up the pointss of the relevant data points
+    // Sum up the points of the relevant data points
     const sum = relevantData.reduce((acc, point) => acc + point.points, 0);
 
     return sum;
@@ -99,15 +96,22 @@ export default function AccountStats({ initData }: Props) {
 
 
   const getSumOfTransactionsForChart = (transactions: any, startDate: String, endDate: String) => {
+    // Early return if transactions is not an array
+    if (!Array.isArray(transactions)) {
+      return {
+        series: [{ name: "Body", data: [] }],
+        categories: [],
+      };
+    }
+
     const [startYear, startQuarter] = startDate.split("-");
     const [endYear, endQuarter] = endDate.split("-");
-
 
     // Initialize a map to store the sums per quarter
     const quarterSums: { [key: string]: number } = {};
 
     // Populate the map with sums
-    transactions?.forEach((transaction) => {
+    transactions.forEach((transaction) => {
       const key = `${transaction.year}-Q${transaction.quarter}`;
       if (!quarterSums[key]) {
         quarterSums[key] = 0;
@@ -156,17 +160,15 @@ export default function AccountStats({ initData }: Props) {
 
   // Sum of points for the selected year and quarter for the account
   const sumTransactionPointsInQuarter = (transactions: ITransaction[], year: number, quarter: number): number => {
-    // Filter transactions for the specified year and quarter with positive pointss
-    const validTransactions = transactions?.filter((transaction) => {
+    if (!Array.isArray(transactions)) return 0;
+
+    const validTransactions = transactions.filter((transaction) => {
       return transaction.year === year && transaction.quarter === quarter && transaction.points > 0;
     });
 
-    // Use reduce to sum the points from valid transactions
-    const sum = validTransactions.reduce((total, transaction) => {
+    return validTransactions.reduce((total, transaction) => {
       return total + transaction.points;
     }, 0);
-
-    return sum;
   }
 
 
@@ -174,12 +176,12 @@ export default function AccountStats({ initData }: Props) {
 
   // Function to find the most favorite product based on transactions with negative pointss
   const mostFavouriteProduct = (transactions: ITransaction[]): IProductData[] => {
-    // Filter transactions with negative points
-    const negativeTransactions = transactions?.filter(transaction => transaction.points < 0);
+    if (!Array.isArray(transactions)) return [];
 
-    // Accumulate product data
+    const negativeTransactions = transactions.filter(transaction => transaction.points < 0);
+
     const productDataMap: { [key: string]: IProductData } = {};
-    negativeTransactions?.forEach(transaction => {
+    negativeTransactions.forEach(transaction => {
       const { bonusName, points, bonuspoints } = transaction;
 
       // Use the bonusName as a key for now since bonusId is not available
@@ -198,13 +200,7 @@ export default function AccountStats({ initData }: Props) {
       productDataMap[bonusName].price += (bonuspoints ?? 0); // Sum money spent
     });
 
-    // Convert the product data map to an array
-    const productDataArray: IProductData[] = Object.values(productDataMap);
-
-    // Sort the products by count of transactions
-    productDataArray.sort((a, b) => b.count - a.count);
-
-    return productDataArray;
+    return Object.values(productDataMap);
   }
 
   // Find most favourite product for the customer based on the transactions with negative points and return the all products with count of transactions
@@ -213,11 +209,12 @@ export default function AccountStats({ initData }: Props) {
 
   // Sum all bonuspointss in transactions with type "withdraw"
   const sumWithdrawnPrice = (transactions: ITransaction[]): number => {
-    // Filter transactions with negative points
-    const negativeTransactions = transactions?.filter(transaction => transaction.points < 0);
+    if (!Array.isArray(transactions)) return 0;
+
+    const negativeTransactions = transactions.filter(transaction => transaction.points < 0);
 
     // Sum the bonuspointss
-    const sum = negativeTransactions?.reduce((total, transaction) => {
+    const sum = negativeTransactions.reduce((total, transaction) => {
       return total + (transaction.bonuspoints ?? 0);
     }, 0);
 
@@ -230,7 +227,9 @@ export default function AccountStats({ initData }: Props) {
   // TODO: Make that function more universal and use it for the line chart as well
   // Function to convert productDataArray to chart data
   const convertToChartData = (productDataArray: IProductData[]) => {
-    const labels = productDataArray.map(product => product.bonusName);
+    const labels = productDataArray.map(product =>
+      product.bonusName === undefined ? "Chybí název Bonusu" : product.bonusName
+    );
     const series = productDataArray.map(product => product.count);
 
     return {
@@ -251,11 +250,12 @@ export default function AccountStats({ initData }: Props) {
   return (
     <div className="flex flex-col gap-10">
       <Card className="p-8 border rounded-sm">
+        <span>Component AccountStats</span>
         <div className="mb-4">
           <Typography
             variant="h5"
             className="mb-4 color-gray-900 "
-          >{`Statistika bodů na účtu s id: ${account?.id} pro zákazníka - ${customer.fullName}`}</Typography>
+          >{`Statistika bodů na účtu s id:  pro zákazníka - ${customer.fullName}`}</Typography>
           {transactions?.length > 0 && (
             <LineChart
               title="Vývoj bodů na Klubovém kontu"
@@ -302,12 +302,7 @@ export default function AccountStats({ initData }: Props) {
         >Nejoblíbenější produkty</Typography>
         <div className="flex justify-between w-full gap-4">
           <div className="w-1/2">
-            {chartData && (
-
-              <Donut data={chartData}
-              />
-            )
-            }
+            {chartData && (<Donut data={chartData}/>)}
           </div>
           <div className="grid w-full grid-cols-3 gap-4">
             {Object.keys(mostFavouriteProductValue).map((key) => {

@@ -7,7 +7,7 @@ import { Button } from "@material-tailwind/react";
 import { Card } from "@material-tailwind/react";
 import { faAddressCard, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import formatThousandDelimiter from "@/utils/formatFncs";
+import formatThousandDelimiter from "@/lib/utils/formatFncs";
 
 type Props = {
   defaultData: any[];

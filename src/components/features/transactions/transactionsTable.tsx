@@ -1,19 +1,19 @@
 'use client';
-import { faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ColumnDef } from '@tanstack/react-table';
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import MyTable from '../../tables/ui/baseTable';
 import Button from '../../ui/button';
-import { useModal } from '@/contexts/ModalContext';
-import { toast } from 'react-toastify';
-import formatThousandDelimiter from '@/utils/formatFncs';
+import formatThousandDelimiter from '@/lib/utils/formatFncs';
 import Loader from '../../ui/loader';
 import TransactionModalWrapper from '@/components/features/customer/transactionFormComponent';
-import { useTransactions } from '@/contexts/TransactionContext';
-import { useSavingPeriods } from '@/contexts/SavingPeriodContext';
-import SavingPeriodModalWrapper from '../savingPeriod/savingPeriodModalWrapper';
 import { Transaction } from '@/types/transaction';
+import { useStatsStore } from '@/stores/CustomerStatsStore';
+import TransactionFormComponent from '@/components/features/customer/transactionFormComponent';
+import { useModal } from '@/contexts/ModalContext';
+import { useModalStore } from '@/stores/ModalStore';
+import Skeleton from '@/components/ui/skeleton';
 
 type Props = {
    tableName?: string;
@@ -22,41 +22,15 @@ type Props = {
 };
 
 export default function TransactionsTable({ tableName, accountId }: Props) {
-   const { handleOpenModal } = useModal();
-   const { transactions, deleteTransaction, isLoading } = useTransactions();
-   const { activeSavingPeriod, closeSavingPeriod, createSavingPeriod } = useSavingPeriods();
+   const transactions = useStatsStore(state => state.transactions)
+   const isLoading = useStatsStore(state => state.isLoading)
+   const { actions } = useModalStore();
 
-   const onNewTransaction = useCallback(() => {
-      if (!activeSavingPeriod) {
-         handleOpenModal('newSavingPeriodForm');
-      } else {
-         handleOpenModal('transactionForm');
-      }
-   }, [handleOpenModal, activeSavingPeriod]);
+   const onEdit = (transaction: Transaction) => {
+      actions.openModal('transactionForm', transaction);
+   }
+   const onDelete = () => console.log('delete');
 
-   const onEdit = useCallback((transaction: Transaction) => {
-      handleOpenModal('transactionForm', { transaction });
-   }, [handleOpenModal]);
-
-   const onDelete = useCallback((id: number) => {
-      if (confirm('Opravdu chcete smazat tuto transakci?')) {
-         deleteTransaction(id);
-      }
-   }, [deleteTransaction]);
-
-   const onCloseSavingPeriod = useCallback(async () => {
-      try {
-         await closeSavingPeriod();
-         toast.success('Spořící období bylo uzavřeno');
-         const now = new Date();
-         const currentYear = now.getFullYear();
-         const currentQuarter = Math.floor(now.getMonth() / 3) + 1;
-         await createSavingPeriod(currentYear, currentQuarter);
-      } catch (error) {
-         console.error('Error closing saving period:', error);
-         toast.error('Failed to close saving period');
-      }
-   }, [closeSavingPeriod, createSavingPeriod]);
 
    // Column definitions
    const columns = React.useMemo<ColumnDef<any>[]>(
@@ -80,12 +54,12 @@ export default function TransactionsTable({ tableName, accountId }: Props) {
             enableColumnFilter: false,
          },
          {
-            accessorKey: 'amount',
+            accessorKey: 'points',
             header: 'Body',
             cell: (info) => info.getValue(),
             footer: (info) => {
                const total = info.table.getFilteredRowModel().rows.reduce(
-                  (sum, row) => sum + row.getValue<number>('amount'),
+                  (sum, row) => sum + row.getValue<number>('points'),
                   0
                );
                return `${total}`;
@@ -139,20 +113,8 @@ export default function TransactionsTable({ tableName, accountId }: Props) {
    );
    return (
       <>
-         {activeSavingPeriod && (
-            <div className="mb-4">
-               <h3>Aktivní spořící období: {activeSavingPeriod.startYear}Q{activeSavingPeriod.startQuarter} - Současnost</h3>
-               <p>Dostupné body: {activeSavingPeriod.availablePoints}</p>
-               <Button onClick={onCloseSavingPeriod}>Uzavřít spořící období</Button>
-            </div>
-         )}
-         <div className="mb-4">
-            <Button onClick={onNewTransaction}>
-               <FontAwesomeIcon icon={faPlus} className="mr-2" />
-               Nová transakce
-            </Button>
-         </div>
-         {isLoading ? <Loader /> :
+         {isLoading ? <Skeleton /> :
+      
             <MyTable
                {...{
                   data: transactions,
@@ -161,8 +123,9 @@ export default function TransactionsTable({ tableName, accountId }: Props) {
                }}
             />
          }
-         <TransactionModalWrapper accountId={accountId} />
-         <SavingPeriodModalWrapper accountId={accountId} onCreateSavingPeriod={createSavingPeriod} />
+         <TransactionFormComponent />
+
+
       </>
    );
 }

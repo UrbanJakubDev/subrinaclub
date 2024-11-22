@@ -1,12 +1,14 @@
 import StatusChip from "@/components/tables/ui/statusChip";
 import Card from "@/components/ui/mtui";
+import Skeleton from "@/components/ui/skeleton";
 import Typography from "@/components/ui/typography";
 import { CustomerCardProps } from "@/lib/services/customer/types";
 import React from 'react';
 
 
 
-const CustomerCard: React.FC<CustomerCardProps> = ({ customer }) => {
+const CustomerCard: React.FC<CustomerCardProps> = ({ customer, isLoading }) => {
+   if (isLoading || !customer) return <Skeleton className="w-1/4" />;
    return (
       <Card className="p-8 border-gray-300 rounded-sm">
          <Typography variant="h2" color="black">{customer.fullName}</Typography>

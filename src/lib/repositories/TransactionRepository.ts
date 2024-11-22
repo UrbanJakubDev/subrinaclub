@@ -70,4 +70,37 @@ export class TransactionRepository extends BaseRepository<
       return result;
    }
 
+   async updateTransaction(input: CreateTransactionInput): Promise<Transaction> {
+      // Calculate quarter date time (first day of the quarter)
+      const quarterDateTime = new Date(input.year, (input.quarter - 1) * 3, 1);
+      const type = input.points > 0 ? TransactionType.DEPOSIT : TransactionType.WITHDRAWAL;
+
+      const data = {
+         year: input.year,
+         quarter: input.quarter,
+         quarterDateTime,
+         points: input.points,
+         type: type,
+         description: input.description,
+         accountId: input.accountId,
+         savingPeriodId: input.savingPeriodId,
+         bonusId: input.bonusId || undefined,
+         bonusPrice: input.bonusPrice || undefined,
+         sentBonusOrder: input.sentBonusOrder || undefined,
+         acceptedBonusOrder: input.acceptedBonusOrder || undefined,
+      };
+
+      console.log(`Updating transaction with data: ${JSON.stringify(data)}`);
+
+      // Update the transaction with all required fields
+      const result = await this.prisma.transaction.update({
+         where: {
+            id: input.id
+         },
+         data
+      });
+
+      return result;
+   }
+
 }

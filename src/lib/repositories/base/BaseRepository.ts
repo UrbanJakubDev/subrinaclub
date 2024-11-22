@@ -15,7 +15,7 @@ export abstract class BaseRepository<
 
   async findById(id: number, include?: Record<string, boolean>): Promise<T> {
     const item = await (this.prisma[this.modelName] as any).findUnique({
-      where: { id },
+      where: { id: id.toString() },
       include: include // Pass include directly, not wrapped in another object
     });
     if (!item) throw new NotFoundError(`${this.modelName} not found`);
@@ -47,10 +47,16 @@ export abstract class BaseRepository<
     });
   }
 
+  // Soft delete
   async delete(id: number): Promise<T> {
     return (this.prisma[this.modelName] as any).update({
       where: { id },
       data: { active: false }
     });
+  }
+
+  // Hard delete
+  async hardDelete(id: number): Promise<T> {
+    return (this.prisma[this.modelName] as any).delete({ where: { id } });
   }
 }

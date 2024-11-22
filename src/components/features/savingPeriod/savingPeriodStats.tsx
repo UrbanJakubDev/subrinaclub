@@ -1,5 +1,6 @@
 'use client'
 import ColumnChart from '@/components/ui/charts/columnChart';
+import Skeleton from '@/components/ui/skeleton';
 import { KpiCardProgress } from '@/components/ui/stats/cardsWidgets/KpiCardProgress';
 import { Transaction } from '@/types/transaction';
 import { SavingPeriod } from '@/types/types';
@@ -9,16 +10,7 @@ import { useMemo } from 'react';
 type Props = {
   savingPeriod: SavingPeriod | null;
   transactions?: Transaction[];
-}
-
-interface Series {
-  name: string;
-  data: number[];
-}
-
-interface ChartData {
-  series: Series[];
-  categories: string[];
+  isLoading: boolean;
 }
 
 interface QuarterData {
@@ -28,7 +20,7 @@ interface QuarterData {
   withdrawals: number;
 }
 
-export default function SavingPeriodStats({ savingPeriod, transactions = [] }: Props) {
+export default function SavingPeriodStats({ savingPeriod, transactions = [], isLoading }: Props) {
   // Early return if no saving period
   if (!savingPeriod) {
     return (
@@ -40,18 +32,20 @@ export default function SavingPeriodStats({ savingPeriod, transactions = [] }: P
   }
 
   // Move chart data preparation to a separate function
-  const chartData = useMemo(() => 
-    prepareSavingPeriodChartData(savingPeriod, transactions), 
+  const chartData = useMemo(() =>
+    prepareSavingPeriodChartData(savingPeriod, transactions),
     [savingPeriod, transactions]
   );
+
+  if (isLoading) return <Skeleton className="w-2/4" type="chart" />;
 
   return (
     <Card className='p-8 flex grow rounded-sm'>
       <div className='flex gap-4 pb-4'>
-        <KpiCardProgress 
-          title={`Dvouleté šetřící období od ${savingPeriod.startYear}-Q${savingPeriod.startQuarter}`} 
-          points={savingPeriod.availablePoints} 
-          icon={<i className="fas fa-arrow-up"></i>} 
+        <KpiCardProgress
+          title={`Dvouleté šetřící období od ${savingPeriod.startYear}-Q${savingPeriod.startQuarter}`}
+          points={savingPeriod.availablePoints}
+          icon={<i className="fas fa-arrow-up"></i>}
         />
       </div>
       <ColumnChart

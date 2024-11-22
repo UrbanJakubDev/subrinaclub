@@ -2,30 +2,21 @@
 import StatusChip from "@/components/tables/ui/statusChip";
 import Card from "@/components/ui/mtui";
 import Typography from "@/components/ui/typography";
-import React, { useEffect } from 'react';
-import AccountDataView from "./account/AccountDataView";
-import { useStatsStore } from "@/stores/CustomerStatsStore";
-import Skeleton from "@/components/ui/skeleton";
+import React from 'react';
 import { AccountInfoCardProps } from "@/lib/services/account/types";
+import Skeleton from "@/components/ui/skeleton";
 
 
 
-const AccountInfoCard: React.FC<AccountInfoCardProps> = () => {
-   const customer = useStatsStore(state => state.customer);
-   const refreshCustomer = useStatsStore(state => state.refreshCustomerFromServer);
-   const account = customer?.account;
-   const savingPeriod = account?.savingPeriod;
-
-   useEffect(() => {
-      if (account && !savingPeriod) {
-         refreshCustomer();
-      }
-   }, [account?.id]);
-
+const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod, isLoading }) => {
+   
    const savingPeriodStart = savingPeriod ? `${savingPeriod.startYear}/${savingPeriod.startQuarter}` : '';
    const savingPeriodEnd = savingPeriod ? `${savingPeriod.endYear}/${savingPeriod.endQuarter}` : '';
+   
+   if (isLoading) return <Skeleton className="w-1/4" />;
+   if (!account) return <pre>Account not found</pre>;
 
-   if (!account) return <pre>Account not found</pre>
+
 
    return (
       <Card className="p-8 flex flex-col rounded-sm">
@@ -39,7 +30,9 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = () => {
 
             <article>
                <Typography variant="h5" color="black">Aktivní šetřící období</Typography>
-               {savingPeriod ? (
+               {isLoading ? (
+                  <Skeleton className="w-full h-24" />
+               ) : savingPeriod ? (
                   <>
                      <StatusChip status={savingPeriod.status} />
                      <p>Od: {savingPeriodStart} - Do: {savingPeriodEnd} </p>

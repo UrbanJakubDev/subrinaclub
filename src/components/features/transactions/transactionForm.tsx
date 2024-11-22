@@ -11,6 +11,9 @@ import { quarterSelectOptions, yearSelectOptions } from '@/lib/utils/dateFnc';
 import { Transaction } from '@/types/transaction';
 import { transactionValidationSchema } from '@/lib/services/transaction/validation';
 import Skeleton from '@/components/ui/skeleton';
+import { useStatsStore } from '@/stores/CustomerStatsStore';
+import { TransactionType } from '@prisma/client';
+import { useModalStore } from '@/stores/ModalStore';
 
 
 const newTransaction: Transaction = {
@@ -28,16 +31,16 @@ const newTransaction: Transaction = {
 type Props = {
    transaction: Transaction
    bonusesDial?: any
-   onSubmit: (data: Transaction) => Promise<Transaction>
 };
 
 
 
-const TransactionForm = ({ transaction, bonusesDial, onSubmit }: Props) => {
-
+const TransactionForm = ({ transaction, bonusesDial }: Props) => {
+   const { account, activeSavingPeriod, notifyTransactionChange } = useStatsStore();
    const [transactionData, setTransactionData] = useState<Transaction>();
    const yearDial = yearSelectOptions();
    const quarterDial = quarterSelectOptions();
+   const { actions } = useModalStore()
 
    useEffect(() => {
       if (transaction) {
@@ -48,6 +51,56 @@ const TransactionForm = ({ transaction, bonusesDial, onSubmit }: Props) => {
    }, [transaction]);
 
 
+   const saveTransaction = async (data: Transaction) => {
+      const isNewTransaction = !data.id;
+      const url = '/api/transactions';
+      const method = isNewTransaction ? 'POST' : 'PUT';
+
+      const transactionData = {
+         ...data,
+         accountId: account?.id,
+         savingPeriodId: activeSavingPeriod?.id,
+         type: data.points > 0 ? TransactionType.DEPOSIT : TransactionType.WITHDRAWAL,
+         quarterDateTime: new Date(data.year, (data.quarter - 1) * 3, 1)
+      };
+
+      try {
+         const response = await fetch(url, {
+            method,
+            headers: {
+               'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(transactionData),
+         });
+
+         if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+         }
+
+         const savedTransaction = await response.json();
+         return savedTransaction;
+      } catch (error) {
+         console.error('Error saving transaction:', error);
+         throw error;
+      }
+   };
+
+
+
+   const handleSubmit = async (data: Transaction) => {
+      try {
+         // Your API call or data handling logic here
+         await saveTransaction(data);  // assuming you have this function
+         toast.success('Transakce byla uložena');
+         notifyTransactionChange();
+         actions.closeModal()
+      } catch (error) {
+         toast.error('Chyba při ukládání transakce transaction Form component');
+         console.error(error);
+      }
+   }
+
+
    if (!bonusesDial || !transactionData) {
       return <Skeleton />;
    }
@@ -56,7 +109,7 @@ const TransactionForm = ({ transaction, bonusesDial, onSubmit }: Props) => {
       <UniversalForm<Transaction>
          initialData={transactionData}
          validationSchema={transactionValidationSchema}
-         onSubmit={onSubmit}
+         onSubmit={handleSubmit}
       >
          {() => (
             <div className='gap-4 mt-8'>

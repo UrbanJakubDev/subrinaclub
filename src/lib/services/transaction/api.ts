@@ -14,7 +14,14 @@ export class TransactionAPI {
     }
 
     async getTransactionsForCustomer(accountId: number): Promise<Transaction[]> {
-        const acountId = parseInt(accountId)
         return this.transactionRepository.getByAccountId(accountId);
+    }
+
+    async updateTransaction(data: CreateTransactionDTO): Promise<Transaction> {
+        return this.transactionRepository.updateTransaction(data);
+    }
+
+    async deleteTransaction(id: number): Promise<void> {
+        return this.transactionRepository.hardDelete(id);
     }
 }

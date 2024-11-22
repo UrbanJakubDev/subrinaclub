@@ -36,7 +36,7 @@ export class CustomerRepository extends BaseRepository<
    // Find customers Account with active saving period
    async getAccountDataWithActiveSavingPeriod(id: number): Promise<CustomerWithAccountDataAndActiveSavingPeriodDTO[]> {
       const accountData = await this.prisma.customer.findUnique({
-         where: { id },
+         where: { id: id },
          include: {
             account: {
                include: {

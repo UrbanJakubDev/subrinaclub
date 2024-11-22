@@ -1,8 +1,6 @@
 'use client';
-import { useEffect } from "react";
-
-import { Customer } from "@/types/customer";
-import { useStatsStore } from "@/stores/CustomerStatsStore";
+import { useState, useCallback, useEffect } from "react";
+import { CustomerWithAccountDataAndActiveSavingPeriodDTO } from "@/lib/services/customer/types";
 import { Transaction } from "@/types/transaction";
 import Skeleton from "@/components/ui/skeleton";
 import CustomerCard from "./customerCard";
@@ -10,8 +8,10 @@ import AccountInfoCard from "./accountInfoCard";
 import AccountStats from "./account/accountStats";
 import TransactionsTable from "../transactions/transactionsTable";
 import SavingPeriodStats from "../savingPeriod/savingPeriodStats";
-import { CustomerWithAccountDataAndActiveSavingPeriodDTO } from "@/lib/services/customer/types";
-
+import { useModalStore } from "@/stores/ModalStore";
+import { useTransactionUpdates } from "@/hooks/useTransactionUpdates";
+import { toast } from "react-toastify";
+import { useStatsStore } from "@/stores/CustomerStatsStore";
 
 type CustomerStatsViewProps = {
    initialCustomer: CustomerWithAccountDataAndActiveSavingPeriodDTO
@@ -19,55 +19,162 @@ type CustomerStatsViewProps = {
 }
 
 export default function CustomerStatsView({ initialCustomer, initialTransactions }: CustomerStatsViewProps) {
+   // Local state for the component and its children
+   const [customer, setLocalCustomer] = useState(initialCustomer);
+   const [account, setLocalAccount] = useState(initialCustomer.account);
+   const [savingPeriod, setLocalSavingPeriod] = useState(initialCustomer.account.savingPeriod);
+   const [transactions, setTransactions] = useState(initialTransactions);
+   const [isLoading, setIsLoading] = useState(false);
+   const [isTransactionsLoading, setIsTransactionsLoading] = useState(false);
 
-   const initialize = useStatsStore(state => state.initialize)
-   const customer = useStatsStore(state => state.customer)
-   const transactions = useStatsStore(state => state.transactions)
-   const isLoading = useStatsStore(state => state.isLoading)
-   const activePeriod = useStatsStore(state => state.getActiveSavingPeriod())
-   const periodTransactions = useStatsStore(state => state.getTransactionsForActiveSavingPeriod())
-   const refreshTransactionsFromServer = useStatsStore(state => state.refreshTransactionsFromServer)
+   // Store setters for global state
+   const { setCustomer, setAccount, setSavingPeriod } = useStatsStore();
+   const { actions } = useModalStore();
 
+   // Update both local and global state
+   const refreshData = useCallback((
+      newCustomer: CustomerWithAccountDataAndActiveSavingPeriodDTO,
+      newTransactions: Transaction[]
+   ) => {
+      setIsLoading(true);
+      setIsTransactionsLoading(true);
+      // Update local state
+      setLocalCustomer(newCustomer);
+      setLocalAccount(newCustomer.account);
+      setLocalSavingPeriod(newCustomer.account.savingPeriod);
+      setTransactions(newTransactions);
+
+      // Update global state
+      setCustomer(newCustomer);
+      setAccount(newCustomer.account);
+      setSavingPeriod(newCustomer.account.savingPeriod);
+      setIsLoading(false);
+      setIsTransactionsLoading(false);
+   }, [setCustomer, setAccount, setSavingPeriod]);
+
+   // Handle initial data changes
    useEffect(() => {
-      initialize(initialCustomer, initialTransactions)
-   }, [initialCustomer, initialTransactions, initialize])
+      console.log('Initial transactions:', initialTransactions);
+      refreshData(initialCustomer, initialTransactions);
+   }, [initialCustomer, initialTransactions, refreshData]);
 
 
-   // Refresh transactions from server if transaction in store is updated
-   useEffect(() => {
-      refreshTransactionsFromServer()
-   }, [transactions])
+   // Fetch data from API and update local and global state
+   const fetchCustomer = async (customerId: number) => {
+      const endpoint = `/api/customers/${customerId}`;
+      const response = await fetch(endpoint);
+      const data = await response.json();
+      return data;
+   }
 
 
-   if (!customer || isLoading || !transactions) return <Skeleton />
+   const fetchTransactions = async (accountId: number): Promise<Transaction[]> => {
+      const endpoint = `/api/transactions?accountId=${accountId}`;
+      const response = await fetch(endpoint);
+      const data = await response.json();
+      // Ensure we return an array, even if empty
+      return Array.isArray(data) ? data : [];
+   }
+
+   const deleteTransaction = async (transactionId: number) => {
+      const endpoint = `/api/transactions/${transactionId}`;
+      const response = await fetch(endpoint, { method: 'DELETE' });
+      const data = await response.json();
+      return data;
+   }
+
+
+
+   const handleDataUpdate = async () => {
+      if (!customer?.id || !customer?.account?.id) {
+         toast.error('Customer data is not available');
+         return;
+      }
+
+      setIsLoading(true);
+      setIsTransactionsLoading(true);
+      try {
+         const [newCustomer, newTransactions] = await Promise.all([
+            fetchCustomer(customer.id),
+            fetchTransactions(customer.account.id)
+         ]);
+         
+         console.log('API Response - New transactions:', newTransactions);
+         
+         if (newCustomer && Array.isArray(newTransactions)) {
+            refreshData(newCustomer, newTransactions);
+            console.log('After refresh - Updated transactions:', newTransactions);
+         }
+      } catch (error) {
+         toast.error(`Failed to refresh data ${error}`);
+      } finally {
+         setIsLoading(false);
+         setIsTransactionsLoading(false);
+      }
+   };
+
+   const handleEdit = useCallback((transaction: Transaction) => {
+      actions.openModal('transactionForm', transaction)
+   }, []);
+
+   const handleDelete = async (transactionId: number) => {
+      setIsTransactionsLoading(true);
+      console.log('Before delete - Current transactions:', transactions);
+      
+      try {
+         await deleteTransaction(transactionId);
+         await handleDataUpdate();
+      } catch (error) {
+         toast.error('Failed to delete transaction');
+      } finally {
+         setIsTransactionsLoading(false);
+      }
+   };
+
+   const handleTransactionUpdate = useCallback(() => {
+      handleDataUpdate();
+   }, []);
+   // Subscribe to transaction updates
+   useTransactionUpdates(handleTransactionUpdate)
+
 
    return (
       <>
          <div className="flex gap-8 my-2">
-            <CustomerCard customer={customer} />
-            <AccountInfoCard
-               account={customer.account}
+            <CustomerCard
                customer={customer}
+               isLoading={isLoading}
             />
-
+            <AccountInfoCard
+               account={account}
+               savingPeriod={savingPeriod}
+               isLoading={isLoading}
+            />
             <SavingPeriodStats
-               transactions={[]}
-               savingPeriod={activePeriod}
+               transactions={transactions}
+               savingPeriod={savingPeriod}
+               isLoading={isLoading || isTransactionsLoading}
             />
          </div>
          <div>
             <div className="my-2">
-               <AccountStats />
+               <AccountStats
+                  customer={customer}
+                  transactions={transactions}
+                  isLoading={isLoading || isTransactionsLoading}
+               />
             </div>
             <div className="my-2">
-               <h2>Přehled všech transakcí</h2>
                <TransactionsTable
-                  tableName={`Transakce ${customer.fullName}`}
-                  accountId={customer.account.id}
+                  tableName={`Transakce ${customer.fullName || ''}`}
+                  accountId={account?.id}
                   transactions={transactions}
+                  isLoading={isTransactionsLoading || isLoading}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
                />
             </div>
          </div>
       </>
-   )
+   );
 }

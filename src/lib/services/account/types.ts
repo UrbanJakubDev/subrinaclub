@@ -23,5 +23,5 @@ export interface AccountSelectDTO extends SelectOption {}
 export interface AccountInfoCardProps {
    // TODO: Define the type of the customer prop
    account: any;
-   customer: any;
+   savingPeriod: any
  }

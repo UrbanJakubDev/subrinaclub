@@ -22,7 +22,7 @@ export interface CustomerResponseDTO {
    salesManagerId: number | null;
 }
 
-export interface CustomerSelectDTO extends SelectOption {}
+export interface CustomerSelectDTO extends SelectOption { }
 
 
 export type CustomerFormProps = {
@@ -34,7 +34,7 @@ export type CustomerFormProps = {
 
 export interface CustomerCardProps {
    customer: CustomerResponseDTO;
- }
+}
 
 
 
@@ -52,6 +52,7 @@ export interface CustomerWithAccountDataAndActiveSavingPeriodDTO {
    email: string | null;
    registratedSince: Date | null;
    address: string | null;
+   salonName: string | null
    town: string | null;
    psc: string | null;
    note: string | null;

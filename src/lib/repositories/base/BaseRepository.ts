@@ -15,7 +15,7 @@ export abstract class BaseRepository<
 
   async findById(id: number, include?: Record<string, boolean>): Promise<T> {
     const item = await (this.prisma[this.modelName] as any).findUnique({
-      where: { id: id.toString() },
+      where: { id: id},
       include: include // Pass include directly, not wrapped in another object
     });
     if (!item) throw new NotFoundError(`${this.modelName} not found`);

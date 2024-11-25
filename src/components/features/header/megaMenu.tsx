@@ -29,7 +29,7 @@ const newMenuItems = [
          {
             title: "Šetřící období",
             description: "Přehled aktivních šetřících období. Hromadné akce.",
-            link: "/customers",
+            link: "/customers/saving-periods",
             icon: faCoins,
          },
          {

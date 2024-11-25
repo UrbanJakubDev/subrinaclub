@@ -32,7 +32,7 @@ export abstract class BaseRepository<
     });
   }
 
-  async create(input: BaseRepositoryInput): Promise<T> {
+  async create(input: any): Promise<T> {
     return (this.prisma[this.modelName] as any).create({
       data: input.data,
       include: input.include

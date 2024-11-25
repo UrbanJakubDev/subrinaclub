@@ -9,6 +9,7 @@ export interface SalesManagerResponseDTO {
    phone: string | null;
    email: string | null;
    note: string | null;
+   registrationNumber: string | null
 }
 
 export interface SalesManagerSelectDTO {

@@ -12,6 +12,7 @@ import { format } from "path";
 import formatThousandDelimiter from "@/lib/utils/formatFncs";
 import ActionButtons from "@/components/tables/ui/actionButtons";
 import StatusChip from "@/components/tables/ui/statusChip";
+import StatusIcon from "@/components/tables/ui/statusIcon";
 
 type Props = {
     defaultData: any[];
@@ -21,7 +22,7 @@ type Props = {
 export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath }: Props) {
 
     const router = useRouter()
-    const tableName = "zákazník";
+    const tableName = "Přehled šetřících období";
 
     // Render Chip
     const ChipComponent = ({ value }: { value: any }) => {
@@ -114,7 +115,7 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
             {
                 accessorKey: "account.id",
                 header: "ID Účtu",
-                accessorFn: (row) => {return row.account?.id.toString()}
+                accessorFn: (row) => { return row.account?.id.toString() }
             },
 
             {
@@ -136,7 +137,7 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
                 accessorFn: (row) => {
                     return row.account?.savingPeriod?.status === 'ACTIVE';
                 },
-                cell: ({ getValue }) => <StatusChip status={getValue()} />,
+                cell: ({ getValue }) => <StatusIcon active={getValue()} />,
                 filterFn: (row, columnId, filterValue) => {
                     const cellValue = row.getValue(columnId);
                     const boolFilterValue = filterValue === "true";
@@ -176,7 +177,7 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
                 filterFn: "auto"
             },
             {
-                accessorKey: "account.savingPeriod.endDateTime", 
+                accessorKey: "account.savingPeriod.endDateTime",
                 header: "Datum konce šetřícího období",
                 cell: ({ getValue }) => {
                     const endDate = getValue() as string;
@@ -186,9 +187,9 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
                 }
             },
             {
-                accessorKey: "account.savingPeriod.daysLeft", 
+                accessorKey: "account.savingPeriod.daysLeft",
                 header: "Zbývá dní",
-             
+
             },
             {
                 accessorKey: "account.savingPeriod.endThisQuarter",
@@ -196,7 +197,7 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
                 accessorFn: (row) => {
                     return row.account?.savingPeriod?.endThisQuarter ?? false;
                 },
-                cell: ({ getValue }) => getValue() ? <FontAwesomeIcon icon={faExclamation} style={{color: "#e61414"}} /> :"-",
+                cell: ({ getValue }) => getValue() ? <FontAwesomeIcon icon={faExclamation} style={{ color: "#e61414", scale: 1.4 }} /> : "-",
                 filterFn: (row, columnId, filterValue) => {
                     const cellValue = row.getValue(columnId);
                     const boolFilterValue = filterValue === "true";

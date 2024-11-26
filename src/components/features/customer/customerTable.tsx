@@ -21,7 +21,7 @@ type Props = {
 export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
 
   const router = useRouter()
-  const tableName = "zákazník";
+  const tableName = "Přehled zákazníků";
 
   // Render Chip
   const ChipComponent = ({ value }: { value: any }) => {

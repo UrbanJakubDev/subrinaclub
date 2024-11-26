@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useModalStore } from '@/stores/ModalStore';
 import { useStatsStore } from '@/stores/CustomerStatsStore';
+import Loader from '@/components/ui/loader';
 
 
 
@@ -15,9 +16,17 @@ export default function TransactionFormComponent() {
 
   const { modalId, data: modalData, actions: modalActions } = useModalStore();
   const { customer, account, activeSavingPeriod } = useStatsStore(state => state);
-  const savingPeriod = activeSavingPeriod
+  const savingPeriod = activeSavingPeriod;
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [dials, setDials] = useState<any[]>([]);
+
+  console.log('TransactionFormComponent render:', {
+    modalId,
+    customer: customer?.id,
+    account: account?.id,
+    savingPeriod: savingPeriod?.id,
+    isModalOpen: modalId === 'transactionForm'
+  });
 
   // Fetch bonus options
   useEffect(() => {
@@ -35,46 +44,49 @@ export default function TransactionFormComponent() {
   useEffect(() => {
     if (modalData?.id) {
       setTransaction(modalData as Transaction);
+    } else {
+      setTransaction(null);
     }
-  }
-    , [modalActions.openModal, modalData]);
-
-  if (!customer || !savingPeriod || !dials) {
-    return <Skeleton />;
-  }
+  }, [modalActions.openModal, modalData]);
 
   return (
     <ModalComponent
       modalId="transactionForm"
       title={transaction ? 'Editovat body' : 'Přidat / Vybrat body'}
     >
-      <div className='flex p-8'>
-        <div className='flex flex-row gap-8'>
-          <TransactionForm
-            transaction={transaction}
-            bonusesDial={dials}
-          />
-
-          <Card className='p-8 flex justify-between'>
-            <div>
-              <Typography variant='h4'>Zákazník</Typography>
-              <p>Jméno: {customer?.fullName}</p>
-              <p>Registrační číslo: {customer?.registrationNumber}</p>
-
-              <Typography variant='h5' className='mt-8' >Aktivní šetřící období</Typography>
-              <p>{`od: ${savingPeriod?.startYear}/${savingPeriod?.startQuarter} do: ${savingPeriod?.endYear}/${savingPeriod?.endQuarter}`}</p>
-
-              <Typography variant='h5' className='mt-8'>Body v šetřícím období k dispozici</Typography>
-              <p>{savingPeriod?.availablePoints}</p>
-
-            </div>
-            <div>
-              <Typography variant='h6'>Chyba</Typography>
-              <p className='text-red-600 txt-xs'>Nelze zadat transakci mimo šetřící obdobé</p>
-            </div>
-          </Card>
+      {!customer || !savingPeriod ? (
+        <div className="p-4 text-center">
+          <p>Loading customer data...</p>
         </div>
-      </div>
+      ) : (
+        <div className='flex p-8'>
+          <div className='flex flex-row gap-8'>
+            <TransactionForm
+              transaction={transaction}
+              bonusesDial={dials}
+            />
+
+            <Card className='p-8 flex justify-between'>
+              <div>
+                <Typography variant='h4'>Zákazník</Typography>
+                <p>Jméno: {customer?.fullName}</p>
+                <p>Registrační číslo: {customer?.registrationNumber}</p>
+
+                <Typography variant='h5' className='mt-8' >Aktivní šetřící období</Typography>
+                <p>{`od: ${savingPeriod?.startYear}/${savingPeriod?.startQuarter} do: ${savingPeriod?.endYear}/${savingPeriod?.endQuarter}`}</p>
+
+                <Typography variant='h5' className='mt-8'>Body v šetřícím období k dispozici</Typography>
+                <p>{savingPeriod?.availablePoints}</p>
+
+              </div>
+              <div>
+                <Typography variant='h6'>Chyba</Typography>
+                <p className='text-red-600 txt-xs'>Nelze zadat transakci mimo šetřící obdobé</p>
+              </div>
+            </Card>
+          </div>
+        </div>
+      )}
       <div>
         <p>Transaction</p>
         <pre>

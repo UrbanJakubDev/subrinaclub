@@ -9,6 +9,7 @@ import { Transaction } from '@/types/transaction';
 import TransactionFormComponent from '@/components/features/customer/transactionFormComponent';
 import Skeleton from '@/components/ui/skeleton';
 import React from 'react';
+import { useModalStore } from '@/stores/ModalStore';
 
 type TransactionsTableProps = {
    tableName?: string;
@@ -26,7 +27,12 @@ export default function TransactionsTable({
    onEdit,
    onDelete 
 }: TransactionsTableProps) {
-   
+   const { actions } = useModalStore();
+
+   const handleNewTransaction = () => {
+      actions.openModal('transactionForm', null);
+   };
+
    // Column definitions
    const columns = React.useMemo<ColumnDef<Transaction>[]>(() => [
       {
@@ -97,22 +103,22 @@ export default function TransactionsTable({
       return <Skeleton type="table" />;
    }
 
-   if (!transactions?.length) {
-      return (
-         <div className="p-4 text-center text-gray-500">
-            Žádné transakce k zobrazení
-         </div>
-      );
-   }
-
    return (
       <div className="space-y-4">
-         <h2>Přehled všech transakcí</h2>
-         <MyTable
-            data={transactions}
-            columns={columns}
-            tableName={tableName}
-         />
+         
+         
+         {!transactions?.length ? (
+            <div className="p-4 text-center text-gray-500">
+               Žádné transakce k zobrazení
+            </div>
+         ) : (
+            <MyTable
+               data={transactions}
+               columns={columns}
+               tableName={tableName}
+            />
+         )}
+         
          <TransactionFormComponent />
       </div>
    );

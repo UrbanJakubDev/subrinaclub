@@ -12,6 +12,7 @@ import { format } from "path";
 import formatThousandDelimiter from "@/lib/utils/formatFncs";
 import ActionButtons from "@/components/tables/ui/actionButtons";
 import StatusChip from "@/components/tables/ui/statusChip";
+import StatusIcon from "@/components/tables/ui/statusIcon";
 
 type Props = {
   defaultData: any[];
@@ -52,6 +53,15 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
   // Column definitions
   const columns = React.useMemo<ColumnDef<any>[]>(
     () => [
+      {
+        accessorKey: "active",
+        header: "Status",
+        filterFn: "auto",
+        accessorFn: (row) => {
+          return row.active ?? false;
+        },
+        cell: ({ getValue }) => <StatusIcon active={getValue()} />,
+      },
       {
         accessorKey: "registrationNumber",
         header: "R.Č.",
@@ -103,15 +113,15 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         cell: (info) => info.getValue(),
         footer: (info) => {
           const total = info.table
-          .getFilteredRowModel()
-          .rows.reduce(
-            (sum, row) => {
-              // Safely access the nested value
-              const points = row.original.account?.currentYearPoints ?? 0;
-              return sum + points;
-            },
-            0
-          );
+            .getFilteredRowModel()
+            .rows.reduce(
+              (sum, row) => {
+                // Safely access the nested value
+                const points = row.original.account?.currentYearPoints ?? 0;
+                return sum + points;
+              },
+              0
+            );
           return `${formatThousandDelimiter(total)}`;
         },
       },
@@ -121,15 +131,15 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         cell: (info) => <ChipComponent value={info.getValue()} />,
         footer: (info) => {
           const total = info.table
-          .getFilteredRowModel()
-          .rows.reduce(
-            (sum, row) => {
-              // Safely access the nested value
-              const points = row.original.account?.lifetimePoints ?? 0;
-              return sum + points;
-            },
-            0
-          );
+            .getFilteredRowModel()
+            .rows.reduce(
+              (sum, row) => {
+                // Safely access the nested value
+                const points = row.original.account?.lifetimePoints ?? 0;
+                return sum + points;
+              },
+              0
+            );
           return `${formatThousandDelimiter(total)}`;
         },
       },
@@ -138,15 +148,15 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         header: "Průběžné konto",
         footer: (info) => {
           const total = info.table
-          .getFilteredRowModel()
-          .rows.reduce(
-            (sum, row) => {
-              // Safely access the nested value
-              const points = row.original.account?.savingPeriod?.availablePoints ?? 0;
-              return sum + points;
-            },
-            0
-          );
+            .getFilteredRowModel()
+            .rows.reduce(
+              (sum, row) => {
+                // Safely access the nested value
+                const points = row.original.account?.savingPeriod?.availablePoints ?? 0;
+                return sum + points;
+              },
+              0
+            );
           return `${formatThousandDelimiter(total)}`;
         },
       },

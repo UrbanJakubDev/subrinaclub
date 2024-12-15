@@ -54,6 +54,15 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
     const columns = React.useMemo<ColumnDef<any>[]>(
         () => [
             {
+                accessorKey: "active",
+                header: "Status",
+                filterFn: "auto",
+                accessorFn: (row) => {
+                    return row.active ?? false;
+                },
+                cell: ({ getValue }) => <StatusIcon active={getValue()} />,
+            },
+            {
                 accessorKey: "registrationNumber",
                 header: "R.Č.",
                 filterFn: "auto",

@@ -11,11 +11,13 @@ export class SalesManagerService {
       const maxRegNumber = await this.SalesManagerRepository.getMaxRegistrationNumber();
 
       return this.SalesManagerRepository.create({
-         ...data,
-         registrationNumber: maxRegNumber + 1,
-         active: true,
-         createdAt: new Date(),
-         updatedAt: new Date()
+         data: {
+            ...data,
+            registrationNumber: maxRegNumber + 1,
+            active: true,
+            createdAt: new Date(),
+            updatedAt: new Date()
+         }
       });
    }
 
@@ -24,8 +26,10 @@ export class SalesManagerService {
       await this.get(id);
 
       return this.SalesManagerRepository.update(id, {
-         ...data,
-         updatedAt: new Date()
+         data: {
+            ...data,
+            updatedAt: new Date()
+         }
       });
    }
 
@@ -51,5 +55,15 @@ export class SalesManagerService {
          value: salesManager.id,
          label: salesManager.fullName,
       }));
+   }
+
+   // Get life time points of customers assigned to sales manager
+   async getLifeTimePointsOfCustomers(salesManagerId: number): Promise<number> {
+      return this.SalesManagerRepository.getLifeTimePointsOfCustomers(salesManagerId);
+   }
+
+   // Get customers with accounts data belonging to the sales manager
+   async getCustomersWithAccounts(salesManagerId: number) {
+      return this.SalesManagerRepository.getCustomersWithAccounts(salesManagerId);
    }
 }

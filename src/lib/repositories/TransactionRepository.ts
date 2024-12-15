@@ -103,4 +103,28 @@ export class TransactionRepository extends BaseRepository<
       return result;
    }
 
+   async getTransactionsForSalesManager(salesManagerId: number, year: number, quarter?: number): Promise<TransactionResponseDTO[]> {
+      const whereClause: any = {
+         account: {
+            customer: {
+               salesManagerId: salesManagerId
+            }
+         }
+      };
+
+      // if (year !== 0) {
+      //    whereClause.year = year;
+      // }
+
+      // if (quarter !== undefined && quarter !== 0) {
+      //    whereClause.quarter = quarter;
+      // }
+
+      const transactions = await this.prisma.transaction.findMany({
+         where: whereClause,
+      });
+
+      return transactions;
+   }
+
 }

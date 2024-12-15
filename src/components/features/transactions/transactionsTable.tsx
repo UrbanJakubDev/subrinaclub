@@ -70,7 +70,7 @@ export default function TransactionsTable({
          header: 'Bonus odeslán',
       },
       {
-         accessorKey: 'bonusName',
+         accessorKey: 'bonus.name',
          header: 'Jméno bonusu',
       },
       {

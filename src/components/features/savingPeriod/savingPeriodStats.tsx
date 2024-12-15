@@ -20,13 +20,43 @@ interface QuarterData {
   withdrawals: number;
 }
 
+const SavingPeriodForm: React.FC = () => {
+  return (
+    <form action="/save-period" method="POST">
+      <div className="mb-4">
+        <label htmlFor="startYear" className="block text-gray-700 font-bold mb-2">Start Year</label>
+        <input type="number" id="startYear" name="startYear" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+      </div>
+      <div className="mb-4">
+        <label htmlFor="startQuarter" className="block text-gray-700 font-bold mb-2">Start Quarter</label>
+        <input type="number" id="startQuarter" name="startQuarter" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+      </div>
+      <div className="mb-4">
+        <label htmlFor="endYear" className="block text-gray-700 font-bold mb-2">End Year</label>
+        <input type="number" id="endYear" name="endYear" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+      </div>
+      <div className="mb-4">
+        <label htmlFor="endQuarter" className="block text-gray-700 font-bold mb-2">End Quarter</label>
+        <input type="number" id="endQuarter" name="endQuarter" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
+      </div>
+      <div className="flex items-center justify-between">
+        <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+          Save
+        </button>
+      </div>
+    </form>
+  );
+};
+
 export default function SavingPeriodStats({ savingPeriod, transactions = [], isLoading }: Props) {
   // Early return if no saving period
   if (!savingPeriod) {
     return (
       <Card className='p-8 grow rounded-sm'>
-        <p>No data for saving period</p>
-        <p>New saving period form here...</p>
+        <p>
+          No saving period selected.
+        </p>
+        <SavingPeriodForm />
       </Card>
     );
   }

@@ -53,4 +53,19 @@ export class CustomerRepository extends BaseRepository<
 
       return accountData;
    }
+
+   // Get all customers with their associated accounts belonging to the sales manager
+   async getCustomersWithAccounts(salesManagerId: number): Promise<Customer[]> {
+      const result = await this.prisma.customer.findMany({
+         where: {
+            salesManagerId: salesManagerId
+         },
+         include: {
+            dealer: true,
+            account: true
+         }
+      });
+
+      return result;
+   }
 }

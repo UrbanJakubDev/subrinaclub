@@ -3,6 +3,7 @@ import { CreateCustomerDTO, UpdateCustomerDTO } from "./validation";
 import { Customer } from "@/types/customer";
 import { CustomerResponseDTO, CustomerSelectDTO, CustomerWithAccountDataAndActiveSavingPeriodDTO } from "./types";
 import { Prisma } from "@prisma/client";
+import { act } from "react-dom/test-utils";
 
 export class CustomerService {
    prisma: any;
@@ -93,6 +94,8 @@ export class CustomerService {
             ...cleanData
          } = data;
 
+         console.log('cleanData', cleanData);
+
          // Create repository input
          const updateInput = {
             where: { id },
@@ -100,6 +103,7 @@ export class CustomerService {
                ...cleanData,
                ...relations,
                updatedAt: new Date()
+               
             },
             include: {
                dealer: true,

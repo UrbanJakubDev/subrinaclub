@@ -3,24 +3,24 @@ import { SelectOption } from "@/types/types";
 import { Bonus, Prisma } from "@prisma/client";
 
 export class BonusService {
-   constructor(private repository: BonusRepository) {}
-   
+   constructor(private repository: BonusRepository) { }
+
    async create(data: Prisma.BonusCreateInput): Promise<Bonus> {
-      return this.repository.create(data);
+      return this.repository.create({ data: { ...data } });
    }
-   
+
    async update(id: number, data: Prisma.BonusUpdateInput): Promise<Bonus> {
-      return this.repository.update(id, data);
+      return this.repository.update(id, { data: { ...data } });
    }
-   
+
    async delete(id: number): Promise<Bonus> {
       return this.repository.delete(id);
    }
-   
+
    async get(id: number): Promise<Bonus> {
       return this.repository.findById(id);
    }
-   
+
    async getAll(): Promise<Bonus[]> {
       return this.repository.findAll();
    }

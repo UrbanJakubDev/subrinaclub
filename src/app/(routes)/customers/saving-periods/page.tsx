@@ -8,7 +8,7 @@ export default async function SavingPeriodOverwievPage() {
 
     return (
         <PageComponent>
-            <CustomerSavingPeriodsTable defaultData={customerWithSavingPeriods} />
+            <CustomerSavingPeriodsTable defaultData={customerWithSavingPeriods} detailLinkPath="/customers" />
        
         </PageComponent>
     )

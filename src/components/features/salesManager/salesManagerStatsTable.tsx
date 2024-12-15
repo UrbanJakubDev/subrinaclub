@@ -33,25 +33,20 @@ export default function SalesManagerStatsTable({
         header: "Registrační číslo",
       },
       {
-        accessorKey: "customerSalonName",
+        accessorKey: "fullName",
         header: "Jméno salonu",
       },
       {
-        accessorKey: "salonAddress",
+        accessorKey: "address",
         header: "Adresa",
       },
       {
-        accessorKey: "salonTown",
+        accessorKey: "town",
         header: "Město",
       },
       {
-        accessorKey: "salonPsc",
+        accessorKey: "psc",
         header: "PSČ",
-      },
-      {
-        accessorKey: "customerFullName",
-        header: "Jméno",
-        filterFn: "auto",
       },
       {
         accessorKey: "phone",
@@ -59,65 +54,65 @@ export default function SalesManagerStatsTable({
         filterFn: "auto",
       },
       {
-        accessorKey: "dealerName",
+        accessorKey: "dealer.fullName",
         header: "Jméno Obchodníka",
       },
       {
-        accessorKey: "sumQ1",
+        accessorKey: "quarterSums.Q1",
         header: "Suma za Q1",
         footer: (info) => {
           const total = info.table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + row.getValue<number>('sumQ1'),
+            (sum, row) => sum + row.getValue<number>('quarterSums.Q1'),
             0
           );
           return `${formatThousandDelimiter(total)}`;
         },
       },
       {
-        accessorKey: "sumQ2",
+        accessorKey: "quarterSums.Q2",
         header: "Suma za Q2",
         cell: (info) => info.getValue(),
         footer: (info) => {
           const total = info.table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + row.getValue<number>('sumQ2'),
+            (sum, row) => sum + row.getValue<number>('quarterSums.Q2'),
             0
           );
           return `${formatThousandDelimiter(total)}`;
         },
       },
       {
-        accessorKey: "sumQ3",
+        accessorKey: "quarterSums.Q3",
         header: "Suma za Q3",
         cell: (info) => info.getValue(),
         footer: (info) => {
           const total = info.table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + row.getValue<number>('sumQ3'),
+            (sum, row) => sum + row.getValue<number>('quarterSums.Q3'),
             0
           );
           return `${formatThousandDelimiter(total)}`;
         },
       },
       {
-        accessorKey: "sumQ4",
+        accessorKey: "quarterSums.Q4",
         header: "Suma za Q4",
         cell: (info) => info.getValue(),
         footer: (info) => {
           const total = info.table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + row.getValue<number>('sumQ4'),
+            (sum, row) => sum + row.getValue<number>('quarterSums.Q4'),
             0
           );
           return `${formatThousandDelimiter(total)}`;
         },
       },
       {
-        accessorKey: "totalPoints",
+        accessorKey: "account.lifetimePoints",
         header: "Klubové konto",
       },
       {
         accessorKey: "actions",
         header: "Akce",
         cell: (info) => (
-          <Link href={`/customers/${info.row.original.customerID}/stats`}>
+          <Link href={`/customers/${info.row.original.id}/stats`}>
             <Button size="sm" className="font-light"><FontAwesomeIcon icon={faUser} style={{ color: "#ffffff", }} /> Detail </Button>
           </Link>
         ),

@@ -4,6 +4,7 @@ import Button from "@/components/ui/button";
 import Loader from "@/components/ui/loader";
 import Typography from "@/components/ui/typography";
 import { fetchSalesManagerByIdFromDB } from "@/lib/db/queries/salesManagers";
+import { salesManagerService } from "@/lib/services/salesManager";
 import Link from "next/link";
 
 type SalesManagersDetailProps = {
@@ -24,7 +25,7 @@ export default async function SalesManagersDetail({ params }: SalesManagersDetai
   }
 
   const salesManagerId = parseInt(params.id);
-  const salesManager = await fetchSalesManagerByIdFromDB(salesManagerId);
+  const salesManager = await salesManagerService.get(salesManagerId);
 
   if (!salesManager) {
     return <Loader />;

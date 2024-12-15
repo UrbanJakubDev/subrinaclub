@@ -13,6 +13,8 @@ import { set } from "react-hook-form";
 import KpiCard from "@/components/ui/stats/cardsWidgets/KpiCard";
 import CustomersActiveWidget from "@/components/ui/stats/cardsWidgets/customersActiveWidget";
 import NoData from "@/components/ui/noData";
+import Skeleton from "@/components/ui/skeleton";
+import SelectField from "@/components/ui/inputs/selectInput";
 
 type SalesManagerStatsProps = {
   salesManager?: any;
@@ -31,11 +33,12 @@ export default function SalesManagerStats({
   numOfSystemActiveCusomers,
   customersTotalPoints,
 }: SalesManagerStatsProps) {
-  const [apiData, setApiData] = React.useState<any[]>([]);
-  const [loading, setLoading] = React.useState<boolean>(true);
-  const [apiDataLastYear, setApiDataLastYear] = React.useState<any[]>([]);
+
   const salesManagerId = salesManager?.id;
-  const [selectedYear, setSelectedYear] = React.useState(2023);
+  const [loading, setLoading] = React.useState<boolean>(true);
+  const [apiData, setApiData] = React.useState<any[]>([]);
+  const [selectedYear, setSelectedYear] = React.useState(2024);
+  const yearDial = yearSelectOptions();
   const [chartSeries, setChartSeries] = React.useState<any[]>([
     {
       name: "Quarters",
@@ -47,14 +50,17 @@ export default function SalesManagerStats({
   );
 
 
-  const fetchApi = async (year: Number) => {
+  // Transaction part
+  const [transactionData, setTransactionData] = React.useState<any[]>([]);
+  // Fetch transactions for the selected year and sales manager 
+  const fetchTransactions = async (year: Number) => {
     setLoading(true);
     if (!salesManagerId || selectedYear === 0) {
       return;
     }
 
     // Make get request to API
-    let url = `/api/sales-managers/transactions?id=${salesManagerId}&year=${year}`;
+    let url = `/api/transactions/salesManager?salesManagerId=${salesManagerId}&year=${year}`;
     const header = {
       method: "GET",
       headers: {
@@ -69,12 +75,40 @@ export default function SalesManagerStats({
     return data;
   };
 
+
+  // Customers part
+  const [customersData, setCustomersData] = React.useState<any[]>([]);
+
+  // Fetch customers with accounts data for the sales manager
+  const fetchCustomers = async () => {
+    if (!salesManagerId) {
+      return;
+    }
+
+    // Make get request to API
+    let url = `/api/customers?salesManagerId=${salesManagerId}`;
+    const header = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    const response = await fetch(url, header);
+    const data = await response.json();
+
+    return data;
+  };
+
+
   const getApiData = async () => {
-    setApiData([]);
-    const data = await fetchApi(selectedYear);
-    const dataLastYear = await fetchApi(selectedYear - 1);
-    setApiData(data);
-    setApiDataLastYear(dataLastYear);
+    setTransactionData([]);
+    setCustomersData([]);
+    const data = await fetchTransactions(selectedYear);
+    const customers = await fetchCustomers();
+    setTransactionData(data);
+    setCustomersData(customers);
+    setApiData(joinData(customers, data));
   };
 
 
@@ -92,7 +126,7 @@ export default function SalesManagerStats({
 
   React.useEffect(() => {
     updateChartSeries();
-  }, [apiData]);
+  }, [transactionData]);
 
   React.useEffect(() => {
     console.log("Selected year changed to: ", selectedYear);
@@ -110,63 +144,46 @@ export default function SalesManagerStats({
   // Note: This is just a mockup, the actual data will be different
   const quarterSum = (quarter: number) => {
     let sum = 0;
-    apiData.forEach((transaction) => {
+    transactionData.forEach((transaction) => {
       if (transaction.quarter === quarter) {
 
         // Sum only the positive amounts
-        sum += transaction.amount > 0 ? transaction.amount : 0;
+        sum += transaction.points > 0 ? transaction.points : 0;
       }
     });
     return sum;
   }
 
-  function calculateQuarterSums(data) {
-    const result = {};
-    data.forEach(entry => {
-      const key = `${entry.customerID}_${entry.customerFullName}`;
-      if (!result[key]) {
-        result[key] = {
-          // Spread the entry to the result
-          ...entry,
-          sumQ1: 0,
-          sumQ2: 0,
-          sumQ3: 0,
-          sumQ4: 0
-        };
-      }
-      switch (entry.quarter) {
-        case 1:
-          result[key].sumQ1 += entry.amount > 0 ? entry.amount : 0;
-          break;
-        case 2:
-          result[key].sumQ2 += entry.amount > 0 ? entry.amount : 0;
-          break;
-        case 3:
-          result[key].sumQ3 += entry.amount > 0 ? entry.amount : 0;
-          break;
-        case 4:
-          result[key].sumQ4 += entry.amount > 0 ? entry.amount : 0;
-          break;
-        default:
-          break;
-      }
+
+  // Function to sum points for a given quarter
+  const sumQuarterPoints = (transactions, quarter) => {
+    return transactions
+      .filter(transaction => transaction.quarter === quarter)
+      .reduce((sum, transaction) => sum + transaction.points, 0);
+  };
+
+  // Function to join the customer and transaction data
+  const joinData = (customers, transactions) => {
+    const joinedData = customers.map((customer) => {
+      const customerTransactions = transactions.filter(
+        (transaction) => transaction.accountId === customer.account.id
+      );
+
+      return {
+        ...customer,
+        transactions: customerTransactions,
+        quarterSums: {
+          Q1: sumQuarterPoints(customerTransactions, 1),
+          Q2: sumQuarterPoints(customerTransactions, 2),
+          Q3: sumQuarterPoints(customerTransactions, 3),
+          Q4: sumQuarterPoints(customerTransactions, 4),
+        },
+      };
     });
 
-    // Join the customerTotalPoints to the result baed on customerID and add totalPoints to the result
-    Object.values(result).forEach((entry) => {
-      const customer = customersTotalPoints.find((customer) => customer.id === entry.customerID);
-      if (customer) {
-        entry.totalPoints = customer.totalPoints;
-      }
-    });
+    return joinedData;
+  };
 
-    return Object.values(result);
-  }
-
-
-  if (!salesManager) {
-    <Loader />;
-  }
 
   return (
     <>
@@ -176,10 +193,11 @@ export default function SalesManagerStats({
             <Typography className="text-2xl font-bold text-gray-900" >{salesManager.fullName}</Typography>
             <Typography className="mb-2 font-light " >Statistika bodů pro obchodníka</Typography>
             <SimpleSelectInput
-              label="Vybrat Rok..."
+              label="Rok"
+              options={yearDial as any}
               onChange={(value) => setSelectedYear(value)}
-              options={yearSelectOptions()}
-              value={selectedYear} // Ensure the value is also passed to maintain the controlled state
+              value={selectedYear}
+
             />
           </Card>
 
@@ -201,21 +219,28 @@ export default function SalesManagerStats({
             <SimpleStat title="Celkem za členy v Q4" value={quarterSum(4)} />
             <SimpleStat title="Celkem za rok" value={quarterSum(1) + quarterSum(2) + quarterSum(3) + quarterSum(4)} />
           </div>
-          <LineChart series={chartSeries} categories={chartCategories} title="Počet bodů za čtvrtletí" description="Počet bodů za členy, podle čtvrtletí pro obchodníka " />
+          <Card>
+            <LineChart series={chartSeries} categories={chartCategories} title="Počet bodů za čtvrtletí" description="Počet bodů za členy, podle čtvrtletí pro obchodníka " />
+          </Card>
         </div>
 
 
       </div>
 
+
       {loading ? (
-        <Loader />
+        <Skeleton type="table" />
       ) : (
         apiData.length > 0 ? (
-          <SalesManagerStatsTable detailLinkPath={"users/"} defaultData={calculateQuarterSums(apiData)} />
+          <SalesManagerStatsTable detailLinkPath={"customers/"} defaultData={apiData} />
         ) : (
           <NoData />
         )
       )}
+
+      <pre>
+        {JSON.stringify(apiData, null, 2)}
+      </pre>
     </>
   );
 }

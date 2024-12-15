@@ -47,4 +47,10 @@ export class CustomerAPI {
             }
         };
     }
+
+
+    // Get all customers with their associated accounts belonging to the sales manager
+    async getCustomersWithAccounts(salesManagerId: number): Promise<Customer[]> {
+        return this.customerRepository.getCustomersWithAccounts(salesManagerId);
+    }
 }

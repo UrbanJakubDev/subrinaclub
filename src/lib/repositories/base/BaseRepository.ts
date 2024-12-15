@@ -3,6 +3,12 @@ import { PrismaClient } from '@prisma/client';
 import { NotFoundError } from '@/lib/errors';
 import { BaseRepositoryInput } from '@/types/repository';
 
+interface UpdateRepositoryInput {
+  where: { id: number };
+  data: any;
+  include?: any;
+}
+
 export abstract class BaseRepository<
   T,
   CreateInput,
@@ -11,23 +17,24 @@ export abstract class BaseRepository<
   constructor(
     protected prisma: PrismaClient,
     protected readonly modelName: string
-  ) {}
+  ) { }
 
   async findById(id: number, include?: Record<string, boolean>): Promise<T> {
     const item = await (this.prisma[this.modelName] as any).findUnique({
-      where: { id: id},
+      where: { id: id },
       include: include // Pass include directly, not wrapped in another object
     });
     if (!item) throw new NotFoundError(`${this.modelName} not found`);
     return item;
   }
 
-  async findAll(options?: { 
-    where?: any; 
+  async findAll(options?: {
+    where?: any;
     include?: Record<string, boolean>
   }): Promise<T[]> {
     return (this.prisma[this.modelName] as any).findMany({
-      where: { active: true, ...options?.where },
+      // where: { active: true, ...options?.where },
+      where: { ...options?.where },
       include: options?.include // Pass include directly
     });
   }
@@ -39,13 +46,14 @@ export abstract class BaseRepository<
     });
   }
 
-  async update(id: number, input: BaseRepositoryInput): Promise<T> {
+  async update(id: number, input: { data: any; include?: any }): Promise<T> {
     return (this.prisma[this.modelName] as any).update({
-      where: input.where,
+      where: { id },
       data: input.data,
       include: input.include
     });
   }
+
 
   // Soft delete
   async delete(id: number): Promise<T> {

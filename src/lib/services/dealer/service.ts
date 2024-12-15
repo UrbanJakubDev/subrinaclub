@@ -1,21 +1,23 @@
 import { Dealer } from "@/types/dealer";
 import { DealerRepository } from "@/lib/repositories/DealerRepository";
 import { CreateDealerDTO, UpdateDealerDTO } from "./validation";
-import { DealerSelectDTO } from "./types";
+import { DealerResponseDTO, DealerSelectDTO } from "./types";
 
 export class DealerService {
     constructor(private dealerRepository: DealerRepository) { }
 
-    async create(data: CreateDealerDTO): Promise<Dealer> {
+    async create(data: CreateDealerDTO): Promise<DealerResponseDTO> {
         // Business logic here
         const maxRegNumber = await this.dealerRepository.getMaxRegistrationNumber();
 
         return this.dealerRepository.create({
-            ...data,
-            registrationNumber: maxRegNumber + 1,
-            active: true,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            data: {
+                ...data,
+                registrationNumber: maxRegNumber + 1,
+                active: true,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            }
         });
     }
 
@@ -24,8 +26,10 @@ export class DealerService {
         await this.get(id);
 
         return this.dealerRepository.update(id, {
-            ...data,
-            updatedAt: new Date()
+            data: {
+                ...data,
+                updatedAt: new Date()
+            }
         });
     }
 

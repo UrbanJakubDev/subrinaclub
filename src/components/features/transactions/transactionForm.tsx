@@ -14,6 +14,7 @@ import Skeleton from '@/components/ui/skeleton';
 import { useStatsStore } from '@/stores/CustomerStatsStore';
 import { TransactionType } from '@prisma/client';
 import { useModalStore } from '@/stores/ModalStore';
+import QuarterSlider from '@/components/ui/inputs/quarterSlider';
 
 
 const newTransaction: Transaction = {

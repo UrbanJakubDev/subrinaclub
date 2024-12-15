@@ -1,5 +1,6 @@
 'use server'
 import { fetchActiveBonusesFromDB, fetchBonusByIdFromDB, hardDeleteBonusInDB, insertBonusIntoDB, updateBonusInDB } from '@/lib/db/queries/bonuses'
+import { bonusService } from '@/lib/services/bonus'
 import { revalidatePath } from 'next/cache'
 
 export async function getBonusesServerAction() {
@@ -11,13 +12,13 @@ export async function getBonusServerAction(id: string) {
 }
 
 export async function createBonusServerAction(data: any) {
-   const result = await insertBonusIntoDB(data)
+   const result = await bonusService.create(data)
    refreshBonusesDataServerAction()
    return result
 }
 
 export async function updateBonusServerAction(id: string, data: any) {
-   const result = await updateBonusInDB(parseInt(id), data)
+   const result = await bonusService.update(parseInt(id), data)
    refreshBonusesDataServerAction()
    return result
 }

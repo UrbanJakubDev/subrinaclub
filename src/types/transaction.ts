@@ -21,10 +21,10 @@ export interface Transaction {
    account: Account
    accountId: number
 
-   bonus: Bonus
-   bonusId: number
+   bonus: Bonus | null
+   bonusId: number | null
 
-   savingPeriod: SavingPeriod
-   savingPeriodId: number
+   savingPeriod: SavingPeriod | null
+   savingPeriodId: number | null
    
-}P 
+}

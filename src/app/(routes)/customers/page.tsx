@@ -16,6 +16,9 @@ export default async function CustomersPage() {
   return (
     <PageComponent>
       <OverviewDataWrapper initialData={customers} />
+      <pre>
+        {JSON.stringify(customers, null, 2)}
+      </pre>
     </PageComponent>
   );
 }

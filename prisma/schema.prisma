@@ -134,8 +134,8 @@ model Transaction {
   bonus   Bonus? @relation(fields: [bonusId], references: [id])
   bonusId Int?
 
-  savingPeriod   SavingPeriod @relation(fields: [savingPeriodId], references: [id])
-  savingPeriodId Int          @default(0)
+  savingPeriod   SavingPeriod? @relation(fields: [savingPeriodId], references: [id])
+  savingPeriodId Int?          @default(0)
 
   @@index([accountId, year, quarter])
   @@index([savingPeriodId])

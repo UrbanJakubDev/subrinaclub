@@ -214,6 +214,12 @@ export class CustomerService {
                      take: 1
                   }
                }
+            },
+            salesManager: {
+               select: {
+                  id: true,
+                  fullName: true
+               }
             }
          }
       });

@@ -30,7 +30,7 @@ export class TransactionRepository extends BaseRepository<
    async getByAccountId(accountId: number): Promise<Transaction[]> {
       const transactions = await this.prisma.transaction.findMany({
          where: {
-            accountId: parseInt(accountId)
+            accountId: parseInt(accountId.toString())
          },
          include: {
             bonus: { select: { name: true } }

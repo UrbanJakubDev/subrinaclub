@@ -1,4 +1,5 @@
 import { SelectOption } from "@/types/types";
+import { AccountResponseDTO } from "../account/types";
 
 
 export interface CustomerResponseDTO {
@@ -20,6 +21,7 @@ export interface CustomerResponseDTO {
    note: string | null;
    dealerId: number | null;
    salesManagerId: number | null;
+   account: AccountResponseDTO;
 }
 
 export interface CustomerSelectDTO extends SelectOption { }

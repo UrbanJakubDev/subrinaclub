@@ -1,11 +1,10 @@
 
-import DetailDataWrapper from "@/components/features/customer/AccountDataView";
 import SavingPeriodsComponent from "@/components/features/savingPeriod/savingPeriodsComponent";
 import PageComponent from "@/components/features/detailPage/pageComponent";
 import PageHeader from '@/components/features/detailPage/pageHeader';
 import TransactionForm from '@/components/features/transactions/transactionForm';
 import { getCustomerById } from "@/lib/db/queries/customers";
-import { ICustomer } from "@/types/interfaces";
+import { Customer } from "@/types/customer";
 
 
 const AccountDetailPage = async ({ params }: { params: { id: string } }) => {
@@ -13,7 +12,7 @@ const AccountDetailPage = async ({ params }: { params: { id: string } }) => {
 
 
   const customerId = parseInt(params.id);
-  const customer = await getCustomerById(customerId) as unknown as ICustomer;
+  const customer = await getCustomerById(customerId) as Customer;
   const savingPeriods = customer.accounts[0].savingPeriods;
   const account = customer.accounts[0];
 

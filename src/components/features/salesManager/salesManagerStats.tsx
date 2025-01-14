@@ -100,15 +100,30 @@ export default function SalesManagerStats({
     return data;
   };
 
+  const [isDataReady, setIsDataReady] = React.useState<boolean>(false);
 
   const getApiData = async () => {
+    setIsDataReady(false);
+    setLoading(true);
     setTransactionData([]);
     setCustomersData([]);
-    const data = await fetchTransactions(selectedYear);
-    const customers = await fetchCustomers();
-    setTransactionData(data);
-    setCustomersData(customers);
-    setApiData(joinData(customers, data));
+    
+    try {
+      const data = await fetchTransactions(selectedYear);
+      const customers = await fetchCustomers();
+      
+      if (data && customers) {
+        setTransactionData(data);
+        setCustomersData(customers);
+        const joinedData = joinData(customers, data);
+        setApiData(joinedData);
+        setIsDataReady(true);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
 
@@ -156,18 +171,22 @@ export default function SalesManagerStats({
 
 
   // Function to sum points for a given quarter
-  const sumQuarterPoints = (transactions, quarter) => {
+  const sumQuarterPoints = (transactions: any[], quarter: number): number => {
     return transactions
       .filter(transaction => transaction.quarter === quarter)
-      .reduce((sum, transaction) => sum + transaction.points, 0);
+      .reduce((sum, transaction) => sum + (transaction.points || 0), 0);
   };
 
   // Function to join the customer and transaction data
-  const joinData = (customers, transactions) => {
+  const joinData = (customers: any[], transactions: any[]) => {
+    if (!Array.isArray(customers) || !Array.isArray(transactions)) {
+      return [];
+    }
+
     const joinedData = customers.map((customer) => {
       const customerTransactions = transactions.filter(
-        (transaction) => transaction.accountId === customer.account.id
-      );
+        (transaction) => transaction.accountId === customer.account?.id
+      ) || [];
 
       return {
         ...customer,
@@ -197,7 +216,6 @@ export default function SalesManagerStats({
               options={yearDial as any}
               onChange={(value) => setSelectedYear(value)}
               value={selectedYear}
-
             />
           </Card>
 
@@ -223,24 +241,15 @@ export default function SalesManagerStats({
             <LineChart series={chartSeries} categories={chartCategories} title="Počet bodů za čtvrtletí" description="Počet bodů za členy, podle čtvrtletí pro obchodníka " />
           </Card>
         </div>
-
-
       </div>
-
 
       {loading ? (
         <Skeleton type="table" />
+      ) : isDataReady && apiData.length > 0 ? (
+        <SalesManagerStatsTable detailLinkPath={"customers/"} defaultData={apiData} />
       ) : (
-        apiData.length > 0 ? (
-          <SalesManagerStatsTable detailLinkPath={"customers/"} defaultData={apiData} />
-        ) : (
-          <NoData />
-        )
+        <NoData />
       )}
-
-      <pre>
-        {JSON.stringify(apiData, null, 2)}
-      </pre>
     </>
   );
 }

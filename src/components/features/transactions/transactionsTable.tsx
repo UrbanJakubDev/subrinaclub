@@ -10,6 +10,7 @@ import TransactionFormComponent from '@/components/features/customer/transaction
 import Skeleton from '@/components/ui/skeleton';
 import React from 'react';
 import { useModalStore } from '@/stores/ModalStore';
+import { formatDateToCz } from '@/lib/utils/dateFnc';
 
 type TransactionsTableProps = {
    tableName?: string;
@@ -27,11 +28,8 @@ export default function TransactionsTable({
    onEdit,
    onDelete 
 }: TransactionsTableProps) {
-   const { actions } = useModalStore();
 
-   const handleNewTransaction = () => {
-      actions.openModal('transactionForm', null);
-   };
+   
 
    // Column definitions
    const columns = React.useMemo<ColumnDef<Transaction>[]>(() => [
@@ -64,22 +62,24 @@ export default function TransactionsTable({
       {
          accessorKey: 'acceptedBonusOrder',
          header: 'Příjetí objednávky bonusu',
+         cell: (info) => formatDateToCz(info.getValue() as string | null),
       },
       {
          accessorKey: 'sentBonusOrder',
          header: 'Bonus odeslán',
+         cell: (info) => formatDateToCz(info.getValue() as string | null),
       },
       {
          accessorKey: 'bonus.name',
          header: 'Jméno bonusu',
       },
       {
-         accessorKey: 'bonusAmount',
+         accessorKey: 'bonusPrice',
          header: 'Cena bonusu',
          enableColumnFilter: false,
          footer: (info) => {
             const total = info.table.getFilteredRowModel().rows.reduce(
-               (sum, row) => sum + row.getValue<number>('bonusAmount'),
+               (sum, row) => sum + (row.getValue<number>('bonusPrice') || 0),
                0
             );
             return formatThousandDelimiter(total);

@@ -7,7 +7,13 @@ import {
   getSortedRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
-  flexRender
+  flexRender,
+  RowSelectionState,
+  Table,
+  Header,
+  HeaderGroup,
+  Row,
+  Cell
 } from "@tanstack/react-table"
 import React from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -19,20 +25,74 @@ import {
   faSortDown,
   faSortUp
 } from "@fortawesome/free-solid-svg-icons"
-import { Button, ButtonGroup, Card, Input } from "@material-tailwind/react"
+import { Button, ButtonGroup, Card, Input, Checkbox } from "@material-tailwind/react"
 import { timestampToDate } from "@/lib/utils/dateFnc"
 import Filter from "./baseTableFnc"
 
-interface TableProps {
-  data: any[]
-  columns: ColumnDef<any>[]
+interface TableProps<T> {
+  data: T[]
+  columns: ColumnDef<T>[]
   tableName: string
   addBtn?: boolean
   onAddClick?: () => void
+  enableRowSelection?: boolean
+  onSelectionChange?: (rows: T[]) => void
+  bulkActions?: {
+    label: string
+    onClick: (selectedRows: T[]) => void
+  }[]
 }
 
+interface TableHeaderProps<T> {
+  headerGroup: HeaderGroup<T>
+  table: Table<T>
+}
+
+interface SortIconProps<T> {
+  header: Header<T, unknown>
+}
+
+interface PaginationProps<T> {
+  table: Table<T>
+}
+
+interface TableToolbarProps<T> {
+  table: Table<T>
+  tableName: string
+  addBtn?: boolean
+  onAddClick?: () => void
+  bulkActions?: {
+    label: string
+    onClick: (selectedRows: T[]) => void
+  }[]
+}
+
+const IndeterminateCheckbox = React.forwardRef<
+  HTMLInputElement,
+  { indeterminate?: boolean } & React.InputHTMLAttributes<HTMLInputElement>
+>(({ indeterminate, ...rest }, ref) => {
+  const defaultRef = React.useRef<HTMLInputElement>(null)
+  const resolvedRef = (ref || defaultRef) as React.MutableRefObject<HTMLInputElement>
+
+  React.useEffect(() => {
+    if (resolvedRef.current) {
+      resolvedRef.current.indeterminate = indeterminate ?? false
+    }
+  }, [resolvedRef, indeterminate])
+
+  return (
+    <input
+      type="checkbox"
+      ref={resolvedRef}
+      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+      {...rest}
+    />
+  )
+})
+IndeterminateCheckbox.displayName = 'IndeterminateCheckbox'
+
 // Separate components for better organization
-const TableHeader = ({ headerGroup, table }) => (
+const TableHeader = <T,>({ headerGroup, table }: TableHeaderProps<T>) => (
   <React.Fragment key={headerGroup.id}>
     <tr>
       {headerGroup.headers.map(header => (
@@ -50,7 +110,7 @@ const TableHeader = ({ headerGroup, table }) => (
         <th key={header.id} colSpan={header.colSpan}>
           <div className="flex items-center py-1 text-left">
             {header.column.getCanSort() && (
-            <SortIcon header={header} />
+              <SortIcon header={header} />
             )}
             {header.column.getCanFilter() ? (
               <Filter column={header.column} table={table} />
@@ -64,27 +124,27 @@ const TableHeader = ({ headerGroup, table }) => (
   </React.Fragment>
 )
 
-const SortIcon = ({ header }) => {
+const SortIcon = <T,>({ header }: SortIconProps<T>) => {
   if (!header.column.getCanSort()) return null
 
-  const sortDirection = header.column.getIsSorted() as string
-  const icons = {
-    asc: <FontAwesomeIcon icon={faSortUp} />,
-    desc: <FontAwesomeIcon icon={faSortDown} />,
-    default: <FontAwesomeIcon icon={faSort} />
-  }
+  const sortDirection = header.column.getIsSorted()
+  const icon = sortDirection === false 
+    ? <FontAwesomeIcon icon={faSort} />
+    : sortDirection === 'asc'
+    ? <FontAwesomeIcon icon={faSortUp} />
+    : <FontAwesomeIcon icon={faSortDown} />
 
   return (
     <div
       className="cursor-pointer select-none"
       onClick={header.column.getToggleSortingHandler()}
     >
-      {icons[sortDirection] || icons.default}
+      {icon}
     </div>
   )
 }
 
-const Pagination = ({ table }) => (
+const Pagination = <T,>({ table }: PaginationProps<T>) => (
   <div className="flex justify-center gap-2 mx-auto mt-6">
     <ButtonGroup>
       <Button
@@ -140,7 +200,10 @@ const Pagination = ({ table }) => (
   </div>
 )
 
-const TableToolbar = ({ table, tableName, addBtn, onAddClick }) => {
+const TableToolbar = <T,>({ table, tableName, addBtn, onAddClick, bulkActions }: TableToolbarProps<T>) => {
+  const selectedRows = table.getSelectedRowModel().rows
+  const hasSelectedRows = selectedRows.length > 0
+
   const exportData = (all = false) => {
     const timestamp = timestampToDate(new Date().toISOString())
     const XLSX = require('xlsx')
@@ -164,46 +227,97 @@ const TableToolbar = ({ table, tableName, addBtn, onAddClick }) => {
   }
 
   return (
-    <div className="flex justify-between gap-2 mb-4">
-      <div>
-        <h1 className="text-2xl font-semibold">{tableName}</h1>
-        <p className="text-sm text-gray-500">some text</p>
-      </div>
-      <div className="flex gap-2 py-2">
-        {addBtn && (
-          <Button size="sm" className="font-light" onClick={onAddClick}>
-            Přidat
+    <div className="flex flex-col gap-2 mb-4">
+      <div className="flex justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">{tableName}</h1>
+          <p className="text-sm text-gray-500">some text</p>
+        </div>
+        <div className="flex gap-2 py-2">
+          {addBtn && (
+            <Button size="sm" className="font-light" onClick={onAddClick}>
+              Přidat
+            </Button>
+          )}
+          <Button onClick={() => table.reset()} variant="outlined" size="sm" className="font-light">
+            <FontAwesomeIcon icon={faRotate} size="lg" className="text-gray-800" />
           </Button>
-        )}
-        <Button onClick={() => table.reset()} variant="outlined" size="sm" className="font-light ">
-          <FontAwesomeIcon icon={faRotate} size="lg" className="text-gray-800" />
-        </Button>
-        <Button onClick={() => exportData(false)} variant="outlined" size="sm" className="font-light ">
-          <FontAwesomeIcon icon={faDownload} className="text-gray-800" /> Export
-        </Button>
-        <Button onClick={() => exportData(true)} variant="outlined" size="sm" className="font-light ">
-          <FontAwesomeIcon icon={faDownload} className="text-gray-800" /> Export Vše
-        </Button>
+          <Button onClick={() => exportData(false)} variant="outlined" size="sm" className="font-light">
+            <FontAwesomeIcon icon={faDownload} className="text-gray-800" /> Export
+          </Button>
+          <Button onClick={() => exportData(true)} variant="outlined" size="sm" className="font-light">
+            <FontAwesomeIcon icon={faDownload} className="text-gray-800" /> Export Vše
+          </Button>
+        </div>
       </div>
+      {hasSelectedRows && bulkActions && (
+        <div className="flex items-center gap-4 p-2 bg-gray-50 rounded">
+          <span className="text-sm text-gray-700">
+            Selected {selectedRows.length} {selectedRows.length === 1 ? 'row' : 'rows'}
+          </span>
+          <div className="flex gap-2">
+            {bulkActions.map((action, index) => (
+              <Button
+                key={index}
+                size="sm"
+                variant="outlined"
+                onClick={() => action.onClick(selectedRows.map(row => row.original))}
+              >
+                {action.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
-export default function BaseTable({
+export default function BaseTable<T>({
   data,
   columns,
   tableName,
   addBtn = false,
-  onAddClick
-}: TableProps) {
+  onAddClick,
+  enableRowSelection = false,
+  onSelectionChange,
+  bulkActions
+}: TableProps<T>) {
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 50,
   })
   const [columnVisibility, setColumnVisibility] = React.useState({})
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
+
+  const selectionColumn: ColumnDef<T> = {
+    id: 'select',
+    header: ({ table }) => (
+      <IndeterminateCheckbox
+        checked={table.getIsAllRowsSelected()}
+        indeterminate={table.getIsSomeRowsSelected()}
+        onChange={table.getToggleAllRowsSelectedHandler()}
+      />
+    ),
+    cell: ({ row }) => (
+      <IndeterminateCheckbox
+        checked={row.getIsSelected()}
+        disabled={!row.getCanSelect()}
+        indeterminate={row.getIsSomeSelected()}
+        onChange={row.getToggleSelectedHandler()}
+      />
+    ),
+    enableSorting: false,
+    enableColumnFilter: false,
+  }
+
+  const finalColumns = React.useMemo(
+    () => (enableRowSelection ? [selectionColumn, ...columns] : columns),
+    [columns, enableRowSelection]
+  )
 
   const table = useReactTable({
-    columns,
+    columns: finalColumns,
     data,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -211,20 +325,33 @@ export default function BaseTable({
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
     onColumnVisibilityChange: setColumnVisibility,
+    enableRowSelection,
+    onRowSelectionChange: setRowSelection,
     state: {
       pagination,
       columnVisibility,
+      rowSelection,
     },
   })
 
+  React.useEffect(() => {
+    if (onSelectionChange) {
+      const selectedRows = table
+        .getSelectedRowModel()
+        .rows.map(row => row.original)
+      onSelectionChange(selectedRows)
+    }
+  }, [rowSelection, onSelectionChange])
+
   return (
-    <div className="mx-auto overflow-auto w-fit">
-      <Card className="p-4 text-gray-900">
+    <div className="mx-auto overflow-auto w-full">
+      <Card className="p-4 text-gray-900 rounded-sm">
         <TableToolbar
           table={table}
           tableName={tableName}
           addBtn={addBtn}
           onAddClick={onAddClick}
+          bulkActions={bulkActions}
         />
 
         <table className="text-sm basic-table !text-gray-800">

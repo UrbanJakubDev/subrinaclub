@@ -66,7 +66,7 @@ export default function TransactionFormComponent() {
               bonusesDial={dials}
             />
 
-            <Card className='p-8 flex justify-between'>
+            <div className='p-8 flex justify-between'>
               <div>
                 <Typography variant='h4'>Zákazník</Typography>
                 <p>Jméno: {customer?.fullName}</p>
@@ -79,45 +79,15 @@ export default function TransactionFormComponent() {
                 <p>{savingPeriod?.availablePoints}</p>
 
               </div>
-              <div>
+              {/* <div>
                 <Typography variant='h6'>Chyba</Typography>
                 <p className='text-red-600 txt-xs'>Nelze zadat transakci mimo šetřící obdobé</p>
-              </div>
-            </Card>
+              </div> */}
+            </div>
           </div>
         </div>
       )}
-      <div>
-        <p>Transaction</p>
-        <pre>
-          {JSON.stringify(transaction, null, 2)}
-        </pre>
-        {dials && (
-          <>
-            <p>Dials</p>
-            <pre>
-              {JSON.stringify(dials, null, 2)}
-            </pre>
-          </>
-        )}
-        <p>Customer</p>
-        <pre>
-          {JSON.stringify(customer, null, 2)}
-        </pre>
 
-        {modalData && (
-          <>
-            <p>Modal Data</p>
-            <pre>
-              {JSON.stringify(modalData, null, 2)}
-            </pre>
-          </>
-        )}
-        <p>SP</p>
-        <pre>
-          {JSON.stringify(savingPeriod, null, 2)}
-        </pre>
-      </div>
     </ModalComponent>
   );
 };

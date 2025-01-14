@@ -2,7 +2,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { CustomerWithAccountDataAndActiveSavingPeriodDTO } from "@/lib/services/customer/types";
 import { Transaction } from "@/types/transaction";
-import Skeleton from "@/components/ui/skeleton";
 import CustomerCard from "./customerCard";
 import AccountInfoCard from "./accountInfoCard";
 import AccountStats from "./account/accountStats";
@@ -179,7 +178,7 @@ export default function CustomerStatsView({ initialCustomer, initialTransactions
                   isLoading={isLoading || isTransactionsLoading}
                />
             </div>
-            <div className="my-2">
+            <div className="my-2 w-full">
                <TransactionsTable
                   tableName={`Transakce ${customer.fullName || ''}`}
                   accountId={account?.id}

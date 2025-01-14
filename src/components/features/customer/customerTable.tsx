@@ -1,21 +1,43 @@
 "use client";;
-import { faChartSimple, faCheck, faPenToSquare, faXmark } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ColumnDef } from "@tanstack/react-table";
-import Link from "next/link";
 import React from "react";
 import MyTable from "../../tables/ui/baseTable";
-import { Button, Chip } from "@material-tailwind/react";
+import { Chip } from "@material-tailwind/react";
 import { useRouter } from "next/navigation";
-import { transform } from "next/dist/build/swc";
-import { format } from "path";
 import formatThousandDelimiter from "@/lib/utils/formatFncs";
 import ActionButtons from "@/components/tables/ui/actionButtons";
 import StatusChip from "@/components/tables/ui/statusChip";
 import StatusIcon from "@/components/tables/ui/statusIcon";
+import { toast } from "react-toastify";
+
+interface Customer {
+  id: string;
+  active: boolean;
+  registrationNumber: string;
+  fullName: string;
+  salonName: string;
+  address?: string;
+  town?: string;
+  psc?: string;
+  phone?: string;
+  ico?: string;
+  salesManager?: {
+    fullName: string;
+  };
+  dealer?: {
+    fullName: string;
+  };
+  account?: {
+    currentYearPoints: number;
+    lifetimePoints: number;
+    savingPeriod?: {
+      availablePoints: number;
+    };
+  };
+}
 
 type Props = {
-  defaultData: any[];
+  defaultData: Customer[];
   detailLinkPath?: string;
 };
 
@@ -23,6 +45,100 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
 
   const router = useRouter()
   const tableName = "Přehled zákazníků";
+
+  // Handle selected rows
+  const handleSelectionChange = (selectedRows: Customer[]) => {
+    console.log('Selected rows:', selectedRows);
+  };
+
+  const handleDeactivateCustomers = async (selectedRows: Customer[]) => {
+    // Filter out already inactive customers
+    const activeCustomers = selectedRows.filter(customer => customer.active);
+
+    if (activeCustomers.length === 0) {
+      toast.error('Žádný z vybraných zákazníků není aktivní.');
+      return;
+    }
+
+    const confirmDeactivate = window.confirm(
+      `Opravdu chcete deaktivovat ${activeCustomers.length} zákazníků?`
+    );
+    if (!confirmDeactivate) return;
+
+    // Show loading toast
+    const loadingToastId = toast.loading(
+      `Deaktivace ${activeCustomers.length} zákazníků...`
+    );
+
+    try {
+      const results = await Promise.allSettled(
+        activeCustomers.map(async (customer) => {
+          const response = await fetch(`/api/customers/${customer.id}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              active: false
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`Nepodařilo se deaktivovat zákazníka ${customer.fullName}`);
+          }
+
+          return customer;
+        })
+      );
+
+      // Count successes and failures
+      const succeeded = results.filter(r => r.status === 'fulfilled').length;
+      const failed = results.filter(r => r.status === 'rejected').length;
+
+      // Update the loading toast with the result
+      if (failed === 0) {
+        toast.update(loadingToastId, {
+          render: `Úspěšně deaktivováno ${succeeded} zákazníků`,
+          type: 'success',
+          isLoading: false,
+          autoClose: 5000
+        });
+      } else {
+        toast.update(loadingToastId, {
+          render: `Deaktivováno ${succeeded} zákazníků, ${failed} se nezdařilo`,
+          type: 'warning',
+          isLoading: false,
+          autoClose: 5000
+        });
+
+        // Show detailed errors
+        results
+          .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
+          .forEach(result => {
+            toast.error(result.reason.message);
+          });
+      }
+
+      // Refresh the page to show updated data
+      router.refresh();
+    } catch (error) {
+      console.error('Error deactivating customers:', error);
+      toast.update(loadingToastId, {
+        render: 'Nepodařilo se deaktivovat zákazníky. Zkuste to prosím znovu.',
+        type: 'error',
+        isLoading: false,
+        autoClose: 5000
+      });
+    }
+  };
+
+  // Define bulk actions
+  const bulkActions = [
+    {
+      label: 'Deaktivovat vybrané',
+      onClick: handleDeactivateCustomers
+    }
+  ];
 
   // Render Chip
   const ChipComponent = ({ value }: { value: any }) => {
@@ -51,16 +167,16 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
   });
 
   // Column definitions
-  const columns = React.useMemo<ColumnDef<any>[]>(
+  const columns = React.useMemo<ColumnDef<Customer>[]>(
     () => [
       {
         accessorKey: "active",
         header: "Status",
         filterFn: "auto",
-        accessorFn: (row) => {
-          return row.active ?? false;
+        accessorFn: (row: Customer) => {
+          return row.active;
         },
-        cell: ({ getValue }) => <StatusIcon active={getValue()} />,
+        cell: ({ getValue }) => <StatusIcon active={getValue() as boolean} />,
       },
       {
         accessorKey: "registrationNumber",
@@ -92,7 +208,6 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         accessorKey: "phone",
         header: "Telefon",
       },
-
       {
         accessorKey: "ico",
         header: "IČ",
@@ -116,7 +231,6 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
             .getFilteredRowModel()
             .rows.reduce(
               (sum, row) => {
-                // Safely access the nested value
                 const points = row.original.account?.currentYearPoints ?? 0;
                 return sum + points;
               },
@@ -134,7 +248,6 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
             .getFilteredRowModel()
             .rows.reduce(
               (sum, row) => {
-                // Safely access the nested value
                 const points = row.original.account?.lifetimePoints ?? 0;
                 return sum + points;
               },
@@ -151,7 +264,6 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
             .getFilteredRowModel()
             .rows.reduce(
               (sum, row) => {
-                // Safely access the nested value
                 const points = row.original.account?.savingPeriod?.availablePoints ?? 0;
                 return sum + points;
               },
@@ -163,12 +275,11 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
       {
         accessorKey: "hasCurrentYearPoints",
         header: "Aktivní",
-        // Use accessorFn to compute the value instead of relying on raw data
-        accessorFn: (row) => {
-          const lifetimePoints = row.account?.lifetimePoints ?? 0;
+        accessorFn: (row: Customer) => {
+          const lifetimePoints = row.account?.currentYearPoints ?? 0;
           return lifetimePoints > 0;
         },
-        cell: ({ getValue }) => <StatusChip status={getValue()} />,
+        cell: ({ getValue }) => <StatusChip status={getValue() as boolean} />,
         filterFn: (row, columnId, filterValue) => {
           const cellValue = row.getValue(columnId);
           const boolFilterValue = filterValue === "true";
@@ -189,7 +300,6 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         enableSorting: false,
       },
     ],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -198,7 +308,7 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
 
   return (
     <>
-      <MyTable
+      <MyTable<Customer>
         {...{
           data,
           columns,
@@ -206,7 +316,10 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
           addBtn: true,
           onAddClick: () => {
             router.push(`${detailLinkPath}/new`);
-          }
+          },
+          enableRowSelection: true,
+          onSelectionChange: handleSelectionChange,
+          bulkActions: bulkActions
         }}
       />
     </>

@@ -4,7 +4,14 @@ export const transactionValidationSchema = yup.object().shape({
     year: yup.number().required(),
     quarter: yup.number().required(),
     quarterDateTime: yup.date().nullable(),
-    points: yup.number().required(),
+    points: yup.number().required()
+        .test('points-validation', 'Points must be negative when a bonus is selected', function(value) {
+            const { bonusId } = this.parent;
+            if (bonusId && bonusId > 0) {
+                return value < 0;
+            }
+            return true;
+        }),
     description: yup.string().nullable(),
     acceptedBonusOrder: yup.date().nullable(),
     sentBonusOrder: yup.date().nullable(),

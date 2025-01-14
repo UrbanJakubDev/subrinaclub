@@ -34,6 +34,9 @@ export class TransactionRepository extends BaseRepository<
          },
          include: {
             bonus: { select: { name: true } }
+         },
+         orderBy: {
+            quarterDateTime: 'desc'
          }
       });
 

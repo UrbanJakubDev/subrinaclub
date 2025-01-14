@@ -38,6 +38,12 @@ const newMenuItems = [
             link: "/customers",
             icon: faMedal,
          },
+         {
+            title: "Seznam účtů",
+            description: "Seznam aktivních účtů.",
+            link: "/accounts",
+            icon: faUser,
+         }
       ],
    },
    {

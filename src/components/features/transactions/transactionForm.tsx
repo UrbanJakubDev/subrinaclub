@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from 'react';
+import React from 'react';
 import InputField from '../../ui/inputs/basicInput';
 import InputDateFiled from '../../ui/inputs/dateInput';
 import { toast } from 'react-toastify';
@@ -15,17 +16,30 @@ import { useStatsStore } from '@/stores/CustomerStatsStore';
 import { TransactionType } from '@prisma/client';
 import { useModalStore } from '@/stores/ModalStore';
 import QuarterSlider from '@/components/ui/inputs/quarterSlider';
+import { Account, SavingPeriod } from '@/types/types';
+import { Bonus } from '@/types/bonus';
 
 
 const newTransaction: Transaction = {
-   year: 0,
-   quarter: 0,
+   id: 0,
+   year: new Date().getFullYear(),
+   quarter: 1,
    points: 1,
    acceptedBonusOrder: null,
    sentBonusOrder: null,
    bonusPrice: 0,
    bonusId: 0,
    description: '',
+   active: true,
+   createdAt: new Date(),
+   updatedAt: new Date(),
+   accountId: 0,
+   savingPeriodId: 0,
+   type: TransactionType.DEPOSIT,
+   quarterDateTime: new Date(),
+   account: {} as Account,
+   bonus: {} as Bonus,
+   savingPeriod: {} as SavingPeriod
 };
 
 
@@ -51,6 +65,14 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
       }
    }, [transaction]);
 
+   const handleFormChange = (formMethods: any) => {
+      const bonusId = formMethods.watch('bonusId');
+      const points = formMethods.watch('points');
+      
+      if (bonusId > 0 && points > 0) {
+         formMethods.setValue('points', -Math.abs(points));
+      }
+   };
 
    const saveTransaction = async (data: Transaction) => {
       const isNewTransaction = !data.id;
@@ -88,16 +110,17 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
 
 
 
-   const handleSubmit = async (data: Transaction) => {
+   const handleSubmit = async (data: Transaction): Promise<Transaction> => {
       try {
-         // Your API call or data handling logic here
-         await saveTransaction(data);  // assuming you have this function
+         const savedTransaction = await saveTransaction(data);
          toast.success('Transakce byla uložena');
          notifyTransactionChange();
-         actions.closeModal()
+         actions.closeModal();
+         return savedTransaction;
       } catch (error) {
          toast.error('Chyba při ukládání transakce transaction Form component');
          console.error(error);
+         throw error;
       }
    }
 
@@ -112,67 +135,75 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
          validationSchema={transactionValidationSchema}
          onSubmit={handleSubmit}
       >
-         {() => (
-            <div className='gap-4 mt-8'>
-               <div className="flex flex-row gap-4">
-                  <SelectField
-                     label="Rok"
-                     name="year"
-                     options={yearDial}
-                     defaultValue={transactionData.year || new Date().getFullYear()}
-                  />
+         {(formMethods) => {
+            React.useEffect(() => {
+               const subscription = formMethods.watch((value, { name }) => {
+                  if (name === 'bonusId' || name === 'points') {
+                     handleFormChange(formMethods);
+                  }
+               });
+               return () => subscription.unsubscribe();
+            }, [formMethods]);
 
-                  <SelectField
-                     label="Čtvrtletí"
-                     name="quarter"
-                     options={quarterDial}
-                     defaultValue={transactionData.quarter || 1}
-                  />
+            return (
+               <div className='gap-4 mt-8'>
+                  <div className="flex flex-row gap-4">
+                     <SelectField
+                        label="Rok"
+                        name="year"
+                        options={yearDial}
+                        defaultValue={transactionData.year || new Date().getFullYear()}
+                     />
+
+                     <SelectField
+                        label="Čtvrtletí"
+                        name="quarter"
+                        options={quarterDial}
+                        defaultValue={transactionData.quarter || 1}
+                     />
+                  </div>
+
+                  <div className="my-4 flex flex-col gap-4">
+                     <InputField
+                        label="Množství"
+                        type="number"
+                        name="points"
+                        defaultValue={transactionData.points}
+                     />
+                     <InputDateFiled
+                        label="Přijetí objednávky"
+                        name="acceptedBonusOrder"
+                     />
+                  </div>
+
+                  <div className="mb-4 flex flex-col gap-4">
+                     <Typography>Vyběr bodů</Typography>
+                     <InputField
+                        label="Popis"
+                        type="text"
+                        name="description"
+                     />
+
+                     <InputDateFiled
+                        label="Odeslání Bonusu"
+                        name="sentBonusOrder"
+                     />
+                     <InputField
+                        label="Bonus - cena"
+                        type="number"
+                        name="bonusPrice"
+                        defaultValue={0}
+                     />
+                     <SelectField
+                        label="Bonus"
+                        name="bonusId"
+                        options={bonusesDial}
+                        defaultValue={transactionData.bonusId || 0}
+                     />
+                  </div>
                </div>
-
-               <div className="my-4 flex flex-col gap-4">
-                  <InputField
-                     label="Množství"
-                     type="number"
-                     name="points"
-                     defaultValue={transactionData.points}
-                  />
-                  <InputDateFiled
-                     label="Přijetí objednávky"
-                     name="acceptedBonusOrder"
-                  />
-               </div>
-
-
-               <div className="mb-4 flex flex-col gap-4">
-                  <Typography>Vyběr bodů</Typography>
-                  <InputField
-                     label="Popis"
-                     type="text"
-                     name="description"
-                  />
-
-                  <InputDateFiled
-                     label="Odeslání Bonusu"
-                     name="sentBonusOrder"
-                  />
-                  <InputField
-                     label="Bonus - cena"
-                     type="number"
-                     name="bonusPrice"
-                     defaultValue={0}
-                  />
-                  <SelectField
-                     label="Bonus"
-                     name="bonusId"
-                     options={bonusesDial}
-                     defaultValue={transactionData.bonusId || "0"}
-                  />
-               </div>
-
-            </div>
-
-         )}
+            );
+         }}
       </UniversalForm>
    );
 }

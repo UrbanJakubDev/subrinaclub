@@ -46,6 +46,18 @@ export class CustomerRepository extends BaseRepository<
                      }
                   }
                }
+            },
+            salesManager: {
+               select: {
+                  id: true,
+                  fullName: true
+               }
+            },
+            dealer: {
+               select: {
+                  id: true,
+                  fullName: true
+               }
             }
          }
          
@@ -67,5 +79,13 @@ export class CustomerRepository extends BaseRepository<
       });
 
       return result;
+   }
+
+   // Deactivate customer
+   async deactivateCustomer(id: number): Promise<Customer> {
+      return this.prisma.customer.update({
+         where: { id },
+         data: { active: false }
+      });
    }
 }

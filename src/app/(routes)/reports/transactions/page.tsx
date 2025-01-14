@@ -1,12 +1,12 @@
 import ReportObratTable from "@/components/tables/reports/obratTable"
 import SimpleTable from "@/components/tables/simpleTable"
-import { CustomerService } from "@/lib/db/queries/customers"
+import { customerService } from "@/lib/services/customer"
 
 type Props = {}
 
 const TransactionsReportPage = async (props: Props) => {
 
-   const customer = new CustomerService()
+   const customer = customerService
    const customers = await customer.geetCustomersForReportSeznamObratu()
 
    // Convert type BigInt to number

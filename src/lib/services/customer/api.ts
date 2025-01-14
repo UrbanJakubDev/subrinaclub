@@ -1,5 +1,5 @@
 import { CustomerRepository } from "@/lib/repositories/CustomerRepository";
-import { Customer } from "@/types/customer";
+import { Customer, Prisma } from "@prisma/client";
 import { CustomerWithAccountDataAndActiveSavingPeriodDTO } from "./types";
 
 export class CustomerAPI {
@@ -52,5 +52,32 @@ export class CustomerAPI {
     // Get all customers with their associated accounts belonging to the sales manager
     async getCustomersWithAccounts(salesManagerId: number): Promise<Customer[]> {
         return this.customerRepository.getCustomersWithAccounts(salesManagerId);
+    }
+
+    // Deactivate customer
+    async deactivateCustomer(id: number): Promise<Customer> {   
+        return this.customerRepository.deactivateCustomer(id);
+    }
+
+    // Get all customers with optional active filter
+    async getAllCustomers(active?: boolean): Promise<Customer[]> {
+        const include: Prisma.CustomerInclude = {
+            dealer: true,
+            salesManager: true,
+            account: {
+                include: {
+                    savingPeriods: {
+                        where: {
+                            status: 'ACTIVE'
+                        }
+                    }
+                }
+            }
+        };
+
+        return this.customerRepository.findAll({
+            where: active !== undefined ? { active } : undefined,
+            include
+        });
     }
 }

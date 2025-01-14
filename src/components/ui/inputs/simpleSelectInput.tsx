@@ -1,12 +1,12 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Select, Option } from "@material-tailwind/react";
 
 type SimpleSelectInputProps = {
   label: string;
   options: { value: number | string; label: string }[];
   onChange: (value: number) => void;
-  value: string | number | undefined;
+  value: string | number;
 };
 
 const SimpleSelectInput = ({
@@ -15,25 +15,18 @@ const SimpleSelectInput = ({
   onChange,
   value
 }: SimpleSelectInputProps) => {
-  const [selectedValue, setSelectedValue] = useState<string | undefined>(undefined);
-
-  useEffect(() => {
-    if (value !== undefined) {
-      setSelectedValue(String(value));
+  const handleChange = (val: string | undefined) => {
+    if (val) {
+      onChange(Number(val));
     }
-  }, [value]);
-
-  const handleChange = (val: string) => {
-    setSelectedValue(val);
-    onChange(parseInt(val));
   };
 
   return (
     <div className="flex flex-col">
       <Select
         label={label}
-        value={selectedValue}
-        onChange={(val) => handleChange(val)}
+        value={String(value)}
+        onChange={handleChange}
       >
         {options.map((option) => (
           <Option key={option.value} value={String(option.value)}>

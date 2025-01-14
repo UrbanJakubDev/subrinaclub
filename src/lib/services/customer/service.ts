@@ -141,8 +141,9 @@ export class CustomerService {
       return customer;
    }
 
-   async getAll(): Promise<CustomerResponseDTO[]> {
+   async getAll(active?: boolean): Promise<CustomerResponseDTO[]> {
       const customers = await this.customerRepository.findAll({
+         where: active !== undefined ? { active } : undefined,
          include: {
             dealer: true,
             salesManager: true,
@@ -204,6 +205,9 @@ export class CustomerService {
 
    async getCustomersWithAccountAndActiveSavingPeriod(): Promise<CustomerWithAccountDataAndActiveSavingPeriodDTO[]> {
       const customers = await this.customerRepository.findAll({
+         where: {
+            active: true
+         },
          include: {
             account: {
                include: {

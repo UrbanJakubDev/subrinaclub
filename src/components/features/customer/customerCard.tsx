@@ -10,10 +10,10 @@ import React from 'react';
 const CustomerCard: React.FC<CustomerCardProps> = ({ customer, isLoading }) => {
    if (isLoading || !customer) return <Skeleton className="w-1/4" />;
    return (
-      <Card className="p-8 border-gray-300 rounded-sm">
+      <Card className="p-8 border-gray-300 rounded-sm w-1/3">
          <Typography variant="h2" color="black">{customer.fullName}</Typography>
          <div className="flex gap-2">
-         <StatusChip status={customer.active} /><span> Registrační číslo - {customer.registrationNumber}</span> 
+            <StatusChip status={customer.active} /><span> Registrační číslo - {customer.registrationNumber}</span>
          </div>
          <div className="flex py-4 gap-4">
             <article>
@@ -32,9 +32,19 @@ const CustomerCard: React.FC<CustomerCardProps> = ({ customer, isLoading }) => {
                <p>PSČ: {customer.psc}</p>
             </article>
          </div>
-         <Typography variant="h5" color="black">Poznámka</Typography>
-         <p>{customer.note || "..."}</p>
-
+         <div className="">
+            <div className="max-w-1/2">
+               <p>Obchdoní zástupce: {customer.salesManager?.fullName || "..."}</p>
+               <p>Od: {customer.salesManagerSinceQ || "..."}  {customer.salesManagerSinceYear || "..."}</p>
+            </div>
+            <div className="max-w-1/2">
+               <p>Dodavatel: {customer.dealer?.fullName || "..."}</p>
+            </div>
+         </div>
+         <div className="max-w-1/2">
+            <Typography variant="h5" color="black">Poznámka</Typography>
+            <p>{customer.note || "..."}</p>
+         </div>
       </Card>
    );
 };

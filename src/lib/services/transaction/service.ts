@@ -44,10 +44,9 @@ export class TransactionService {
          }
       }
       );
-
-      
       return flattenTransactions;
    }
 
 
+   
 }

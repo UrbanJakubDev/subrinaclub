@@ -76,3 +76,28 @@ export interface CustomerWithAccountDataAndActiveSavingPeriodDTO {
       };
    };
 }
+
+export type SeznamObratuDTO = {
+   registrationNumber: string;
+   id: number;
+   fullName: string;
+   town: string | null;
+   salonName: string | null;
+   salesManager: string;
+   clubScore: number;
+   '2024': number;
+   '2023': number;
+   '2022': number;
+   '2021': number;
+   '2020': number;
+   '2019': number;
+   '2018': number;
+   '2017': number;
+   '2016': number;
+   '2015': number;
+   '2014': number;
+   '2013': number;
+   '2012': number;
+   '2011': number;
+   '2010': number;
+}

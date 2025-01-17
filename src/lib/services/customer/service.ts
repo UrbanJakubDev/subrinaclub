@@ -1,9 +1,11 @@
 import { CustomerRepository } from "@/lib/repositories/CustomerRepository";
 import { CreateCustomerDTO, UpdateCustomerDTO } from "./validation";
 import { Customer } from "@/types/customer";
-import { CustomerResponseDTO, CustomerSelectDTO, CustomerWithAccountDataAndActiveSavingPeriodDTO } from "./types";
+import { CustomerResponseDTO, CustomerSelectDTO, CustomerWithAccountDataAndActiveSavingPeriodDTO, SeznamObratuDTO } from "./types";
 import { Prisma } from "@prisma/client";
 import { act } from "react-dom/test-utils";
+
+
 
 export class CustomerService {
    prisma: any;
@@ -103,7 +105,7 @@ export class CustomerService {
                ...cleanData,
                ...relations,
                updatedAt: new Date()
-               
+
             },
             include: {
                dealer: true,
@@ -213,7 +215,7 @@ export class CustomerService {
                include: {
                   savingPeriods: {
                      where: {
-                        status: 'ACTIVE' 
+                        status: 'ACTIVE'
                      },
                      take: 1
                   }
@@ -254,13 +256,18 @@ export class CustomerService {
 
       customers.forEach(customer => {
          if (customer.account?.savingPeriod) {
-            customer.account.savingPeriod.endThisQuarter = 
-               customer.account.savingPeriod.endYear === currentYear && 
+            customer.account.savingPeriod.endThisQuarter =
+               customer.account.savingPeriod.endYear === currentYear &&
                customer.account.savingPeriod.endQuarter === currentQuarter;
          }
       });
 
       return customers;
    }
+
+   async getCustomersForReportSeznamObratu(): Promise<SeznamObratuDTO[]> {
+      return this.customerRepository.getCustomersForReportSeznamObratu();
+   }
+
 
 }

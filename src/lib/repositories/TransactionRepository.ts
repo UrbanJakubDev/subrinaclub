@@ -130,4 +130,8 @@ export class TransactionRepository extends BaseRepository<
       return transactions;
    }
 
+   async findMany(args: any) {
+      return this.prisma.transaction.findMany(args);
+   }
+
 }

@@ -1,4 +1,4 @@
-import ReportObratTable from "@/components/tables/reports/obratTable"
+import ReportObratTable from "@/components/features/reports/obratTable"
 import SimpleTable from "@/components/tables/simpleTable"
 import { customerService } from "@/lib/services/customer"
 
@@ -7,7 +7,7 @@ type Props = {}
 const TransactionsReportPage = async (props: Props) => {
 
    const customer = customerService
-   const customers = await customer.geetCustomersForReportSeznamObratu()
+   const customers = await customer.getCustomersForReportSeznamObratu()
 
    // Convert type BigInt to number
    customers.forEach((customer) => {

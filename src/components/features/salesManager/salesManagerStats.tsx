@@ -1,37 +1,22 @@
 "use client";
 
 import React from "react";
-import { Suspense } from "react";
-import Loader from "../../ui/loader";
 import SimpleStat from "../../ui/stats/cardsWidgets/simple";
 import SalesManagerStatsTable from "./salesManagerStatsTable";
 import LineChart from "../../ui/charts/line";
 import { Card, Typography } from "@material-tailwind/react";
 import { yearSelectOptions } from "@/lib/utils/dateFnc";
 import SimpleSelectInput from "../../ui/inputs/simpleSelectInput";
-import { set } from "react-hook-form";
-import KpiCard from "@/components/ui/stats/cardsWidgets/KpiCard";
 import CustomersActiveWidget from "@/components/ui/stats/cardsWidgets/customersActiveWidget";
 import NoData from "@/components/ui/noData";
 import Skeleton from "@/components/ui/skeleton";
-import SelectField from "@/components/ui/inputs/selectInput";
 
 type SalesManagerStatsProps = {
   salesManager?: any;
-  totalPoints?: any;
-  numOfCusomers?: any;
-  numOfActiveCusomers?: any;
-  numOfSystemActiveCusomers?: any;
-  customersTotalPoints?: any;
 };
 
 export default function SalesManagerStats({
   salesManager,
-  totalPoints,
-  numOfCusomers,
-  numOfActiveCusomers,
-  numOfSystemActiveCusomers,
-  customersTotalPoints,
 }: SalesManagerStatsProps) {
 
   const salesManagerId = salesManager?.id;
@@ -60,7 +45,7 @@ export default function SalesManagerStats({
     }
 
     // Make get request to API
-    let url = `/api/transactions/salesManager?salesManagerId=${salesManagerId}&year=${year}`;
+    let url = `/api/sales-manager/transactions?salesManagerId=${salesManagerId}&year=${year}`;
     const header = {
       method: "GET",
       headers: {
@@ -79,6 +64,18 @@ export default function SalesManagerStats({
   // Customers part
   const [customersData, setCustomersData] = React.useState<any[]>([]);
 
+  interface CustomersCountsInfo {
+    allCustomers: number;
+    systemActiveCustomers: number;
+    activeCustomers: number;
+  }
+
+  const [customersCountsInfo, setCustomersCountsInfo] = React.useState<CustomersCountsInfo>({
+    allCustomers: 0,
+    systemActiveCustomers: 0,
+    activeCustomers: 0
+  });
+
   // Fetch customers with accounts data for the sales manager
   const fetchCustomers = async () => {
     if (!salesManagerId) {
@@ -86,7 +83,7 @@ export default function SalesManagerStats({
     }
 
     // Make get request to API
-    let url = `/api/customers?salesManagerId=${salesManagerId}`;
+    let url = `/api/sales-manager/customers?salesManagerId=${salesManagerId}`;
     const header = {
       method: "GET",
       headers: {
@@ -100,6 +97,28 @@ export default function SalesManagerStats({
     return data;
   };
 
+  // Fetch customers counts info for the sales manager
+  const fetchCustomersCountsInfo = async () => {
+    if (!salesManagerId) {
+      return;
+    }
+
+    let url = `/api/sales-manager/customers/info?salesManagerId=${salesManagerId}&year=${selectedYear}`;
+    const header = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    const response = await fetch(url, header);
+    const data = await response.json();
+
+    return data;
+  }
+
+
+
   const [isDataReady, setIsDataReady] = React.useState<boolean>(false);
 
   const getApiData = async () => {
@@ -107,28 +126,34 @@ export default function SalesManagerStats({
     setLoading(true);
     setTransactionData([]);
     setCustomersData([]);
-    
+
     try {
-      const data = await fetchTransactions(selectedYear);
-      const customers = await fetchCustomers();
-      
-      if (data && customers) {
-        setTransactionData(data);
-        setCustomersData(customers);
-        const joinedData = joinData(customers, data);
+      const [transactionsData, customersData, customersInfo] = await Promise.all([
+        fetchTransactions(selectedYear),
+        fetchCustomers(),
+        fetchCustomersCountsInfo()
+      ]);
+
+      if (transactionsData && customersData) {
+        setTransactionData(transactionsData);
+        setCustomersData(customersData);
+        if (customersInfo) {
+          setCustomersCountsInfo(customersInfo);
+        }
+        const joinedData = joinData(customersData, transactionsData);
         setApiData(joinedData);
         setIsDataReady(true);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      setIsDataReady(false);
     } finally {
       setLoading(false);
     }
   };
 
-
-  // Spread the apiData quarter sums to the chartSeries
-  const updateChartSeries = () => {
+  // Remove the separate useEffect for chart series
+  const updateChartSeries = React.useCallback(() => {
     const series = [
       {
         name: "Quarters",
@@ -136,24 +161,17 @@ export default function SalesManagerStats({
       }
     ];
     setChartSeries(series);
-  }
+  }, [transactionData]); // Add dependency on transactionData
 
+  React.useEffect(() => {
+    if (salesManagerId && selectedYear) {
+      getApiData();
+    }
+  }, [salesManagerId, selectedYear]); // Add both dependencies
 
   React.useEffect(() => {
     updateChartSeries();
-  }, [transactionData]);
-
-  React.useEffect(() => {
-    console.log("Selected year changed to: ", selectedYear);
-
-    const refetchData = async () => {
-      await getApiData();
-    }
-    refetchData();
-
-  }, [selectedYear]);
-
-
+  }, [updateChartSeries]); // Only depend on the memoized callback
 
   // Sum API data.amount for each quarter and display in table
   // Note: This is just a mockup, the actual data will be different
@@ -203,6 +221,10 @@ export default function SalesManagerStats({
     return joinedData;
   };
 
+  const totalPoints = customersData.reduce((sum, customer) => {
+    return sum + (customer.account?.lifetimePoints || 0);
+  }, 0);
+
 
   return (
     <>
@@ -214,18 +236,23 @@ export default function SalesManagerStats({
             <SimpleSelectInput
               label="Rok"
               options={yearDial as any}
-              onChange={(value) => setSelectedYear(value)}
+              onChange={(value) => {
+                setSelectedYear(value);
+                setLoading(true); // Start loading immediately on change
+              }}
               value={selectedYear}
             />
           </Card>
 
           <div className="flex flex-col w-full gap-2 mx-auto my-4">
             <SimpleStat title="Klubové konto" value={totalPoints} />
-            <CustomersActiveWidget
-              title="Aktivní zákazníci"
-              allCustomers={numOfCusomers}
-              systemActiveCustomers={numOfSystemActiveCusomers}
-              activeCustomers={numOfActiveCusomers} />
+            {customersCountsInfo && (
+              <CustomersActiveWidget
+                title="Aktivní zákazníci"
+                allCustomers={customersCountsInfo.allCustomers}
+                systemActiveCustomers={customersCountsInfo.systemActiveCustomers}
+                activeCustomers={customersCountsInfo.activeCustomers} />
+            )}
           </div>
         </div>
 

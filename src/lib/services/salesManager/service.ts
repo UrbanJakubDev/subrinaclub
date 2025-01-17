@@ -66,4 +66,9 @@ export class SalesManagerService {
    async getCustomersWithAccounts(salesManagerId: number) {
       return this.SalesManagerRepository.getCustomersWithAccounts(salesManagerId);
    }
+
+   // Get customers counts info for a sales manager
+   async getCustomersCountsInfo(salesManagerId: number, year: number) {
+      return this.SalesManagerRepository.getCustomersCountsInfo(salesManagerId, year);
+   }
 }

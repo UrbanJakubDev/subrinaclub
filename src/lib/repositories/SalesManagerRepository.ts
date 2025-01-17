@@ -66,4 +66,62 @@ export class SalesManagerRepository extends BaseRepository<
 
       return result;
    }
+
+
+   // Get customers counts info for a sales manager
+   async getCustomersCountsInfo(salesManagerId: number, year: number): Promise<{
+      allCustomers: number;
+      activeCustomers: number;
+      systemActiveCustomers: number;
+   }> {
+      // Get total count of customers
+      const allCustomers = await this.prisma.customer.count({
+         where: {
+            salesManagerId: salesManagerId
+         }
+      });
+
+      // Get count of customers with transactions in given year
+      const activeCustomers = await this.prisma.customer.count({
+         where: {
+            salesManagerId: salesManagerId,
+            account: {
+               transactions: {
+                  some: {
+                     year: year
+                  }
+               }
+            }
+         }
+      });
+
+      // Get count of customers marked as active in system
+      const systemActiveCustomers = await this.prisma.customer.count({
+         where: {
+            salesManagerId: salesManagerId,
+            active: true
+         }
+      });
+
+      return {
+         allCustomers,
+         activeCustomers,
+         systemActiveCustomers
+      };
+   }
+
+
+   // Get transactions for customer accounts assigned to sales manager
+   async getTransactionsForCustomerAccounts(salesManagerId: number, year: number): Promise<any> {
+      const result = await this.prisma.transaction.findMany({
+         where: {
+            account: {
+               customer: { salesManagerId: salesManagerId }
+            },
+            year: year
+         }
+      });
+
+      return result;
+   }
 }

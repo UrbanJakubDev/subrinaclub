@@ -14,14 +14,12 @@ export default async function SalesManagersDetailStats({
     params: { id: string };
 }) {
     let sales_manager_id = parseInt(params.id)
+
+    // const currentYear = new Date().getFullYear()
     const salesManager = await salesManagerService.get(sales_manager_id)
-    const totalPoints = await salesManagerService.getLifeTimePointsOfCustomers(sales_manager_id)
+    // const totalPoints = await salesManagerService.getLifeTimePointsOfCustomers(sales_manager_id)
 
-    // TODO: Reowrk all of these to use the salesManagerService instead of the db queries and make that as one method
-    const numberCustomers = await getCustomerCountBySalesManagerId(sales_manager_id)
-    const numOfActiveCustomers = await getActiveCustomersWithTransactionsBySalesManagerId(sales_manager_id, 2024)
-    const numOfSystemActiveCustomers = await getCustomerCountBySalesManagerIdAndStatus(sales_manager_id, true)
-
+    // const customersCountsInfo = await salesManagerService.getCustomersCountsInfo(sales_manager_id, currentYear)
     if (!salesManager) {
         return <div>Uživatel nenalezen</div>
     }
@@ -37,10 +35,6 @@ export default async function SalesManagersDetailStats({
             <div className="w-11/12 mx-auto">
                 <SalesManagerStats
                     salesManager={salesManager}
-                    totalPoints={totalPoints}
-                    numOfCusomers={numberCustomers}
-                    numOfActiveCusomers={numOfActiveCustomers}
-                    numOfSystemActiveCusomers={numOfSystemActiveCustomers}
                 />
             </div>
            

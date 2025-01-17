@@ -9,7 +9,7 @@ export class CustomerAPI {
 
     async getCustomer(id: number): Promise<CustomerWithAccountDataAndActiveSavingPeriodDTO> {
         const response = await this.customerRepository.getAccountDataWithActiveSavingPeriod(id);
-        
+
         if (!response || !response.account) {
             throw new Error('Invalid customer data');
         }
@@ -34,7 +34,7 @@ export class CustomerAPI {
                     endDateTime: activeSavingPeriod.endDateTime,
                     startYear: activeSavingPeriod.startYear,
                     startQuarter: activeSavingPeriod.startQuarter,
-                    endYear: activeSavingPeriod.endYear, 
+                    endYear: activeSavingPeriod.endYear,
                     endQuarter: activeSavingPeriod.endQuarter,
                     availablePoints: activeSavingPeriod.availablePoints || 0,
                     totalDepositedPoints: activeSavingPeriod.totalDepositedPoints || 0,
@@ -55,13 +55,32 @@ export class CustomerAPI {
     }
 
     // Deactivate customer
-    async deactivateCustomer(id: number): Promise<Customer> {   
+    async deactivateCustomer(id: number): Promise<Customer> {
         return this.customerRepository.deactivateCustomer(id);
     }
 
     // Get all customers with optional active filter
-    async getAllCustomers(active?: boolean): Promise<Customer[]> {
-        const include: Prisma.CustomerInclude = {
+    async getAllCustomers(active?: boolean): Promise<{
+        id: number;
+        publicId: string;
+        active: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+        fullName: string;
+        birthDate: Date | null;
+        registrationNumber: number;
+        ico: string | null;
+        dealer: Record<string, any> | null;
+        salesManager: Record<string, any> | null;
+        account: {
+            savingPeriods: Array<{
+                status: string;
+                [key: string]: any;
+            }>;
+            [key: string]: any;
+        } | null;
+    }[]> {
+        const include = {
             dealer: true,
             salesManager: true,
             account: {

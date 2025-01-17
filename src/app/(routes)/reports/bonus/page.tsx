@@ -1,16 +1,21 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import PageComponent from '@/components/features/detailPage/pageComponent'
 import ReportBonusTable from '@/components/features/reports/bonusTable'
 import FullReportBonusTable from '@/components/features/reports/bonusTableFull'
-import DonutChart from '@/components/ui/charts/donutChart'
 import SelectField from '@/components/ui/inputs/selectInput'
 import Skeleton from '@/components/ui/skeleton'
-import { quarterSelectOptions } from '@/lib/utils/dateFnc'
-import { yearSelectOptions } from '@/lib/utils/dateFnc'
+import { quarterSelectOptions, yearSelectOptions } from '@/lib/utils/dateFnc'
 import { Button, Card } from '@material-tailwind/react'
 import { useEffect, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+
+// Dynamically import the chart component with ssr disabled
+const DonutChart = dynamic(
+  () => import('@/components/ui/charts/donutChart'),
+  { ssr: false }
+)
 
 type Props = {}
 
@@ -41,6 +46,7 @@ interface TransactionData {
 }
 
 const BonusReportPage = (props: Props) => {
+  const [isClient, setIsClient] = useState(false);
   const [pBonusTransactions, setPBonusTransactions] = useState<TransactionData[]>([])
   const [pBonusFull, setPBonusFull] = useState<BonusData[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -51,6 +57,10 @@ const BonusReportPage = (props: Props) => {
       quarter: Math.floor(new Date().getMonth() / 3) + 1
     }
   })
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Fetch premium bonus report
   const fetchPremiumBonusReport = async (year: number, quarter: number) => {
@@ -145,7 +155,7 @@ const BonusReportPage = (props: Props) => {
 
   // FullBonus report chart using components/donutChart
   const renderFullBonusChart = () => {
-    if (!pBonusFull?.length) return null
+    if (!isClient || !pBonusFull?.length) return null;
 
     const chartData = {
       options: {
@@ -156,23 +166,33 @@ const BonusReportPage = (props: Props) => {
         },
         labels: pBonusFull.map(item => item.bonusName),
         legend: {
-          position: 'right',
-          formatter: function (val: number, opts: any) {
-            return opts.w.globals.labels[opts.seriesIndex] + ":  " + val
-          }
+          position: 'right'
         },
         dataLabels: {
           enabled: true,
+          formatter: function (val: number, opts: any) {
+            return opts.w.globals.labels[opts.seriesIndex] + ":  " + val
+          }
         }
       },
       series: pBonusFull.map(item => item.totalPoints)
     }
 
     return (
-        <DonutChart
-          data={chartData}
-        />
+      <div className="w-full h-[400px] flex items-center justify-center">
+        <DonutChart data={chartData} />
+      </div>
     )
+  }
+
+  if (!isClient) {
+    return (
+      <PageComponent>
+        <div className="w-full h-screen">
+          <Skeleton className="h-[400px] w-full rounded-lg" />
+        </div>
+      </PageComponent>
+    );
   }
 
   return (
@@ -194,11 +214,7 @@ const BonusReportPage = (props: Props) => {
               <FullReportBonusTable defaultData={pBonusFull} />
             </div>
             <div className="w-full min-h-[400px]">
-              {isLoading ? (
-                <Skeleton className="h-[400px] w-full rounded-lg" />
-              ) : (
-                typeof window !== 'undefined' && showChart && renderFullBonusChart()
-              )}
+              {renderFullBonusChart()}
             </div>
           </div>
         )}

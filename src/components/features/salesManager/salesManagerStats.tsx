@@ -152,8 +152,16 @@ export default function SalesManagerStats({
     }
   };
 
+  const [isClient, setIsClient] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   // Remove the separate useEffect for chart series
   const updateChartSeries = React.useCallback(() => {
+    if (!isClient) return;
+    
     const series = [
       {
         name: "Quarters",
@@ -161,17 +169,15 @@ export default function SalesManagerStats({
       }
     ];
     setChartSeries(series);
-  }, [transactionData]); // Add dependency on transactionData
+  }, [transactionData, isClient]); 
 
   React.useEffect(() => {
+    if (!isClient) return;
+    
     if (salesManagerId && selectedYear) {
       getApiData();
     }
-  }, [salesManagerId, selectedYear]); // Add both dependencies
-
-  React.useEffect(() => {
-    updateChartSeries();
-  }, [updateChartSeries]); // Only depend on the memoized callback
+  }, [salesManagerId, selectedYear, isClient]); 
 
   // Sum API data.amount for each quarter and display in table
   // Note: This is just a mockup, the actual data will be different
@@ -225,23 +231,32 @@ export default function SalesManagerStats({
     return sum + (customer.account?.lifetimePoints || 0);
   }, 0);
 
+  if (!isClient) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <Skeleton type="table" />
+      </div>
+    );
+  }
 
   return (
     <>
       <div className="flex w-full gap-4 mb-4">
         <div className="w-1/3">
           <Card className="shadow-md border p-4 border-gray-200 !rounded-lg grow">
-            <Typography className="text-2xl font-bold text-gray-900" >{salesManager.fullName}</Typography>
+            <Typography className="text-2xl font-bold text-gray-900" >{salesManager?.fullName}</Typography>
             <Typography className="mb-2 font-light " >Statistika bodů pro obchodníka</Typography>
-            <SimpleSelectInput
-              label="Rok"
-              options={yearDial as any}
-              onChange={(value) => {
-                setSelectedYear(value);
-                setLoading(true); // Start loading immediately on change
-              }}
-              value={selectedYear}
-            />
+            {isClient && (
+              <SimpleSelectInput
+                label="Rok"
+                options={yearDial as any}
+                onChange={(value) => {
+                  setSelectedYear(value);
+                  setLoading(true);
+                }}
+                value={selectedYear}
+              />
+            )}
           </Card>
 
           <div className="flex flex-col w-full gap-2 mx-auto my-4">

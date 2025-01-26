@@ -105,8 +105,9 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
                      </div>
                      <p>Od: {savingPeriodStart} - Do: {savingPeriodEnd} </p>
                      <p>Body k dispozici: {savingPeriod.availablePoints}</p>
-                     <p>Body nasbírané v šetřícím období: {savingPeriod.totalDepositedPoints}</p>
-                     <p>Body vybrané v šetřícím období: {savingPeriod.totalWithdrawnPoints}</p>
+                     <p>Body nasbírané v šetřícím období: {savingPeriod.totalDepositedPoints?.toString()}</p>
+                     <p>Body vybrané v šetřícím období: {savingPeriod.totalWithdrawnPoints?.toString()}</p>
+                     <p>Průměrné body před přiřazením obchodního zástupce: {account.averagePointsBeforeSalesManager?.toString()}</p>
                   </>
                ) : (
                   <p className="text-yellow-600">Žádné aktivní šetřící období</p>

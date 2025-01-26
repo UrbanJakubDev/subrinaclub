@@ -118,7 +118,8 @@ export class SalesManagerRepository extends BaseRepository<
             account: {
                customer: { salesManagerId: salesManagerId }
             },
-            year: year
+            year: year,
+            type: "DEPOSIT"
          }
       });
 

@@ -208,22 +208,38 @@ const TableToolbar = <T,>({ table, tableName, addBtn, onAddClick, bulkActions }:
     const timestamp = timestampToDate(new Date().toISOString())
     const XLSX = require('xlsx')
 
-    const headers = all
-      ? table.getAllColumns().map(column => column.columnDef.header)
-      : table.getHeaderGroups().map(group =>
-        group.headers.map(header => header.column.columnDef.header)
-      ).flat()
+    // Get visible columns
+    const visibleColumns = table.getAllColumns().filter(column => column.getIsVisible())
 
-    const rows = all
-      ? table.getCoreRowModel().rows
-      : table.getRowModel().rows
+    // Get headers from visible columns
+    const headers = visibleColumns.map(column => {
+      const header = column.columnDef.header
+      return typeof header === 'function' ? column.id : header
+    })
 
-    const data = rows.map(row => row.getAllCells().map(cell => cell.getValue()))
+    // Get rows based on whether we want all or filtered
+    const rowsToExport = all ? table.getCoreRowModel().rows : table.getRowModel().rows
 
-    const wb = XLSX.utils.book_new()
+    // Transform row data
+    const data = rowsToExport.map(row => {
+      return visibleColumns.map(column => {
+        const cellValue = row.getValue(column.id)
+        // Handle different types of cell values
+        if (cellValue === null || cellValue === undefined) return ''
+        if (typeof cellValue === 'object') return JSON.stringify(cellValue)
+        return cellValue
+      })
+    })
+
+    // Create worksheet
     const ws = XLSX.utils.aoa_to_sheet([headers, ...data])
+
+    // Create workbook
+    const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1')
-    XLSX.writeFile(wb, `${tableName}-${timestamp}${all ? '-vše' : ''}.xls`)
+
+    // Write file
+    XLSX.writeFile(wb, `${tableName}-${timestamp}${all ? '-vše' : ''}.xlsx`)
   }
 
   return (

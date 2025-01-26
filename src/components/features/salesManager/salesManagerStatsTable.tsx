@@ -124,6 +124,7 @@ export default function SalesManagerStatsTable({
         accessorKey: "dealer.fullName",
         header: "Jméno Obchodníka",
       },
+   
       {
         accessorKey: "quarterSums.Q1",
         header: "Suma za Q1",
@@ -171,6 +172,15 @@ export default function SalesManagerStatsTable({
           );
           return formatThousandDelimiter(total);
         },
+      },
+      {
+        accessorKey: "account.averagePointsBeforeSalesManager",
+        header: "Průměrné body před přiřazením obchodního zástupce",
+      },
+      {
+        accessorKey: "selectedQuarterDifference",
+        header: "Rozdíl v kvartálu",
+        cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
       },
       {
         accessorKey: "account.lifetimePoints",

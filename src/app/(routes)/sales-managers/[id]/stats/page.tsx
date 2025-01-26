@@ -1,10 +1,5 @@
 import PageHeader from '@/components/features/detailPage/pageHeader';
 import SalesManagerStats from '@/components/features/salesManager/salesManagerStats';
-import {
-    getActiveCustomersWithTransactionsBySalesManagerId,
-    getCustomerCountBySalesManagerId,
-    getCustomerCountBySalesManagerIdAndStatus
-} from '@/lib/db/queries/salesManagers';
 import PageComponent from '@/components/features/detailPage/pageComponent';
 import { salesManagerService } from '@/lib/services/salesManager';
 
@@ -32,7 +27,7 @@ export default async function SalesManagersDetailStats({
                 active={salesManager.active}
                 formUrl={`/sales-managers/${salesManager.id}`}
             />
-            <div className="w-11/12 mx-auto">
+            <div className="w-full mx-auto">
                 <SalesManagerStats
                     salesManager={salesManager}
                 />

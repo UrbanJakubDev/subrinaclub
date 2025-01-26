@@ -103,6 +103,7 @@ model Customer {
   salesManagerId        Int?
   salesManagerSinceQ    Int?          @default(0)
   salesManagerSinceYear Int?          @default(0)
+  salesManagerSinceQuarter Int?
 
   account Account?
 
@@ -151,6 +152,8 @@ model Account {
   currentYearPoints    Int @default(0)
   totalDepositedPoints Int @default(0)
   totalWithdrawnPonits Int @default(0)
+
+  averagePointsBeforeSalesManager Decimal? @dbPG.Decimal(10, 2) @default(0)
 
   customerId Int      @unique
   customer   Customer @relation(fields: [customerId], references: [id])

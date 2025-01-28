@@ -29,6 +29,22 @@ import { Button, ButtonGroup, Card, Input, Checkbox } from "@material-tailwind/r
 import { timestampToDate } from "@/lib/utils/dateFnc"
 import Filter from "./baseTableFnc"
 
+// Add utility function for number formatting
+const formatNumber = (value: any): string => {
+  if (typeof value === 'number' || (typeof value === 'string' && !isNaN(Number(value)))) {
+    const num = Number(value)
+    return num.toLocaleString('cs-CZ')
+  }
+  return value
+}
+
+// Extend ColumnDef type to include formatNumber option
+declare module '@tanstack/react-table' {
+  interface ColumnMeta<TData extends unknown, TValue> {
+    formatNumber?: boolean
+  }
+}
+
 interface TableProps<T> {
   data: T[]
   columns: ColumnDef<T>[]
@@ -41,6 +57,39 @@ interface TableProps<T> {
     label: string
     onClick: (selectedRows: T[]) => void
   }[]
+}
+
+// Add built-in footer function types
+export type FooterFunctionType = 'sum' | 'count' | 'average'
+
+// Helper functions for footer calculations
+const footerFunctions = {
+  sum: (rows: any[], accessor: string) => {
+    const total = rows.reduce(
+      (sum, row) => sum + (parseFloat(row.getValue(accessor)) || 0),
+      0
+    )
+    return `${total.toLocaleString('cs-CZ')}`
+  },
+  count: (rows: any[]) => {
+    return `Počet: ${rows.length.toLocaleString('cs-CZ')}`
+  },
+  average: (rows: any[], accessor: string) => {
+    if (rows.length === 0) return 'Průměr: 0'
+    const total = rows.reduce(
+      (sum, row) => sum + (parseFloat(row.getValue(accessor)) || 0),
+      0
+    )
+    return `${(total / rows.length).toLocaleString('cs-CZ')}`
+  }
+}
+
+// Helper function to get footer value
+export const getFooterValue = (type: FooterFunctionType, props: any) => {
+  const rows = props.table.getFilteredRowModel().rows
+  const accessor = props.column.id
+
+  return footerFunctions[type](rows, accessor)
 }
 
 interface TableHeaderProps<T> {
@@ -380,11 +429,18 @@ export default function BaseTable<T>({
           <tbody>
             {table.getRowModel().rows.map(row => (
               <tr key={row.id} className="text-left hover:bg-zinc-50 whitespace-nowrap">
-                {row.getVisibleCells().map(cell => (
-                  <td key={cell.id} className="text-left whitespace-nowrap max-w-44 text-wrap px-2">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
+                {row.getVisibleCells().map(cell => {
+                  const shouldFormatNumber = cell.column.columnDef.meta?.formatNumber
+                  const value = cell.getValue()
+                  
+                  return (
+                    <td key={cell.id} className="text-left whitespace-nowrap max-w-44 text-wrap px-2">
+                      {shouldFormatNumber && (typeof value === 'number' || (typeof value === 'string' && !isNaN(Number(value))))
+                        ? formatNumber(value)
+                        : flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  )
+                })}
               </tr>
             ))}
           </tbody>

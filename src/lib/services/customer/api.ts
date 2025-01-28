@@ -2,6 +2,59 @@ import { CustomerRepository } from "@/lib/repositories/CustomerRepository";
 import { Customer, Prisma } from "@prisma/client";
 import { CustomerWithAccountDataAndActiveSavingPeriodDTO } from "./types";
 
+type PrismaCustomer = Customer & {
+    dealer: { fullName: string } | null;
+    salesManager: { fullName: string } | null;
+    account: {
+        id: number;
+        currentYearPoints: number;
+        lifetimePoints: number;
+        averagePointsBeforeSalesManager?: number;
+        savingPeriods?: Array<{
+            availablePoints: number;
+            status: string;
+        }>;
+    } | null;
+};
+
+interface CustomerAccount {
+    id: number;
+    currentYearPoints: number;
+    lifetimePoints: number;
+    averagePointsBeforeSalesManager?: number;
+    savingPeriods?: Array<{
+        availablePoints: number;
+        status: string;
+    }>;
+    savingPeriodAvailablePoints?: number;
+}
+
+interface CustomerResponse {
+    id: number;
+    publicId: string;
+    active: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    fullName: string;
+    birthDate: Date | null;
+    registrationNumber: number | null;
+    ico: string | null;
+    phone: string | null;
+    dealer: {
+        fullName: string;
+    } | null;
+    salesManager: {
+        fullName: string;
+    } | null;
+    account: {
+        id: number;
+        currentYearPoints: number;
+        lifetimePoints: number;
+        averagePointsBeforeSalesManager?: number;
+        savingPeriodAvailablePoints?: number;
+    } | null;
+}
+
 export class CustomerAPI {
     constructor(
         private customerRepository: CustomerRepository
@@ -60,43 +113,60 @@ export class CustomerAPI {
     }
 
     // Get all customers with optional active filter
-    async getAllCustomers(active?: boolean): Promise<{
-        id: number;
-        publicId: string;
-        active: boolean;
-        createdAt: Date;
-        updatedAt: Date;
-        fullName: string;
-        birthDate: Date | null;
-        registrationNumber: number;
-        ico: string | null;
-        dealer: Record<string, any> | null;
-        salesManager: Record<string, any> | null;
-        account: {
-            savingPeriods: Array<{
-                status: string;
-                [key: string]: any;
-            }>;
-            [key: string]: any;
-        } | null;
-    }[]> {
+    async getAllCustomers(active?: boolean): Promise<CustomerResponse[]> {
         const include = {
-            dealer: true,
-            salesManager: true,
+            dealer: {
+                select: {
+                    fullName: true,
+                }
+            },
+            salesManager: {
+                select: {
+                    fullName: true,
+                }
+            },
             account: {
-                include: {
+                select: {
+                    id: true,
+                    currentYearPoints: true,
+                    lifetimePoints: true,
+                    averagePointsBeforeSalesManager: true,
                     savingPeriods: {
+                        select: {
+                            availablePoints: true,
+                            status: true
+                        },
                         where: {
                             status: 'ACTIVE'
                         }
                     }
                 }
             }
-        };
+        } satisfies Prisma.CustomerInclude;
 
-        return this.customerRepository.findAll({
-            where: active !== undefined ? { active } : undefined,
+        const customers = await this.customerRepository.findAll({
+            where: {
+                active: active ?? undefined
+            },
             include
+        });
+
+        // Transform the data to match the service response
+        return customers.map(customer => {
+            const transformedCustomer: CustomerResponse = {
+                ...customer,
+                dealer: customer.dealer,
+                salesManager: customer.salesManager,
+                account: customer.account ? {
+                    ...customer.account,
+                    savingPeriodAvailablePoints: customer.account.savingPeriods?.[0]?.availablePoints ?? 0,
+                    averagePointsBeforeSalesManager: customer.account.averagePointsBeforeSalesManager 
+                        ? Math.round(customer.account.averagePointsBeforeSalesManager)
+                        : undefined
+                } : null
+            };
+            
+            return transformedCustomer;
         });
     }
 }

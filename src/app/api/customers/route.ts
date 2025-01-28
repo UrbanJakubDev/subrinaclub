@@ -9,10 +9,10 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url)
         const activeParam = searchParams.get('active')
         
-        // Convert string parameter to boolean if present
-        const active = activeParam ? activeParam === 'true' : undefined
-
-        const customers = await customerAPI.getAllCustomers(active)
+        // Convert string to boolean properly
+        const isActive = activeParam === null ? undefined : activeParam.toLowerCase() === 'true'
+        
+        const customers = await customerAPI.getAllCustomers(isActive)
         return NextResponse.json(customers)
     } catch (error) {
         console.error('Error fetching customers:', error)

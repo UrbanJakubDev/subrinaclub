@@ -8,22 +8,24 @@ import Link from 'next/link'
 import React from 'react'
 import MyTable from '../../tables/ui/baseTable'
 import { Button } from '@material-tailwind/react'
+import { getFooterValue, FooterFunctionType } from '../../tables/ui/baseTable'
 
 type Props = {
    defaultData: any[]
    detailLinkPath?: string
+   tableName?: string
 }
 
+export default function ReportBonusTable({ defaultData, detailLinkPath, tableName }: Props) {
 
 
-
-export default function ReportBonusTable({ defaultData, detailLinkPath }: Props) {
 
    // Column definitions
    const columns = React.useMemo<ColumnDef<any>[]>(() => [
       {
          accessorKey: 'customerName',
          header: 'Zákazník',
+         footer: (props) => getFooterValue('count', props)
       },
       {
          accessorKey: 'salesManagerName',
@@ -40,14 +42,25 @@ export default function ReportBonusTable({ defaultData, detailLinkPath }: Props)
       {
          accessorKey: 'points',
          header: 'Body',
+         meta: { formatNumber: true },
+         footer: (props) => getFooterValue('sum', props)
       },
       {
          accessorKey: 'bonusPrice',
          header: 'Cena',
+         meta: { formatNumber: true },
+         footer: (props) => getFooterValue('sum', props)
+      },
+      {
+         accessorKey: 'link',
+         header: 'Detail',
+         cell: ({ row }) => {
+            return <Link href={`/customers/${row.original.customerId}/stats/`}><FontAwesomeIcon icon={faPenToSquare} /></Link>
+         }
       }
-   ], [])   
+   ], [])
 
-   const [data, setData] = React.useState(() => 
+   const [data, setData] = React.useState(() =>
       Array.isArray(defaultData) ? defaultData : []
    )
 
@@ -64,7 +77,7 @@ export default function ReportBonusTable({ defaultData, detailLinkPath }: Props)
             {...{
                data,
                columns,
-               tableName: 'Premium bonus - přehled za období'
+               tableName: tableName ?? 'Premium bonus - přehled za období'
             }}
          />
       </>

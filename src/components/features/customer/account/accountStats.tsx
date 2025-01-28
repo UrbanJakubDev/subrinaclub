@@ -68,13 +68,16 @@ export default function AccountStats({ customer, transactions, isLoading }: Acco
       .reduce((total, t) => total + t.points, 0);
   };
 
-  const getSumOfTransactionsForChart = (startDate: string, endDate: string) => {
-    if (!Array.isArray(transactions)) {
+  const getSumOfTransactionsForChart = () => {
+    if (!Array.isArray(transactions) || transactions.length === 0) {
       return { series: [{ name: "Body", data: [] }], categories: [] };
     }
 
-    const [startYear, startQuarter] = startDate.split("-");
-    const [endYear, endQuarter] = endDate.split("-");
+    // Get min and max dates from transactions
+    const dates = transactions.map(t => ({ year: t.year, quarter: t.quarter }));
+    const startYear = Math.min(...dates.map(d => d.year));
+    const endYear = Math.max(...dates.map(d => d.year));
+
     const quarterSums: { [key: string]: number } = {};
 
     // Populate sums
@@ -86,21 +89,12 @@ export default function AccountStats({ customer, transactions, isLoading }: Acco
     // Generate series data
     const categories: string[] = [];
     const data: number[] = [];
-    let currentYear = parseInt(startYear);
-    let currentQuarter = parseInt(startQuarter);
-
-    while (
-      currentYear < parseInt(endYear) ||
-      (currentYear === parseInt(endYear) && currentQuarter <= parseInt(endQuarter))
-    ) {
-      const category = `${currentYear}-Q${currentQuarter}`;
-      categories.push(category);
-      data.push(quarterSums[category] || 0);
-
-      currentQuarter++;
-      if (currentQuarter > 4) {
-        currentQuarter = 1;
-        currentYear++;
+    
+    for (let year = startYear; year <= endYear; year++) {
+      for (let quarter = 1; quarter <= 4; quarter++) {
+        const key = `${year}-Q${quarter}`;
+        categories.push(key);
+        data.push(quarterSums[key] || 0);
       }
     }
 
@@ -136,7 +130,7 @@ export default function AccountStats({ customer, transactions, isLoading }: Acco
   };
 
   // Calculate derived data
-  const { series, categories } = getSumOfTransactionsForChart("2014-01", "2024-04");
+  const { series, categories } = getSumOfTransactionsForChart();
   const mostFavouriteProducts = getMostFavouriteProducts();
   const withdrawPrice = transactions
     .filter(t => t.points < 0)
@@ -167,7 +161,7 @@ export default function AccountStats({ customer, transactions, isLoading }: Acco
           </Typography>
           {transactions.length > 0 && (
             <LineChart
-              title="Vývoj bodů na Klubovém kontu"
+              title="Pohyby na účtě"
               description="Graf vývoje bodů za posledních 10 let"
               series={series}
               categories={categories}
@@ -219,10 +213,10 @@ const StatsSection: React.FC<StatsSectionProps> = ({
 }) => (
   <div className="w-full">
     <div className="flex flex-row gap-4 mx-auto mb-4 justify-stretch">
-      <SimpleStat title="Bodový stav na konci roku" value={clubAccountBalance} units="b." />
+      <SimpleStat title="Klubové konto" value={clubAccountBalance} units="b." />
       <SimpleStat title="Celkově vybráno bonusů za" value={withdrawPrice} units="Kč" />
       <SimpleStat
-        title={`Suma bodů získaných ve vybraném roce: ${selectedYear === 0 ? "Nevybráno" : selectedYear}`}
+        title={`Roční konto: ${selectedYear === 0 ? "Nevybráno" : selectedYear}`}
         value={sumPointsInYear(selectedYear)}
       />
     </div>
@@ -243,7 +237,7 @@ const StatsSection: React.FC<StatsSectionProps> = ({
 const ProductsSection: React.FC<ProductsSectionProps> = ({ chartData, products }) => (
   <Card className="p-8 border rounded-sm">
     <Typography variant="h5" className="mb-4 color-gray-900">
-      Nejoblíbenější produkty
+    Přehled výběru Prémium bonusů
     </Typography>
     <div className="flex justify-between w-full gap-4">
       <div className="w-1/2">

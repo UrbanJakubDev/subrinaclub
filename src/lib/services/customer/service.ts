@@ -147,11 +147,27 @@ export class CustomerService {
       const customers = await this.customerRepository.findAll({
          where: active !== undefined ? { active } : undefined,
          include: {
-            dealer: true,
-            salesManager: true,
+            dealer: {
+               select: {
+                  fullName: true,
+               }
+            },
+            salesManager: {
+               select: {
+                  fullName: true,
+               }
+            
+            },
             account: {
-               include: {
+               select: {
+                  id: true,
+                  currentYearPoints: true,
+                  lifetimePoints: true,
+                  averagePointsBeforeSalesManager: true,
                   savingPeriods: {
+                     select: {
+                        availablePoints: true,
+                     },
                      where: {
                         status: 'ACTIVE'
                      }
@@ -161,11 +177,20 @@ export class CustomerService {
          }
       });
 
-      // Flatten the account.savingPeriods array to a single saving period
+      // Flatten the account.savingPeriods array to a attribute of account named savingPeriod.availablePoints
       customers.forEach(customer => {
          if (customer.account?.savingPeriods?.length) {
-            customer.account.savingPeriod = customer.account.savingPeriods[0];
+            customer.account.savingPeriodAvailablePoints = customer.account.savingPeriods[0].availablePoints;
             delete customer.account.savingPeriods;
+         }
+      });
+
+
+
+      // Round acount.averagePointsBeforeSalesManager to 0 decimals
+      customers.forEach(customer => {
+         if (customer.account?.averagePointsBeforeSalesManager) {
+            customer.account.averagePointsBeforeSalesManager = Math.round(customer.account.averagePointsBeforeSalesManager);
          }
       });
 

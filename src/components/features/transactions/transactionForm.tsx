@@ -165,7 +165,7 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
 
                   <div className="my-4 flex flex-col gap-4">
                      <InputField
-                        label="Množství"
+                        label="Body"
                         type="number"
                         name="points"
                         defaultValue={transactionData.points}

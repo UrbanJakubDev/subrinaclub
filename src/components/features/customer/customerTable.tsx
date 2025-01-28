@@ -30,9 +30,7 @@ interface Customer {
   account?: {
     currentYearPoints: number;
     lifetimePoints: number;
-    savingPeriod?: {
-      availablePoints: number;
-    };
+    savingPeriodAvailablePoints: number;
   };
 }
 
@@ -213,8 +211,8 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         header: "IČ",
       },
       {
-        accessorKey: "salesManager.fullName",
-        header: "OZ",
+        accessorFn: (row) => row.salesManager?.fullName ?? '',
+        header: "Sales Manager",
         filterFn: "includesString"
       },
       {
@@ -257,14 +255,14 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         },
       },
       {
-        accessorKey: "account.savingPeriod.availablePoints",
+        accessorFn: (row) => row.account?.savingPeriodAvailablePoints ?? 0,
         header: "Průběžné konto",
         footer: (info) => {
           const total = info.table
             .getFilteredRowModel()
             .rows.reduce(
               (sum, row) => {
-                const points = row.original.account?.savingPeriod?.availablePoints ?? 0;
+                const points = row.original.account?.savingPeriodAvailablePoints ?? 0;
                 return sum + points;
               },
               0

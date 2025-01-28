@@ -58,32 +58,34 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
 
    return (
       <Card className="p-8 flex flex-col rounded-sm">
-         <Typography variant="h2" color="black">Účet s ID: {account.id}</Typography>
-         <div className="w-full flex flex-col gap-8">
+          <Typography variant="h3" color="black">Stav účtu</Typography>
+         <span className="text-sm text-gray-500">Účet s ID: {account.id}</span>
+         <div className="w-full flex flex-col gap-8 mt-6">
             <article>
                <Typography variant="h5" color="black">Body na účtu</Typography>
-               <p>Celkem: {account.lifetimePoints}</p>
-               <p>Body pro rok {new Date().getFullYear()}: {account.currentYearPoints}</p>
+               <p>Klubové konto: {account.lifetimePoints}</p>
+               <p>Roční konto: {new Date().getFullYear()}: {account.currentYearPoints}</p>
             </article>
 
             <article>
                <Typography variant="h5" color="black">
                   <span className="flex items-center gap-2">
                      Aktivní šetřící období
-                     <Link 
-                        href={`/accounts/${account.id}/saving-periods`}
-                        className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
-                     >
-                        (Správa šetřících období)
-                     </Link>
                   </span>
+                  <div className="flex items-center gap-2"><StatusChip status={savingPeriod?.status} /> <span className=" text-sm text-gray-500">ID: {savingPeriod?.id}</span></div> 
+                  <p className="text-xl mt-4">Od: {savingPeriodStart} - Do: {savingPeriodEnd} </p>
+                  
+                     
                </Typography>
                {isLoading ? (
                   <Skeleton className="w-full h-24" />
                ) : savingPeriod ? (
                   <>
-                     <div className="flex items-center gap-4 mb-4">
-                        <StatusChip status={savingPeriod.status} />
+                     
+                     <p>Průběžné konto: {savingPeriod.totalDepositedPoints?.toString()}</p>
+                     <p>Průběžné konto k dispozici: {savingPeriod.availablePoints}</p>
+                     <p>Průměrné body před přiřazením obchodního zástupce: {account.averagePointsBeforeSalesManager?.toString()}</p>
+                     <div className="flex items-center gap-4 mt-8">
                         <Button 
                            onClick={handleCloseSavingPeriod}
                            variant="outlined"
@@ -103,11 +105,12 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
                            )}
                         </Button>
                      </div>
-                     <p>Od: {savingPeriodStart} - Do: {savingPeriodEnd} </p>
-                     <p>Body k dispozici: {savingPeriod.availablePoints}</p>
-                     <p>Body nasbírané v šetřícím období: {savingPeriod.totalDepositedPoints?.toString()}</p>
-                     <p>Body vybrané v šetřícím období: {savingPeriod.totalWithdrawnPoints?.toString()}</p>
-                     <p>Průměrné body před přiřazením obchodního zástupce: {account.averagePointsBeforeSalesManager?.toString()}</p>
+                     <Link 
+                        href={`/accounts/${account.id}/saving-periods`}
+                        className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                     >
+                        (Správa šetřících období)
+                     </Link>
                   </>
                ) : (
                   <p className="text-yellow-600">Žádné aktivní šetřící období</p>

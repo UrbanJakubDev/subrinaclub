@@ -97,7 +97,11 @@ export class CustomerRepository extends BaseRepository<
             c."registrationNumber",
             max(c.id) as "id",
             max(c."fullName") as "fullName",
+            max(c."address") as "address",
             max(c."town") as "town",
+            max(c."psc") as "zip",
+            max(c."phone") as "phone",
+            max(d."fullName") as "dealer",
             max(c."salonName") as "salonName",
             max(sm."fullName") as "salesManager",
             sum(t.points) as "clubScore",
@@ -115,7 +119,8 @@ export class CustomerRepository extends BaseRepository<
             sum(case when t."year" = 2013 then t.points else 0 end) as "2013",
             sum(case when t."year" = 2012 then t.points else 0 end) as "2012",
             sum(case when t."year" = 2011 then t.points else 0 end) as "2011",
-            sum(case when t."year" = 2010 then t.points else 0 end) as "2010"
+            sum(case when t."year" = 2010 then t.points else 0 end) as "2010",
+            sum(case when t."year" = 2009 then t.points else 0 end) as "2009"
          FROM
             "Customer" c
          JOIN
@@ -124,8 +129,11 @@ export class CustomerRepository extends BaseRepository<
             "Transaction" t ON t."accountId" = a.id
          JOIN 
             "SalesManager" sm ON c."salesManagerId" = sm.id
+         JOIN 
+            "Dealer" d ON c."dealerId" = d.id
          WHERE
             t."type" = 'DEPOSIT'
+            and c."active" = true
          GROUP BY
             c."registrationNumber"`;
 
@@ -147,6 +155,7 @@ export class CustomerRepository extends BaseRepository<
          '2012': Number(row['2012']),
          '2011': Number(row['2011']),
          '2010': Number(row['2010']),
+         '2009': Number(row['2009'])
       }));
 
       return formattedResult;

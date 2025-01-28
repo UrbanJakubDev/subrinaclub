@@ -57,6 +57,7 @@ const BonusReportPage = (props: Props) => {
       quarter: Math.floor(new Date().getMonth() / 3) + 1
     }
   })
+  const [tableName, setTableName] = useState('')
 
   useEffect(() => {
     setIsClient(true);
@@ -67,6 +68,7 @@ const BonusReportPage = (props: Props) => {
     const response = await fetch(`/api/transactions/premium-bonus?year=${year}&quarter=${quarter}`)
     const data = await response.json()
     setPBonusTransactions(data)
+    setTableName(`Premium bonus - přehled pro rok ${year} kvartál ${quarter}`)
     return data
   }
 
@@ -125,7 +127,7 @@ const BonusReportPage = (props: Props) => {
       ]);
       updateBonusData(fullData, transactionData);
     }
-    
+
     fetchInitialData();
   }, [])
 
@@ -203,7 +205,7 @@ const BonusReportPage = (props: Props) => {
 
       <Card className="rounded-sm p-4 shadow-sm mb-4">
         {pBonusTransactions && (
-          <ReportBonusTable defaultData={pBonusTransactions} />
+          <ReportBonusTable defaultData={pBonusTransactions} tableName={tableName} />
         )}
       </Card>
 
@@ -211,7 +213,7 @@ const BonusReportPage = (props: Props) => {
         {pBonusFull && (
           <div className="gap-4">
             <div className="w-full">
-              <FullReportBonusTable defaultData={pBonusFull} />
+              <FullReportBonusTable defaultData={pBonusFull} tableName={tableName} />
             </div>
             <div className="w-full min-h-[400px]">
               {renderFullBonusChart()}

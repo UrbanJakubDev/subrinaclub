@@ -36,7 +36,6 @@ interface KpiCardPropsType {
           </Typography>
 
           <div>
-          <span className="!font-medium !text-xs text-gray-600" >{percentage}% z 2000 bodů</span>
          <Progress value={percentage} />
           </div>
        </CardBody>

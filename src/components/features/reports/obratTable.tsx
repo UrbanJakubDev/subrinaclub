@@ -6,8 +6,9 @@ import {
 } from '@tanstack/react-table'
 import Link from 'next/link'
 import React from 'react'
-import MyTable from '../../tables/ui/baseTable'
+import MyTable, { getFooterValue } from '../../tables/ui/baseTable'
 import { Button } from '@material-tailwind/react'
+import ActionButtons from '@/components/tables/ui/actionButtons'
 
 type Props = {
    defaultData: any[]
@@ -19,17 +20,6 @@ type Props = {
 
 export default function ReportObratTable({ defaultData, detailLinkPath }: Props) {
 
-   const getTotal = (data: any[], type?: any) => {
-
-      switch (type) {
-         case 'positive':
-            return data.reduce((acc, row) => row.amount > 0 ? acc + row.amount : acc, 0)
-         case 'negative':
-            return data.reduce((acc, row) => row.amount < 0 ? acc + row.amount : acc, 0)
-         default:
-            return data.reduce((acc, row) => acc + row.amount, 0)
-      }
-   }
 
    // Change registrationNumber to string
    defaultData.forEach((row) => {
@@ -44,8 +34,9 @@ export default function ReportObratTable({ defaultData, detailLinkPath }: Props)
       () => [
          {
             accessorKey: 'registrationNumber',
-            header: 'ID',
+            header: 'Reg. číslo',
             cell: info => info.getValue(),
+            footer: (props) => getFooterValue('count', props)
          },
          {
             accessorKey: 'fullName',
@@ -53,8 +44,26 @@ export default function ReportObratTable({ defaultData, detailLinkPath }: Props)
             cell: info => info.getValue(),
          },
          {
+            accessorKey: 'address',
+            header: 'Adresa',
+            cell: info => info.getValue(),
+            enableColumnFilter: false
+         },
+         {
             accessorKey: 'town',
             header: 'Město',
+            cell: info => info.getValue(),
+            enableColumnFilter: false
+         },
+         {
+            accessorKey: 'zip',
+            header: 'PSČ',
+            cell: info => info.getValue(),
+            enableColumnFilter: false
+         },
+         {
+            accessorKey: 'phone',
+            header: 'Telefon',
             cell: info => info.getValue(),
             enableColumnFilter: false
          },
@@ -70,112 +79,132 @@ export default function ReportObratTable({ defaultData, detailLinkPath }: Props)
             cell: info => info.getValue(),
          },
          {
+            accessorKey: 'dealer',
+            header: 'Velkoobchod',
+            cell: info => info.getValue(),
+            enableColumnFilter: false
+         },
+         {
             accessorKey: 'clubScore',
             header: 'Body',
             cell: info => info.getValue(),
             enableColumnFilter: false
          },
-
          {
             accessorKey: '2024',
             header: '2024',
             cell: info => info.getValue(),
-            enableColumnFilter: false
+            enableColumnFilter: false,
+            footer: (props) => getFooterValue('sum', props)
          },
          {
             accessorKey: '2023',
             header: '2023',
             cell: info => info.getValue(),
-            enableColumnFilter: false
+            enableColumnFilter: false,
+            footer: (props) => getFooterValue('sum', props)
          },
          {
             accessorKey: '2022',
             header: '2022',
             cell: info => info.getValue(),
-            enableColumnFilter: false
+            enableColumnFilter: false,
+            footer: (props) => getFooterValue('sum', props)
          },
          {
             accessorKey: '2021',
             header: '2021',
             cell: info => info.getValue(),
-            enableColumnFilter: false
+            enableColumnFilter: false,
+            footer: (props) => getFooterValue('sum', props)
          },
          {
             accessorKey: '2020',
             header: '2020',
             cell: info => info.getValue(),
-            enableColumnFilter: false
+            enableColumnFilter: false,
+            footer: (props) => getFooterValue('sum', props)
          },
          {
             accessorKey: '2019',
             header: '2019',
             cell: info => info.getValue(),
-            enableColumnFilter: false
+            enableColumnFilter: false,
+            footer: (props) => getFooterValue('sum', props) 
          },
          {
             accessorKey: '2018',
             header: '2018',
             cell: info => info.getValue(),
-            enableColumnFilter: false
+            enableColumnFilter: false,
+            footer: (props) => getFooterValue('sum', props)    
          },
          {
             accessorKey: '2017',
             header: '2017',
             cell: info => info.getValue(),
-            enableColumnFilter: false
+            enableColumnFilter: false,
+            footer: (props) => getFooterValue('sum', props)       
          },
          {
             accessorKey: '2016',
             header: '2016',
             cell: info => info.getValue(),
-            enableColumnFilter: false
+            enableColumnFilter: false,
+            footer: (props) => getFooterValue('sum', props)       
          },
          {
             accessorKey: '2015',
             header: '2015',
             cell: info => info.getValue(),
-            enableColumnFilter: false
+            enableColumnFilter: false,
+            footer: (props) => getFooterValue('sum', props)       
          },
          {
-            accessorKey: '2014',
+            accessorKey: '2014', 
             header: '2014',
             cell: info => info.getValue(),
-            enableColumnFilter: false
+            enableColumnFilter: false,
+            footer: (props) => getFooterValue('sum', props)          
          },
          {
             accessorKey: '2013',
             header: '2013',
             cell: info => info.getValue(),
-            enableColumnFilter: false
+            enableColumnFilter: false,
+            footer: (props) => getFooterValue('sum', props)          
          },
          {
             accessorKey: '2012',
             header: '2012',
             cell: info => info.getValue(),
-            enableColumnFilter: false
+            enableColumnFilter: false,
+            footer: (props) => getFooterValue('sum', props)
          },
          {
             accessorKey: '2011',
             header: '2011',
             cell: info => info.getValue(),
-            enableColumnFilter: false
+            enableColumnFilter: false,
+            footer: (props) => getFooterValue('sum', props)
          },
          {
             accessorKey: '2010',
             header: '2010',
             cell: info => info.getValue(),
-            enableColumnFilter: false
+            enableColumnFilter: false,
+            footer: (props) => getFooterValue('sum', props)
          },
+
          {
             accessorKey: "actions",
             header: "Akce",
             cell: (info) => (
-               <Link href={`/customers/${info.row.original.id}`}>
-                  <Button size="sm" className="font-light"><FontAwesomeIcon icon={faUser} style={{ color: "#ffffff", }} /> Detail </Button>
-               </Link>
+               <ActionButtons id={info.row.original.id} detailLinkPath={detailLinkPath} hasStats={true} />
             ),
             enableColumnFilter: false,
          }
+        
       ],
       // eslint-disable-next-line react-hooks/exhaustive-deps
       []
@@ -196,9 +225,6 @@ export default function ReportObratTable({ defaultData, detailLinkPath }: Props)
                tableName: "Seznam obratu",
             }}
          />
-         <p>Celková bilance bodů: {getTotal(defaultData)}</p>
-         <p>Celková bilance kladných bodů: {getTotal(defaultData, "positive")}</p>
-         <p>Celková bilance záporných bodů: {getTotal(defaultData, "negative")}</p>
       </>
    )
 }

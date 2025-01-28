@@ -77,8 +77,8 @@ export default function SavingPeriodStats({ savingPeriod, transactions = [], isL
         />
       </div>
       <ColumnChart
-        title="Body"
-        description="Body za šetřící období"
+        title="Průběžné konto"
+        description="Přehled nasbíraných bodů za šetřící období"
         colors={['#3B82A1', '#10A981', '#AF4444']}
         series={chartData.series}
         categories={chartData.categories}

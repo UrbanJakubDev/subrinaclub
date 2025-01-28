@@ -45,7 +45,10 @@ export class SalesManagerService {
    }
 
    async getAll(): Promise<SalesManagerResponseDTO[]> {
-      return this.SalesManagerRepository.findAll();
+      const salesManagers = await this.SalesManagerRepository.findAll();
+
+      return salesManagers.sort((a, b) => a.fullName.localeCompare(b.fullName));
+      
    }
 
    async getSalesManagersForSelect(): Promise<SalesManagerSelectDTO[]> {

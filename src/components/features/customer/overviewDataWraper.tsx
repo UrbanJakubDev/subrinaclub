@@ -26,9 +26,7 @@ interface Customer {
    account?: {
       currentYearPoints: number;
       lifetimePoints: number;
-      savingPeriod?: {
-         availablePoints: number;
-      };
+      savingPeriodAvailablePoints: number;
    };
 }
 
@@ -49,10 +47,15 @@ export default function OverviewDataWrapper({ initialData }: Props) {
             throw new Error("Failed to fetch customers");
          }
          const fetchedData = await response.json();
-         // Convert numeric IDs to strings if necessary
+         // Transform the data to match the expected structure
          const formattedData = fetchedData.map((customer: any) => ({
             ...customer,
-            id: customer.id.toString()
+            id: customer.id.toString(),
+            account: {
+               ...customer.account,
+               // Transform the nested savingPeriod.availablePoints to savingPeriodAvailablePoints
+               savingPeriodAvailablePoints: customer.account?.savingPeriod?.availablePoints ?? 0
+            }
          }));
          setData(formattedData);
       } catch (error) {
@@ -65,13 +68,14 @@ export default function OverviewDataWrapper({ initialData }: Props) {
 
    // Handle active users switch
    const handleActiveUsers = () => {
-      setActiveUsers((prevActiveUsers) => !prevActiveUsers);
+      const newActiveUsers = !activeUsers;
+      setActiveUsers(newActiveUsers);
+      fetchData(newActiveUsers);
    }
 
-   // Fetch data when active users switch is changed
-   useEffect(() => {
-      fetchData(activeUsers);
-   }, [activeUsers]);
+   // We don't need the useEffect anymore since we:
+   // 1. Have initial data from the server
+   // 2. Only fetch when the switch changes
 
    if (loading) {
       return <Loader />;

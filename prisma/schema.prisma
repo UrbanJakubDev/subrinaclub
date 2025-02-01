@@ -94,15 +94,16 @@ model Customer {
   town               String?   @dbPG.VarChar(255)
   psc                String?   @dbPG.VarChar(255)
   note               String?   @dbPG.Text
+  gdpr               Int?      @default(0)
 
   // Relations
   dealer   Dealer? @relation(fields: [dealerId], references: [id])
   dealerId Int?
 
-  salesManager          SalesManager? @relation(fields: [salesManagerId], references: [id])
-  salesManagerId        Int?
-  salesManagerSinceQ    Int?          @default(0)
-  salesManagerSinceYear Int?          @default(0)
+  salesManager             SalesManager? @relation(fields: [salesManagerId], references: [id])
+  salesManagerId           Int?
+  salesManagerSinceQ       Int?          @default(0)
+  salesManagerSinceYear    Int?          @default(0)
   salesManagerSinceQuarter Int?
 
   account Account?
@@ -118,16 +119,17 @@ model Transaction {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  year        Int
-  quarter     Int
+  year            Int
+  quarter         Int
   quarterDateTime DateTime
-  points      Int
-  type        TransactionType
-  description String?
+  points          Int
+  type            TransactionType
+  description     String?
+  directSale      Boolean @default(false)
 
-  acceptedBonusOrder DateTime? 
-  sentBonusOrder     DateTime? 
-  bonusPrice        Int?    @default(0)
+  acceptedBonusOrder DateTime?
+  sentBonusOrder     DateTime?
+  bonusPrice         Int?      @default(0)
 
   account   Account @relation(fields: [accountId], references: [id])
   accountId Int
@@ -153,7 +155,7 @@ model Account {
   totalDepositedPoints Int @default(0)
   totalWithdrawnPonits Int @default(0)
 
-  averagePointsBeforeSalesManager Decimal? @dbPG.Decimal(10, 2) @default(0)
+  averagePointsBeforeSalesManager Decimal? @default(0) @dbPG.Decimal(10, 2)
 
   customerId Int      @unique
   customer   Customer @relation(fields: [customerId], references: [id])
@@ -211,4 +213,16 @@ model Bonus {
 
   // Indexes
   @@index([id], name: "idx_bonus_id")
+}
+
+model conversion_logs {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime
+  tableName String   @dbPG.VarChar(50)
+  oldId     Int
+  newId     Int
+  status    String   @dbPG.VarChar(20)
+  message   String   @dbPG.Text
+  oldData   String   @dbPG.Text
+  newData   String   @dbPG.Text
 }

@@ -39,7 +39,8 @@ const newTransaction: Transaction = {
    quarterDateTime: new Date(),
    account: {} as Account,
    bonus: {} as Bonus,
-   savingPeriod: {} as SavingPeriod
+   savingPeriod: {} as SavingPeriod,
+   directSale: false
 };
 
 
@@ -68,7 +69,7 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
    const handleFormChange = (formMethods: any) => {
       const bonusId = formMethods.watch('bonusId');
       const points = formMethods.watch('points');
-      
+
       if (bonusId > 0 && points > 0) {
          formMethods.setValue('points', -Math.abs(points));
       }
@@ -115,7 +116,15 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
          const savedTransaction = await saveTransaction(data);
          toast.success('Transakce byla uložena');
          notifyTransactionChange();
-         actions.closeModal();
+
+         if (data.points > 0) {
+            actions.closeModal();
+         }
+         
+         if (data.points < 0) {
+            setTransactionData(newTransaction);
+         }
+
          return savedTransaction;
       } catch (error) {
          toast.error('Chyba při ukládání transakce transaction Form component');
@@ -200,6 +209,17 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
                         options={bonusesDial}
                         defaultValue={transactionData.bonusId || 0}
                      />
+                     <div className="flex items-center gap-2">
+                        <input
+                           type="checkbox"
+                           id="directSale"
+                           {...formMethods.register('directSale')}
+                           className="h-4 w-4 rounded border-gray-300"
+                        />
+                        <label htmlFor="directSale" className="text-sm font-medium text-gray-700">
+                           Přímý prodej
+                        </label>
+                     </div>
                   </div>
                </div>
             );

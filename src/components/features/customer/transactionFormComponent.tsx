@@ -10,14 +10,34 @@ import { useModalStore } from '@/stores/ModalStore';
 import { useStatsStore } from '@/stores/CustomerStatsStore';
 import Loader from '@/components/ui/loader';
 
-
+const newTransaction: Transaction = {
+  id: 0,
+  year: new Date().getFullYear(),
+  quarter: 1,
+  points: 1,
+  acceptedBonusOrder: null,
+  sentBonusOrder: null,
+  bonusPrice: 0,
+  bonusId: 0,
+  description: '',
+  active: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  accountId: 0,
+  savingPeriodId: 0,
+  type: 'DEPOSIT',
+  quarterDateTime: new Date(),
+  account: {} as any,
+  bonus: null,
+  savingPeriod: null,
+  directSale: false
+};
 
 export default function TransactionFormComponent() {
-
   const { modalId, data: modalData, actions: modalActions } = useModalStore();
   const { customer, account, activeSavingPeriod } = useStatsStore(state => state);
   const savingPeriod = activeSavingPeriod;
-  const [transaction, setTransaction] = useState<Transaction | null>(null);
+  const [transaction, setTransaction] = useState<Transaction>(newTransaction);
   const [dials, setDials] = useState<any[]>([]);
 
   console.log('TransactionFormComponent render:', {
@@ -40,19 +60,18 @@ export default function TransactionFormComponent() {
     }
   }, [modalId]);
 
-
   useEffect(() => {
     if (modalData?.id) {
       setTransaction(modalData as Transaction);
     } else {
-      setTransaction(null);
+      setTransaction(newTransaction);
     }
   }, [modalActions.openModal, modalData]);
 
   return (
     <ModalComponent
       modalId="transactionForm"
-      title={transaction ? 'Editovat body' : 'Přidat / Vybrat body'}
+      title={transaction.id ? 'Editovat body' : 'Přidat / Vybrat body'}
     >
       {!customer || !savingPeriod ? (
         <div className="p-4 text-center">
@@ -87,7 +106,6 @@ export default function TransactionFormComponent() {
           </div>
         </div>
       )}
-
     </ModalComponent>
   );
 };

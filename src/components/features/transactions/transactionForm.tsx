@@ -18,6 +18,7 @@ import { useModalStore } from '@/stores/ModalStore';
 import QuarterSlider from '@/components/ui/inputs/quarterSlider';
 import { Account, SavingPeriod } from '@/types/types';
 import { Bonus } from '@/types/bonus';
+import SwitchField from '@/components/ui/inputs/inputSwitcher';
 
 
 const newTransaction: Transaction = {
@@ -39,7 +40,8 @@ const newTransaction: Transaction = {
    quarterDateTime: new Date(),
    account: {} as Account,
    bonus: {} as Bonus,
-   savingPeriod: {} as SavingPeriod
+   savingPeriod: {} as SavingPeriod,
+   directSale: false
 };
 
 
@@ -68,7 +70,7 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
    const handleFormChange = (formMethods: any) => {
       const bonusId = formMethods.watch('bonusId');
       const points = formMethods.watch('points');
-      
+
       if (bonusId > 0 && points > 0) {
          formMethods.setValue('points', -Math.abs(points));
       }
@@ -83,8 +85,6 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
          ...data,
          accountId: account?.id,
          savingPeriodId: activeSavingPeriod?.id,
-         type: data.points > 0 ? TransactionType.DEPOSIT : TransactionType.WITHDRAWAL,
-         quarterDateTime: new Date(data.year, (data.quarter - 1) * 3, 1)
       };
 
       try {
@@ -100,8 +100,7 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
             throw new Error(`HTTP error! status: ${response.status}`);
          }
 
-         const savedTransaction = await response.json();
-         return savedTransaction;
+         return await response.json();
       } catch (error) {
          console.error('Error saving transaction:', error);
          throw error;
@@ -115,7 +114,15 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
          const savedTransaction = await saveTransaction(data);
          toast.success('Transakce byla uložena');
          notifyTransactionChange();
-         actions.closeModal();
+
+         if (data.points > 0) {
+            actions.closeModal();
+         }
+
+         if (data.points < 0) {
+            setTransactionData(newTransaction);
+         }
+
          return savedTransaction;
       } catch (error) {
          toast.error('Chyba při ukládání transakce transaction Form component');
@@ -200,6 +207,13 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
                         options={bonusesDial}
                         defaultValue={transactionData.bonusId || 0}
                      />
+                     <div className="flex items-center gap-2">
+                        <SwitchField
+                           label="Přímý prodej"
+                           name="directSale"
+                           defaultValue={transactionData.directSale}
+                        />
+                     </div>
                   </div>
                </div>
             );

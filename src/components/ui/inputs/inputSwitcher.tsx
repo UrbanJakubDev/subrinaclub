@@ -10,18 +10,22 @@ type SwitchFieldProps = {
 };
 
 const SwitchField = ({ label, name, defaultValue, disabled }: SwitchFieldProps) => {
-  const { register, formState: { errors } } = useFormContext();
+  const { register, formState: { errors }, watch } = useFormContext();
+  const value = watch(name, defaultValue);
   const switchClass = "form-checkbox h-6 w-6 text-indigo-600 transition duration-150 ease-in-out";
+  const errorMessage = errors[name]?.message as string | undefined;
 
   return (
     <div className="flex flex-col w-[200px]">
       <Checkbox
-        crossOrigin={undefined} label={label}
+        crossOrigin={undefined} 
+        label={label}
         className={switchClass}
-        defaultChecked={defaultValue} // Set default value
-        {...register(name)} // Use register from useFormContext
-        disabled={disabled}      />
-      {errors && errors[name] && <span className="text-red-500">{errors[name]?.message}</span>}
+        checked={value}
+        {...register(name)}
+        disabled={disabled}
+      />
+      {errorMessage && <span className="text-red-500">{errorMessage}</span>}
     </div>
   );
 };

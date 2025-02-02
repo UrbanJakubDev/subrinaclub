@@ -18,6 +18,7 @@ export const customerValidationSchema = yup.object().shape({
    salesManagerId: yup.number().nullable(),
    salesManagerSinceQ: yup.number().default(0).nullable(),
    salesManagerSinceYear: yup.number().default(0).nullable(),
+   gdpr: yup.number().default(0).nullable(),
 });
 
 export type CreateCustomerDTO = yup.InferType<typeof customerValidationSchema>;

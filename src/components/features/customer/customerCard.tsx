@@ -5,9 +5,13 @@ import Typography from "@/components/ui/typography";
 import { CustomerCardProps } from "@/lib/services/customer/types";
 import React from 'react';
 
+const formatDate = (date: string | Date | null) => {
+   if (!date) return "...";
+   const dateObj = typeof date === 'string' ? new Date(date) : date;
+   return dateObj.toLocaleDateString('cs-CZ');
+};
 
-
-const CustomerCard: React.FC<CustomerCardProps> = ({ customer, isLoading }) => {
+const CustomerCard = ({ customer, isLoading }: CustomerCardProps) => {
    if (isLoading || !customer) return <Skeleton className="w-1/4" />;
    return (
       <Card className="p-8 border-gray-300 rounded-sm w-1/3">
@@ -19,8 +23,8 @@ const CustomerCard: React.FC<CustomerCardProps> = ({ customer, isLoading }) => {
             <article>
                <Typography variant="h5" color="black">Osobní informace</Typography>
                <p>IČO: {customer.ico}</p>
-               <p>Registrován od: {customer.registratedSince?.toLocaleDateString() || "..."}</p>
-               <p>Datum narození: {customer.birthDate?.toLocaleString() || "..."}</p>
+               <p>Registrován od: {formatDate(customer.registratedSince)}</p>
+               <p>Datum narození: {formatDate(customer.birthDate)}</p>
             </article>
             <article>
                <Typography variant="h5" color="black">Kontaktní informace</Typography>
@@ -47,6 +51,6 @@ const CustomerCard: React.FC<CustomerCardProps> = ({ customer, isLoading }) => {
          </div>
       </Card>
    );
-};
+}
 
 export default CustomerCard;

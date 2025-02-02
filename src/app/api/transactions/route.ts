@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server';
 import { transactionAPI } from '@/lib/services/transaction';
 
 
-// Get all transactions for a customer account
+/**
+ * Retrieves all transactions for a specified customer account
+ * @param {Request} request - The incoming HTTP request
+ * @returns {Promise<NextResponse>} JSON response containing transactions or error message
+ */
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const accountId = searchParams.get('accountId')
@@ -13,6 +17,11 @@ export async function GET(request: Request) {
     return NextResponse.json(transactions)
 }
 
+/**
+ * Creates a new transaction
+ * @param {Request} request - The incoming HTTP request containing transaction data
+ * @returns {Promise<NextResponse>} JSON response containing the created transaction or error message
+ */
 export async function POST(request: Request) {
     try {
         const body = await request.json();
@@ -24,6 +33,11 @@ export async function POST(request: Request) {
     }
 }
 
+/**
+ * Updates an existing transaction
+ * @param {Request} request - The incoming HTTP request containing updated transaction data
+ * @returns {Promise<NextResponse>} JSON response containing the updated transaction or error message
+ */
 export async function PUT(request: Request) {
     try {
         const body = await request.json();

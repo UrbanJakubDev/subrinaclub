@@ -1,5 +1,5 @@
 'use client'
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -15,39 +15,49 @@ type InputDateFieldProps = {
 };
 
 const InputDateField = ({ label, name, defaultValue, helperText, errors }: InputDateFieldProps) => {
-   const { register, setValue, getValues } = useFormContext();
+   const { register, setValue, getValues, watch } = useFormContext();
+   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+   
+   // Watch for changes to the field value
+   const fieldValue = watch(name);
 
-   // Ensure that defaultValue is a valid string before parsing
-   const initialDate = defaultValue && typeof defaultValue === 'string' && isValid(parseISO(defaultValue)) 
-      ? parseISO(defaultValue) 
-      : null;
+   useEffect(() => {
+      // Initialize the date from defaultValue or current form value
+      const initialValue = fieldValue || defaultValue;
+      if (initialValue) {
+         if (typeof initialValue === 'string' && isValid(parseISO(initialValue))) {
+            setSelectedDate(parseISO(initialValue));
+         } else if (isDate(initialValue)) {
+            setSelectedDate(initialValue as Date);
+         }
+      }
+   }, [defaultValue, fieldValue]);
 
    const handleDateChange = (date: Date | null) => {
-      setValue(name, date ? format(date, "yyyy-MM-dd") : "");  // Format the date or set it to an empty string if null
+      setSelectedDate(date);
+      setValue(name, date ? format(date, "yyyy-MM-dd") : null, { 
+         shouldValidate: true,
+         shouldDirty: true 
+      });
    };
-
-   const currentValue = getValues(name);
-
-   // Ensure that the value returned by getValues is a valid string before parsing
-   const parsedDate = currentValue && typeof currentValue === 'string' && isValid(parseISO(currentValue))
-      ? parseISO(currentValue)
-      : (isDate(currentValue) ? currentValue : null);
 
    return (
       <div>
          <DatePicker
-            selected={parsedDate || initialDate}
-            onChange={(date) => handleDateChange(date)}
-            dateFormat="yyyy-MM-dd"
+            selected={selectedDate}
+            onChange={handleDateChange}
+            dateFormat="dd.MM.yyyy"
             showYearDropdown
             scrollableYearDropdown
-            placeholderText="YYYY-MM-DD"
+            placeholderText="DD.MM.YYYY"
             customInput={
                <Input
-                  crossOrigin={undefined} size="md"
+                  crossOrigin={undefined}
+                  size="md"
                   label={label}
                   error={errors?.[name]}
-                  {...register(name)} />
+                  value={selectedDate ? format(selectedDate, "dd.MM.yyyy") : ""}
+               />
             }
          />
          {helperText && <Typography variant="small">{helperText}</Typography>}

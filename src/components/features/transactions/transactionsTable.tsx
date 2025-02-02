@@ -8,9 +8,10 @@ import formatThousandDelimiter from '@/lib/utils/formatFncs';
 import { Transaction } from '@/types/transaction';
 import TransactionFormComponent from '@/components/features/customer/transactionFormComponent';
 import Skeleton from '@/components/ui/skeleton';
-import React from 'react';
+import React, { useState } from 'react';
 import { useModalStore } from '@/stores/ModalStore';
 import { formatDateToCz } from '@/lib/utils/dateFnc';
+import { Dialog, DialogHeader, DialogBody, DialogFooter } from "@material-tailwind/react";
 
 type TransactionsTableProps = {
    tableName?: string;
@@ -21,15 +22,15 @@ type TransactionsTableProps = {
    onDelete: (transactionId: number) => void;
 };
 
-export default function TransactionsTable({ 
+export default function TransactionsTable({
    tableName = 'Transakce',
    transactions,
    isLoading = false,
    onEdit,
-   onDelete 
+   onDelete
 }: TransactionsTableProps) {
 
-   
+
 
    // Column definitions
    const columns = React.useMemo<ColumnDef<Transaction>[]>(() => [
@@ -90,7 +91,7 @@ export default function TransactionsTable({
          header: 'Akce',
          enableColumnFilter: false,
          cell: (info) => (
-            <TableActions 
+            <TableActions
                transaction={info.row.original}
                onEdit={onEdit}
                onDelete={onDelete}
@@ -105,8 +106,8 @@ export default function TransactionsTable({
 
    return (
       <div className="space-y-4">
-         
-         
+
+
          {!transactions?.length ? (
             <div className="p-4 text-center text-gray-500">
                Žádné transakce k zobrazení
@@ -118,7 +119,7 @@ export default function TransactionsTable({
                tableName={tableName}
             />
          )}
-         
+
          <TransactionFormComponent />
       </div>
    );
@@ -131,13 +132,45 @@ type TableActionsProps = {
    onDelete: (transactionId: number) => void;
 };
 
-const TableActions = ({ transaction, onEdit, onDelete }: TableActionsProps) => (
-   <div className="flex justify-center gap-2">
-      <Button size="sm" onClick={() => onEdit(transaction)}>
-         <FontAwesomeIcon icon={faPenToSquare} />
-      </Button>
-      <Button size="sm" onClick={() => onDelete(transaction.id)}>
-         <FontAwesomeIcon icon={faTrash} />
-      </Button>
-   </div>
-);
+const TableActions = ({ transaction, onEdit, onDelete }: TableActionsProps) => {
+   const [open, setOpen] = useState(false);
+
+   const handleOpen = () => setOpen(!open);
+
+   const handleDelete = () => {
+      onDelete(transaction.id);
+      setOpen(false);
+   };
+
+   const message = transaction.points < 0
+      ? `Opravdu chcete smazat výběr bonusu "${transaction.bonus?.name || ''}" za ${Math.abs(transaction.points)} bodů?`
+      : `Opravdu chcete smazat vklad ${transaction.points} bodů?`;
+
+   return (
+      <>
+         <div className="flex justify-center gap-2">
+            <Button size="sm" onClick={() => onEdit(transaction)}>
+               <FontAwesomeIcon icon={faPenToSquare} />
+            </Button>
+            <Button size="sm" onClick={handleOpen}>
+               <FontAwesomeIcon icon={faTrash} />
+            </Button>
+         </div>
+
+         <Dialog open={open} handler={handleOpen} size="xs">
+            <DialogHeader>Potvrzení smazání</DialogHeader>
+            <DialogBody divider className="text-center">
+               {message}
+            </DialogBody>
+            <DialogFooter className="flex justify-center gap-2">
+               <Button size="sm" onClick={handleOpen}>
+                  Zrušit
+               </Button>
+               <Button size="sm" color="red" onClick={handleDelete}>
+                  Smazat
+               </Button>
+            </DialogFooter>
+         </Dialog>
+      </>
+   );
+};

@@ -18,6 +18,7 @@ export const transactionValidationSchema = yup.object().shape({
     bonusPrice: yup.number().nullable(),
     bonusId: yup.number().nullable(),
     accountId: yup.number().nullable(),
+    directSale: yup.boolean().default(false),
 });
 
 

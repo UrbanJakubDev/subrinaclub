@@ -18,6 +18,7 @@ export default async function UserDetail({ params }: CustomerDetailProps) {
  
 
   // Load dealers and sales managers for select options
+  // TODO: Change to use dealerService and salesManagerService
   const dealers = await fetchDealersForOptionsFromDB();
   const salesManagers = await fetchSalesManagersOptionsFromDB();
 
@@ -55,7 +56,6 @@ export default async function UserDetail({ params }: CustomerDetailProps) {
           <h2 className="text-lg font-semibold">{`Editace - ${customer.fullName}`}</h2>
           <CustomerForm initialCustomerData={customer} dials={{ dealers, salesManagers }} />
         </div>
-
       </div>
 
     </PageComponent>

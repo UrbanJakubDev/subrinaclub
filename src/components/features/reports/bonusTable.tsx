@@ -46,6 +46,13 @@ export default function ReportBonusTable({ defaultData, detailLinkPath, tableNam
          footer: (props) => getFooterValue('sum', props)
       },
       {
+         accessorKey: 'acceptedBonusOrder',
+         header: 'Přijato',
+         cell: ({ row }) => {
+            return <div>{row.original.acceptedBonusOrder ? new Date(row.original.acceptedBonusOrder).toLocaleDateString() : '-'}</div>
+         }
+      },
+      {
          accessorKey: 'bonusPrice',
          header: 'Cena',
          meta: { formatNumber: true },

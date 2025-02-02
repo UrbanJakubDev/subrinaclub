@@ -33,10 +33,18 @@ export class TransactionAPI {
 
     // Function to make premuim bonus overview
     async premiumBonusReport(year: number, quarter: number): Promise<any> {
+        // Firnd date range fo the quarter
+        const startDate = QuarterDateUtils.getQuarterStartDate(year, quarter);
+        const endDate = QuarterDateUtils.getQuarterEndDate(year, quarter);
+
+
+
         const transactions = await this.transactionRepository.findAll({
             where: {
-                year: year,
-                quarter: quarter,
+                acceptedBonusOrder: {
+                    gte: startDate,
+                    lte: endDate
+                },
                 type: TransactionType.WITHDRAWAL
             },
             include: {

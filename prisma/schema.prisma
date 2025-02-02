@@ -214,15 +214,3 @@ model Bonus {
   // Indexes
   @@index([id], name: "idx_bonus_id")
 }
-
-model conversion_logs {
-  id        Int      @id @default(autoincrement())
-  timestamp DateTime
-  tableName String   @dbPG.VarChar(50)
-  oldId     Int
-  newId     Int
-  status    String   @dbPG.VarChar(20)
-  message   String   @dbPG.Text
-  oldData   String   @dbPG.Text
-  newData   String   @dbPG.Text
-}

@@ -172,18 +172,14 @@ const BonusReportPage = (props: Props) => {
         },
         dataLabels: {
           enabled: true,
-          formatter: function (val: number, opts: any) {
-            return opts.w.globals.labels[opts.seriesIndex] + ":  " + val
-          }
+          
         }
       },
       series: pBonusFull.map(item => item.totalPoints)
     }
 
     return (
-      <div className="w-full h-[400px] flex items-center justify-center">
         <DonutChart data={chartData} />
-      </div>
     )
   }
 
@@ -215,7 +211,7 @@ const BonusReportPage = (props: Props) => {
             <div className="w-full">
               <FullReportBonusTable defaultData={pBonusFull} tableName={tableName} />
             </div>
-            <div className="w-full min-h-[400px]">
+            <div className="w-[800px]">
               {renderFullBonusChart()}
             </div>
           </div>

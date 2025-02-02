@@ -119,8 +119,7 @@ export class CustomerRepository extends BaseRepository<
             sum(case when t."year" = 2013 then t.points else 0 end) as "2013",
             sum(case when t."year" = 2012 then t.points else 0 end) as "2012",
             sum(case when t."year" = 2011 then t.points else 0 end) as "2011",
-            sum(case when t."year" = 2010 then t.points else 0 end) as "2010",
-            sum(case when t."year" = 2009 then t.points else 0 end) as "2009"
+            sum(case when t."year" = 2010 then t.points else 0 end) as "2010"
          FROM
             "Customer" c
          JOIN
@@ -155,7 +154,6 @@ export class CustomerRepository extends BaseRepository<
          '2012': Number(row['2012']),
          '2011': Number(row['2011']),
          '2010': Number(row['2010']),
-         '2009': Number(row['2009'])
       }));
 
       return formattedResult;

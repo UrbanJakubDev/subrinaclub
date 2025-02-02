@@ -7,7 +7,7 @@ export class QuarterDateUtils {
        throw new Error('Quarter must be between 1 and 4');
      }
      const month = (quarter - 1) * 3;
-     return new Date(Date.UTC(year, month, 1, 0, 0, 0, 0));
+     return new Date(Date.UTC(year, month, 1, 12, 0, 0, 0));
    }
  
    /**
@@ -18,8 +18,7 @@ export class QuarterDateUtils {
        throw new Error('Quarter must be between 1 and 4');
      }
      const month = quarter * 3;
-     const endDate = new Date(Date.UTC(year, month, 1, 0, 0, 0, -1));
-     return endDate;
+     return new Date(Date.UTC(year, month, 0, 12, 0, 0, 0));
    }
  
    /**

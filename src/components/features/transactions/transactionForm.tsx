@@ -18,6 +18,7 @@ import { useModalStore } from '@/stores/ModalStore';
 import QuarterSlider from '@/components/ui/inputs/quarterSlider';
 import { Account, SavingPeriod } from '@/types/types';
 import { Bonus } from '@/types/bonus';
+import SwitchField from '@/components/ui/inputs/inputSwitcher';
 
 
 const newTransaction: Transaction = {
@@ -84,8 +85,6 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
          ...data,
          accountId: account?.id,
          savingPeriodId: activeSavingPeriod?.id,
-         type: data.points > 0 ? TransactionType.DEPOSIT : TransactionType.WITHDRAWAL,
-         quarterDateTime: new Date(data.year, (data.quarter - 1) * 3, 1)
       };
 
       try {
@@ -101,8 +100,7 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
             throw new Error(`HTTP error! status: ${response.status}`);
          }
 
-         const savedTransaction = await response.json();
-         return savedTransaction;
+         return await response.json();
       } catch (error) {
          console.error('Error saving transaction:', error);
          throw error;
@@ -120,7 +118,7 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
          if (data.points > 0) {
             actions.closeModal();
          }
-         
+
          if (data.points < 0) {
             setTransactionData(newTransaction);
          }
@@ -210,15 +208,11 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
                         defaultValue={transactionData.bonusId || 0}
                      />
                      <div className="flex items-center gap-2">
-                        <input
-                           type="checkbox"
-                           id="directSale"
-                           {...formMethods.register('directSale')}
-                           className="h-4 w-4 rounded border-gray-300"
+                        <SwitchField
+                           label="Přímý prodej"
+                           name="directSale"
+                           defaultValue={transactionData.directSale}
                         />
-                        <label htmlFor="directSale" className="text-sm font-medium text-gray-700">
-                           Přímý prodej
-                        </label>
                      </div>
                   </div>
                </div>

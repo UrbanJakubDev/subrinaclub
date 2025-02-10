@@ -18,6 +18,7 @@ export type Customer = {
    town: string | null
    psc: string | null
    note: string | null
+   gdpr: number | null
    dealerId: number | null
    salesManagerId: number | null
    salesManagerSinceQ: number | null

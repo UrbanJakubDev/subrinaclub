@@ -7,14 +7,7 @@ export class TransactionService {
    constructor(private transactionRepository: TransactionRepository) { }
 
    async create(data: CreateTransactionDTO): Promise<Transaction> {
-
-      const QDU = QuarterDateUtils
-      // Set quarterDateTime using getQuarterStartDate function from src/lib/utils/quarterDateUtils.ts
-      data.quarterDateTime = QDU.getQuarterStartDate(data.year, data.quarter)
-      
-
-      console.log('Log on Service', data)
-      return this.transactionRepository.create({ data });
+      return this.transactionRepository.createTransaction(data);
    }
 
    async get(id: number): Promise<Transaction> {
@@ -48,4 +41,5 @@ export class TransactionService {
    }
 
 
+   
 }

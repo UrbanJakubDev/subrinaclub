@@ -1,8 +1,10 @@
 import BonusForm from "@/components/features/bonus/bonusForm";
 import PageComponent from "@/components/features/detailPage/pageComponent";
 import Button from "@/components/ui/button";
+import Loader from "@/components/ui/loader";
 import Typography from "@/components/ui/typography";
 import { fetchBonusByIdFromDB } from "@/lib/db/queries/bonuses";
+import { bonusService } from "@/lib/services/bonus";
 import Link from "next/link";
 
 type BonusPageDetailProps = {
@@ -22,9 +24,11 @@ export default async function BonusPageDetail({ params }: BonusPageDetailProps) 
     );
   }
 
-  const bonus = await fetchBonusByIdFromDB(params.id ? parseInt(params.id) : 0);
+  const bonusId = parseInt(params.id);
+  const bonus = await bonusService.get(bonusId) ;
+
   if (!bonus) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   return (
@@ -38,7 +42,10 @@ export default async function BonusPageDetail({ params }: BonusPageDetailProps) 
         </Typography>
       </div>
       <div className="mx-auto w-8/12">
-        <BonusForm initalBonusData={bonus} />
+        <BonusForm initialBonusData={bonus} />
+        <pre>
+          {JSON.stringify(bonus, null, 2)}
+        </pre>
       </div>
     </PageComponent>
   );

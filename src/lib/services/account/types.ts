@@ -1,27 +1,17 @@
 import { Transaction } from "@/types/transaction";
 import { CustomerResponseDTO } from "../customer/types";
 import { SavingPeriod, SelectOption } from "@/types/types";
+import { Account, Customer } from "@prisma/client";
 
-export interface AccountResponseDTO {
-   id: number;
-   active: boolean;
-
-   lifetimePoints: number;
-   currentYearPoints: number;
-   totalDepositedPoints: number;
-   totalWithdrawnPoints: number;
-
-   customerId: number;
-   customer: CustomerResponseDTO;
-
-   transactions: Transaction[];
+export interface AccountResponseDTO extends Account {
+   customer: Customer;
    savingPeriods: SavingPeriod[];
 }
 
 export interface AccountSelectDTO extends SelectOption {}
 
 export interface AccountInfoCardProps {
-   // TODO: Define the type of the customer prop
-   account: any;
-   savingPeriod: any
- }
+   account: AccountResponseDTO | null;
+   savingPeriod: SavingPeriod | null;
+   isLoading?: boolean;
+}

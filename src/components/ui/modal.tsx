@@ -15,7 +15,18 @@ const ModalComponent = ({ children, title, description, modalId }: Props) => {
   const { modalId: currentModalId, actions } = useModalStore();
   const isModalOpen = currentModalId === modalId;
 
-  if (!isModalOpen) return null;
+  console.log('Modal Component Debug:', { 
+    currentModalId,
+    modalId,
+    isModalOpen,
+    title,
+    hasChildren: !!children
+  });
+
+  if (!isModalOpen) {
+    console.log('Modal not showing because isModalOpen is false');
+    return null;
+  }
 
   const handleClose = () => {
     actions.closeModal();

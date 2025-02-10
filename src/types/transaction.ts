@@ -13,6 +13,7 @@ export interface Transaction {
    points: number
    type: string
    description: string | null
+   directSale: boolean
 
    acceptedBonusOrder: Date | null
    sentBonusOrder: Date | null
@@ -21,10 +22,10 @@ export interface Transaction {
    account: Account
    accountId: number
 
-   bonus: Bonus
-   bonusId: number
+   bonus: Bonus | null
+   bonusId: number | null
 
-   savingPeriod: SavingPeriod
-   savingPeriodId: number
+   savingPeriod: SavingPeriod | null
+   savingPeriodId: number | null
    
-}P 
+}

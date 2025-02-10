@@ -29,7 +29,7 @@ const newMenuItems = [
          {
             title: "Šetřící období",
             description: "Přehled aktivních šetřících období. Hromadné akce.",
-            link: "/customers",
+            link: "/customers/saving-periods",
             icon: faCoins,
          },
          {
@@ -38,6 +38,12 @@ const newMenuItems = [
             link: "/customers",
             icon: faMedal,
          },
+         {
+            title: "Seznam účtů",
+            description: "Seznam aktivních účtů.",
+            link: "/accounts",
+            icon: faUser,
+         }
       ],
    },
    {

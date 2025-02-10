@@ -39,7 +39,7 @@ export default function BonusForm({ initialBonusData }: BonusFormProps) {
   }, [initialBonusData]);
 
   return (
-    <UniversalForm<any>
+    <UniversalForm<Bonus>
       initialData={bonusData}
       validationSchema={bonusValidationSchema}
       onSubmit={handleSubmit}
@@ -55,6 +55,7 @@ export default function BonusForm({ initialBonusData }: BonusFormProps) {
             type="text"
             name="name"
             customClass="min-w-[600px]"
+            defaultValue={bonusData?.name}
           />
           <div className="flex flex-row gap-6 justify-between min-w-[600px]">
 
@@ -63,12 +64,14 @@ export default function BonusForm({ initialBonusData }: BonusFormProps) {
               type="number"
               name="points"
               customClass="w-1/2"
+              defaultValue={bonusData.points}
             />
             <InputField
               label="Hodnota"
               type="number"
               name="price"
               customClass="w-1/2"
+              defaultValue={bonusData.price}
             />
           </div>
           <InputField
@@ -76,9 +79,12 @@ export default function BonusForm({ initialBonusData }: BonusFormProps) {
             type="text"
             name="description"
             customClass="min-w-[600px]"
+            defaultValue={bonusData.description}
           />
         </div>
       )}
+
+
     </UniversalForm>
   );
 }

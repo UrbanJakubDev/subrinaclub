@@ -1,11 +1,10 @@
 
-import DetailDataWrapper from "@/components/features/customer/AccountDataView";
 import SavingPeriodsComponent from "@/components/features/savingPeriod/savingPeriodsComponent";
 import PageComponent from "@/components/features/detailPage/pageComponent";
 import PageHeader from '@/components/features/detailPage/pageHeader';
 import TransactionForm from '@/components/features/transactions/transactionForm';
 import { getCustomerById } from "@/lib/db/queries/customers";
-import { ICustomer } from "@/types/interfaces";
+import { Customer } from "@/types/customer";
 
 
 const AccountDetailPage = async ({ params }: { params: { id: string } }) => {
@@ -13,9 +12,9 @@ const AccountDetailPage = async ({ params }: { params: { id: string } }) => {
 
 
   const customerId = parseInt(params.id);
-  const customer = await getCustomerById(customerId) as unknown as ICustomer;
-  const savingPeriods = customer.accounts[0].savingPeriods;
-  const account = customer.accounts[0];
+  const customer = await getCustomerById(customerId) as Customer;
+  const savingPeriods = customer.account.savingPeriods;
+  const account = customer.account;
 
   return (
     <PageComponent>
@@ -30,10 +29,11 @@ const AccountDetailPage = async ({ params }: { params: { id: string } }) => {
       <h2>{customer.fullName}</h2>
       <div className='flex'>
         <div className='w-1/2 p-4'>
-         <DetailDataWrapper initialCustomer={customer} />
+         <pre>
+          {JSON.stringify(customer, null, 2)}
+         </pre>
         </div>
         <div className='w-1/2 p-4'>
-          <TransactionForm  />
           <SavingPeriodsComponent savingPeriods={savingPeriods} />
         </div>
       </div>

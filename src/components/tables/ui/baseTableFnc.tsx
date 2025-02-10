@@ -102,13 +102,36 @@ export default function Filter({
   if (typeof firstValue === "boolean") {
     return (
       <select
-        value={columnFilterValue ?? ""}
-        onChange={(e) => column.setFilterValue(e.target.value)}
+        value={columnFilterValue?.toString() ?? ""}
+        onChange={(e) => {
+          const value = e.target.value;
+          column.setFilterValue(
+            value === "" ? undefined : value === "true"
+          );
+        }}
         className="w-full ps-1"
       >
         <option value="">Vše</option>
         <option value="true">Ano</option>
         <option value="false">Ne</option>
+      </select>
+    );
+  }
+
+  // Add special case for status columns
+  if (column.id === "status" && (firstValue === "ACTIVE" || firstValue === "CLOSED")) {
+    return (
+      <select
+        value={columnFilterValue ?? ""}
+        onChange={(e) => {
+          const value = e.target.value;
+          column.setFilterValue(value === "" ? undefined : value);
+        }}
+        className="w-full ps-1"
+      >
+        <option value="">Vše</option>
+        <option value="ACTIVE">Aktivní</option>
+        <option value="CLOSED">Uzavřené</option>
       </select>
     );
   }

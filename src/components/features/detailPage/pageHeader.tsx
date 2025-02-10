@@ -44,7 +44,7 @@ export default function PageHeader({ userName, userId, active, formUrl, accountU
         <div className="flex gap-2">
           {userId !== "0" && addBtn && (
             <Link href="#">
-              <Button onClick={() => actions.openModal('transactionForm')}>
+              <Button onClick={() => actions.openModal('transactionForm', null)}>
                 <FontAwesomeIcon icon={faPlus} />
                 <span> Transakce</span>
               </Button>

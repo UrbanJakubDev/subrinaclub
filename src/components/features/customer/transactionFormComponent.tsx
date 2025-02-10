@@ -8,16 +8,45 @@ import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useModalStore } from '@/stores/ModalStore';
 import { useStatsStore } from '@/stores/CustomerStatsStore';
+import Loader from '@/components/ui/loader';
 
-
+const newTransaction: Transaction = {
+  id: 0,
+  year: new Date().getFullYear(),
+  quarter: 1,
+  points: 1,
+  acceptedBonusOrder: null,
+  sentBonusOrder: null,
+  bonusPrice: 0,
+  bonusId: 0,
+  description: '',
+  active: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  accountId: 0,
+  savingPeriodId: 0,
+  type: 'DEPOSIT',
+  quarterDateTime: new Date(),
+  account: {} as any,
+  bonus: null,
+  savingPeriod: null,
+  directSale: false
+};
 
 export default function TransactionFormComponent() {
-
   const { modalId, data: modalData, actions: modalActions } = useModalStore();
   const { customer, account, activeSavingPeriod } = useStatsStore(state => state);
-  const savingPeriod = activeSavingPeriod
-  const [transaction, setTransaction] = useState<Transaction | null>(null);
+  const savingPeriod = activeSavingPeriod;
+  const [transaction, setTransaction] = useState<Transaction>(newTransaction);
   const [dials, setDials] = useState<any[]>([]);
+
+  console.log('TransactionFormComponent render:', {
+    modalId,
+    customer: customer?.id,
+    account: account?.id,
+    savingPeriod: savingPeriod?.id,
+    isModalOpen: modalId === 'transactionForm'
+  });
 
   // Fetch bonus options
   useEffect(() => {
@@ -31,81 +60,52 @@ export default function TransactionFormComponent() {
     }
   }, [modalId]);
 
-
   useEffect(() => {
     if (modalData?.id) {
       setTransaction(modalData as Transaction);
+    } else {
+      setTransaction(newTransaction);
     }
-  }
-    , [modalActions.openModal, modalData]);
-
-  if (!customer || !savingPeriod || !dials) {
-    return <Skeleton />;
-  }
+  }, [modalActions.openModal, modalData]);
 
   return (
     <ModalComponent
       modalId="transactionForm"
-      title={transaction ? 'Editovat body' : 'Přidat / Vybrat body'}
+      title={transaction.id ? 'Editovat body' : 'Přidat / Vybrat body'}
     >
-      <div className='flex p-8'>
-        <div className='flex flex-row gap-8'>
-          <TransactionForm
-            transaction={transaction}
-            bonusesDial={dials}
-          />
-
-          <Card className='p-8 flex justify-between'>
-            <div>
-              <Typography variant='h4'>Zákazník</Typography>
-              <p>Jméno: {customer?.fullName}</p>
-              <p>Registrační číslo: {customer?.registrationNumber}</p>
-
-              <Typography variant='h5' className='mt-8' >Aktivní šetřící období</Typography>
-              <p>{`od: ${savingPeriod?.startYear}/${savingPeriod?.startQuarter} do: ${savingPeriod?.endYear}/${savingPeriod?.endQuarter}`}</p>
-
-              <Typography variant='h5' className='mt-8'>Body v šetřícím období k dispozici</Typography>
-              <p>{savingPeriod?.availablePoints}</p>
-
-            </div>
-            <div>
-              <Typography variant='h6'>Chyba</Typography>
-              <p className='text-red-600 txt-xs'>Nelze zadat transakci mimo šetřící obdobé</p>
-            </div>
-          </Card>
+      {!customer || !savingPeriod ? (
+        <div className="p-4 text-center">
+          <p>Loading customer data...</p>
         </div>
-      </div>
-      <div>
-        <p>Transaction</p>
-        <pre>
-          {JSON.stringify(transaction, null, 2)}
-        </pre>
-        {dials && (
-          <>
-            <p>Dials</p>
-            <pre>
-              {JSON.stringify(dials, null, 2)}
-            </pre>
-          </>
-        )}
-        <p>Customer</p>
-        <pre>
-          {JSON.stringify(customer, null, 2)}
-        </pre>
+      ) : (
+        <div className='flex p-8'>
+          <div className='flex flex-row gap-8'>
+            <TransactionForm
+              transaction={transaction}
+              bonusesDial={dials}
+            />
 
-        {modalData && (
-          <>
-            <p>Modal Data</p>
-            <pre>
-              {JSON.stringify(modalData, null, 2)}
-            </pre>
-          </>
-        )}
-        <p>SP</p>
-        <pre>
-          {JSON.stringify(savingPeriod, null, 2)}
-        </pre>
-      </div>
+            <div className='p-8 flex justify-between'>
+              <div>
+                <Typography variant='h4'>Zákazník</Typography>
+                <p>Jméno: {customer?.fullName}</p>
+                <p>Registrační číslo: {customer?.registrationNumber}</p>
+
+                <Typography variant='h5' className='mt-8' >Aktivní šetřící období</Typography>
+                <p>{`od: ${savingPeriod?.startYear}/${savingPeriod?.startQuarter} do: ${savingPeriod?.endYear}/${savingPeriod?.endQuarter}`}</p>
+
+                <Typography variant='h5' className='mt-8'>Body v šetřícím období k dispozici</Typography>
+                <p>{savingPeriod?.availablePoints}</p>
+
+              </div>
+              {/* <div>
+                <Typography variant='h6'>Chyba</Typography>
+                <p className='text-red-600 txt-xs'>Nelze zadat transakci mimo šetřící obdobé</p>
+              </div> */}
+            </div>
+          </div>
+        </div>
+      )}
     </ModalComponent>
   );
 };

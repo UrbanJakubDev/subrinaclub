@@ -12,6 +12,7 @@ import InputField from '@/components/ui/inputs/basicInput'
 import TextAreaField from '@/components/ui/inputs/textareaInput'
 import SelectField from '@/components/ui/inputs/selectInput'
 import InputDateFiled from '@/components/ui/inputs/dateInput'
+import { Card } from '@material-tailwind/react'
 
 const newCustomer: CreateCustomerDTO = {
     active: true,
@@ -31,6 +32,7 @@ const newCustomer: CreateCustomerDTO = {
     salesManagerId: null,
     salesManagerSinceQ: null,
     salesManagerSinceYear: null,
+    gdpr: null,
 }
 
 export default function CustomerForm({ initialCustomerData, dials, nextRegNumber }: CustomerFormProps) {
@@ -82,9 +84,19 @@ export default function CustomerForm({ initialCustomerData, dials, nextRegNumber
     }, [initialCustomerData]);
 
 
+    const gdprOptions = [
+        { label: 'Není', value: 0 },
+        { label: 'Registrační formulář OZ', value: 1 },
+        { label: 'Webový formulář', value: 2 },
+        { label: 'dotazník (ze školení)', value: 3 },
+        { label: 'velkoobchod', value: 4 },
+        { label: 'tištěný formulář', value: 5 },
+    ]
+
 
 
     return (
+        <Card>
         <UniversalForm<Customer>
             initialData={customerData}
             validationSchema={customerValidationSchema}
@@ -177,17 +189,24 @@ export default function CustomerForm({ initialCustomerData, dials, nextRegNumber
                             defaultValue={customerData.psc}
                         />
                     </div>
-                    <div className="flex gap-4">
+                    <div className="flex flex-col gap-4">
                         <TextAreaField
                             label="Poznámka"
                             name="note"
                             defaultValue={customerData.note}
                         />
+                        <SelectField
+                            label="GDPR"
+                            name="gdpr"
+                            options={gdprOptions}
+                            defaultValue={customerData.gdpr}
+                        />
                     </div>
                     <hr />
-                    <div className="flex gap-4">
-                        <SelectField
-                            label="Obchodn9k"
+                    <div className="flex gap-4 w-full">
+                        <SelectField 
+                            className="w-full"
+                            label="Velkoobchod"
                             name="dealerId"
                             options={dials.dealers}
                             defaultValue={customerData.dealerId}
@@ -218,6 +237,6 @@ export default function CustomerForm({ initialCustomerData, dials, nextRegNumber
 
             )}
         </UniversalForm>
-
+        </Card>
     )
 }

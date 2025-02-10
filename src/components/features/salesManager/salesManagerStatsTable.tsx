@@ -9,8 +9,72 @@ import { faAddressCard, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import formatThousandDelimiter from "@/lib/utils/formatFncs";
 
+type CustomerData = {
+  id: number;
+  publicId: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+  fullName: string;
+  birthDate: string | null;
+  registrationNumber: string | number;
+  ico: string | null;
+  phone: string | null;
+  email: string | null;
+  registratedSince: string | null;
+  salonName: string | null;
+  address: string | null;
+  town: string | null;
+  psc: string | null;
+  note: string | null;
+  dealerId: number;
+  salesManagerId: number | null;
+  salesManagerSinceQ: number;
+  salesManagerSinceYear: number;
+  dealer: {
+    id: number;
+    active: boolean;
+    fullName: string;
+    registrationNumber: number;
+  };
+  salesManager: null | {
+    id: number;
+    fullName: string;
+  };
+  account: {
+    id: number;
+    active: boolean;
+    lifetimePoints: number;
+    currentYearPoints: number;
+    totalDepositedPoints: number;
+    totalWithdrawnPonits: number;
+    customerId: number;
+    savingPeriods: Array<{
+      id: number;
+      status: string;
+      startYear: number;
+      startQuarter: number;
+      endYear: number;
+      endQuarter: number;
+      availablePoints: number;
+    }>;
+  };
+  transactions: Array<{
+    id: number;
+    points: number;
+    quarter: number;
+    year: number;
+  }>;
+  quarterSums: {
+    Q1: number;
+    Q2: number;
+    Q3: number;
+    Q4: number;
+  };
+};
+
 type Props = {
-  defaultData: any[];
+  defaultData: CustomerData[];
   detailLinkPath?: string;
 };
 
@@ -18,106 +82,116 @@ export default function SalesManagerStatsTable({
   defaultData,
   detailLinkPath,
 }: Props) {
-  // Change type of the defaultData.registrationNumber to string
-  defaultData.forEach((data) => {
-    data.registrationNumber = data.registrationNumber.toString();
-  });
-
   const tableName = "Sales Manager Stats";
 
   // Column definitions
-  const columns = React.useMemo<ColumnDef<any>[]>(
+  const columns = React.useMemo<ColumnDef<CustomerData>[]>(
     () => [
       {
         accessorKey: "registrationNumber",
         header: "Registrační číslo",
+        cell: ({ getValue }) => {
+          const value = getValue();
+          return typeof value === 'number' ? value.toString() : value;
+        }
       },
       {
-        accessorKey: "customerSalonName",
+        accessorKey: "fullName",
         header: "Jméno salonu",
       },
       {
-        accessorKey: "salonAddress",
+        accessorKey: "address",
         header: "Adresa",
+        cell: ({ getValue }) => getValue() || '-',
       },
       {
-        accessorKey: "salonTown",
+        accessorKey: "town",
         header: "Město",
+        cell: ({ getValue }) => getValue() || '-',
       },
       {
-        accessorKey: "salonPsc",
+        accessorKey: "psc",
         header: "PSČ",
-      },
-      {
-        accessorKey: "customerFullName",
-        header: "Jméno",
-        filterFn: "auto",
+        cell: ({ getValue }) => getValue() || '-',
       },
       {
         accessorKey: "phone",
         header: "Telefon",
         filterFn: "auto",
+        cell: ({ getValue }) => getValue() || '-',
       },
       {
-        accessorKey: "dealerName",
+        accessorKey: "dealer.fullName",
         header: "Jméno Obchodníka",
       },
+   
       {
-        accessorKey: "sumQ1",
+        accessorKey: "quarterSums.Q1",
         header: "Suma za Q1",
-        footer: (info) => {
-          const total = info.table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + row.getValue<number>('sumQ1'),
+        cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
+        footer: ({ table }) => {
+          const total = table.getFilteredRowModel().rows.reduce(
+            (sum, row) => sum + (row.getValue<number>('quarterSums.Q1') || 0),
             0
           );
-          return `${formatThousandDelimiter(total)}`;
+          return formatThousandDelimiter(total);
         },
       },
       {
-        accessorKey: "sumQ2",
+        accessorKey: "quarterSums.Q2",
         header: "Suma za Q2",
-        cell: (info) => info.getValue(),
-        footer: (info) => {
-          const total = info.table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + row.getValue<number>('sumQ2'),
+        cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
+        footer: ({ table }) => {
+          const total = table.getFilteredRowModel().rows.reduce(
+            (sum, row) => sum + (row.getValue<number>('quarterSums.Q2') || 0),
             0
           );
-          return `${formatThousandDelimiter(total)}`;
+          return formatThousandDelimiter(total);
         },
       },
       {
-        accessorKey: "sumQ3",
+        accessorKey: "quarterSums.Q3",
         header: "Suma za Q3",
-        cell: (info) => info.getValue(),
-        footer: (info) => {
-          const total = info.table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + row.getValue<number>('sumQ3'),
+        cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
+        footer: ({ table }) => {
+          const total = table.getFilteredRowModel().rows.reduce(
+            (sum, row) => sum + (row.getValue<number>('quarterSums.Q3') || 0),
             0
           );
-          return `${formatThousandDelimiter(total)}`;
+          return formatThousandDelimiter(total);
         },
       },
       {
-        accessorKey: "sumQ4",
+        accessorKey: "quarterSums.Q4",
         header: "Suma za Q4",
-        cell: (info) => info.getValue(),
-        footer: (info) => {
-          const total = info.table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + row.getValue<number>('sumQ4'),
+        cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
+        footer: ({ table }) => {
+          const total = table.getFilteredRowModel().rows.reduce(
+            (sum, row) => sum + (row.getValue<number>('quarterSums.Q4') || 0),
             0
           );
-          return `${formatThousandDelimiter(total)}`;
+          return formatThousandDelimiter(total);
         },
       },
       {
-        accessorKey: "totalPoints",
+        accessorKey: "account.averagePointsBeforeSalesManager",
+        header: "Průměrné body před přiřazením obchodního zástupce",
+      },
+      {
+        accessorKey: "selectedQuarterDifference",
+        header: "Rozdíl v kvartálu",
+        cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
+      },
+      {
+        accessorKey: "account.lifetimePoints",
         header: "Klubové konto",
+        cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
       },
       {
         accessorKey: "actions",
         header: "Akce",
-        cell: (info) => (
-          <Link href={`/customers/${info.row.original.customerID}/stats`}>
+        cell: ({ row }) => (
+          <Link href={`/customers/${row.original.id}/stats`}>
             <Button size="sm" className="font-light"><FontAwesomeIcon icon={faUser} style={{ color: "#ffffff", }} /> Detail </Button>
           </Link>
         ),
@@ -128,17 +202,15 @@ export default function SalesManagerStatsTable({
     [],
   );
 
-  const [data, _setData] = React.useState(() => [...defaultData]);
+  const [data] = React.useState<CustomerData[]>(() => [...defaultData]);
 
   return (
-    <>
-      <MyTable
-        {...{
-          data,
-          columns,
-          tableName,
-        }}
-      />
-    </>
+    <MyTable
+      {...{
+        data,
+        columns,
+        tableName,
+      }}
+    />
   );
 }

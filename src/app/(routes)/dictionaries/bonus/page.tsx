@@ -2,9 +2,10 @@ import BonusesTable from '@/components/features/bonus/bonusesTable';
 import PageComponent from '@/components/features/detailPage/pageComponent';
 import Typography from '@/components/ui/typography';
 import { fetchActiveBonusesFromDB } from '@/lib/db/queries/bonuses';
+import { bonusService } from '@/lib/services/bonus';
 
 export default async function BonusesPage() {
-   const bonuses = await fetchActiveBonusesFromDB();
+   const bonuses = await bonusService.getAll()
 
    return (
       <PageComponent>

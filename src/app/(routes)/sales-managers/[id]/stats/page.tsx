@@ -1,28 +1,20 @@
-import PageHeader from '@/components/features/detailPage/pageHeader'
-import SalesManagerStats from '@/components/features/salesManager/salesManagerStats'
-import {
-    fetchSalesManagerByIdFromDB,
-    getActiveCustomersWithTransactionsBySalesManagerId,
-    getCustomerCountBySalesManagerId,
-    getCustomerCountBySalesManagerIdAndStatus,
-    getTotalPointsBySalesManagerId,
-    getTotalpointsOfTransactionsBySalesManagerId,
-} from '@/lib/db/queries/salesManagers'
-import PageComponent from '@/components/features/detailPage/pageComponent'
+import PageHeader from '@/components/features/detailPage/pageHeader';
+import SalesManagerStats from '@/components/features/salesManager/salesManagerStats';
+import PageComponent from '@/components/features/detailPage/pageComponent';
+import { salesManagerService } from '@/lib/services/salesManager';
 
 export default async function SalesManagersDetailStats({
-                                                           params,
-                                                       }: {
+    params,
+}: {
     params: { id: string };
 }) {
     let sales_manager_id = parseInt(params.id)
-    const salesManager = await fetchSalesManagerByIdFromDB(sales_manager_id as number)
-    const totalPoints = await getTotalpointsOfTransactionsBySalesManagerId(sales_manager_id)
-    const customersClubPoints = await getTotalPointsBySalesManagerId(sales_manager_id)
-    const numberCustomers = await getCustomerCountBySalesManagerId(sales_manager_id)
-    const numOfActiveCustomers = await getActiveCustomersWithTransactionsBySalesManagerId(sales_manager_id, 2024)
-    const numOfSystemActiveCustomers = await getCustomerCountBySalesManagerIdAndStatus(sales_manager_id, true)
 
+    // const currentYear = new Date().getFullYear()
+    const salesManager = await salesManagerService.get(sales_manager_id)
+    // const totalPoints = await salesManagerService.getLifeTimePointsOfCustomers(sales_manager_id)
+
+    // const customersCountsInfo = await salesManagerService.getCustomersCountsInfo(sales_manager_id, currentYear)
     if (!salesManager) {
         return <div>Uživatel nenalezen</div>
     }
@@ -35,16 +27,12 @@ export default async function SalesManagersDetailStats({
                 active={salesManager.active}
                 formUrl={`/sales-managers/${salesManager.id}`}
             />
-            <div className="w-11/12 mx-auto">
+            <div className="w-full mx-auto">
                 <SalesManagerStats
                     salesManager={salesManager}
-                    totalPoints={totalPoints}
-                    numOfCusomers={numberCustomers}
-                    numOfActiveCusomers={numOfActiveCustomers}
-                    numOfSystemActiveCusomers={numOfSystemActiveCustomers}
-                    customersTotalPoints={customersClubPoints}
                 />
             </div>
+           
         </PageComponent>
     )
 }

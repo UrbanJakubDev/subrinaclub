@@ -27,6 +27,28 @@ interface IProductData {
   price: number;
 }
 
+interface YearSelectorProps {
+  selectedYear: number;
+  onYearChange: (year: number) => void;
+}
+
+interface StatsSectionProps {
+  selectedYear: number;
+  clubAccountBalance: number;
+  withdrawPrice: number;
+  transactions: Transaction[];
+  sumPointsInYear: (year: number) => number;
+  sumTransactionPointsInQuarter: (year: number, quarter: number) => number;
+}
+
+interface ProductsSectionProps {
+  chartData: {
+    options: { labels: string[] };
+    series: number[];
+  };
+  products: IProductData[];
+}
+
 export default function AccountStats({ customer, transactions, isLoading }: AccountStatsProps) {
   const [selectedYear, setSelectedYear] = useState(2024);
   const clubAccountBalance = customer?.account?.lifetimePoints;
@@ -46,13 +68,16 @@ export default function AccountStats({ customer, transactions, isLoading }: Acco
       .reduce((total, t) => total + t.points, 0);
   };
 
-  const getSumOfTransactionsForChart = (startDate: string, endDate: string) => {
-    if (!Array.isArray(transactions)) {
+  const getSumOfTransactionsForChart = () => {
+    if (!Array.isArray(transactions) || transactions.length === 0) {
       return { series: [{ name: "Body", data: [] }], categories: [] };
     }
 
-    const [startYear, startQuarter] = startDate.split("-");
-    const [endYear, endQuarter] = endDate.split("-");
+    // Get min and max dates from transactions
+    const dates = transactions.map(t => ({ year: t.year, quarter: t.quarter }));
+    const startYear = Math.min(...dates.map(d => d.year));
+    const endYear = Math.max(...dates.map(d => d.year));
+
     const quarterSums: { [key: string]: number } = {};
 
     // Populate sums
@@ -64,21 +89,12 @@ export default function AccountStats({ customer, transactions, isLoading }: Acco
     // Generate series data
     const categories: string[] = [];
     const data: number[] = [];
-    let currentYear = parseInt(startYear);
-    let currentQuarter = parseInt(startQuarter);
-
-    while (
-      currentYear < parseInt(endYear) ||
-      (currentYear === parseInt(endYear) && currentQuarter <= parseInt(endQuarter))
-    ) {
-      const category = `${currentYear}-Q${currentQuarter}`;
-      categories.push(category);
-      data.push(quarterSums[category] || 0);
-
-      currentQuarter++;
-      if (currentQuarter > 4) {
-        currentQuarter = 1;
-        currentYear++;
+    
+    for (let year = startYear; year <= endYear; year++) {
+      for (let quarter = 1; quarter <= 4; quarter++) {
+        const key = `${year}-Q${quarter}`;
+        categories.push(key);
+        data.push(quarterSums[key] || 0);
       }
     }
 
@@ -93,35 +109,36 @@ export default function AccountStats({ customer, transactions, isLoading }: Acco
 
     const productMap: { [key: string]: IProductData } = {};
     transactions
-      .filter(t => t.points < 0)
+      .filter(t => t.points < 0 && t.bonus?.name)
       .forEach(t => {
-        if (!productMap[t.bonusName]) {
-          productMap[t.bonusName] = {
-            bonusId: 'placeholder-id',
-            bonusName: t.bonusName,
+        const bonusName = t.bonus?.name || 'Unknown Bonus';
+        if (!productMap[bonusName]) {
+          productMap[bonusName] = {
+            bonusId: t.bonusId?.toString() || 'unknown',
+            bonusName,
             count: 0,
             sum: 0,
             price: 0,
           };
         }
-        productMap[t.bonusName].count++;
-        productMap[t.bonusName].sum += Math.abs(t.points);
-        productMap[t.bonusName].price += (t.bonuspoints ?? 0);
+        productMap[bonusName].count++;
+        productMap[bonusName].sum += Math.abs(t.points);
+        productMap[bonusName].price += (t.bonusPrice || 0);
       });
 
     return Object.values(productMap);
   };
 
   // Calculate derived data
-  const { series, categories } = getSumOfTransactionsForChart("2014-01", "2024-04");
+  const { series, categories } = getSumOfTransactionsForChart();
   const mostFavouriteProducts = getMostFavouriteProducts();
   const withdrawPrice = transactions
     .filter(t => t.points < 0)
-    .reduce((sum, t) => sum + (t.bonuspoints ?? 0), 0);
+    .reduce((sum, t) => sum + (t.bonusPrice || 0), 0);
 
   const chartData = {
     options: {
-      labels: mostFavouriteProducts.map(p => p.bonusName || "Chybí název Bonusu")
+      labels: mostFavouriteProducts.map(p => p.bonusName)
     },
     series: mostFavouriteProducts.map(p => p.count)
   };
@@ -132,6 +149,11 @@ export default function AccountStats({ customer, transactions, isLoading }: Acco
 
   return (
     <div className="flex flex-col gap-10">
+      <ProductsSection
+        chartData={chartData}
+        products={mostFavouriteProducts}
+      />
+
       <Card className="p-8 border rounded-sm">
         <div className="mb-4">
           <Typography variant="h5" className="mb-4 color-gray-900">
@@ -139,7 +161,7 @@ export default function AccountStats({ customer, transactions, isLoading }: Acco
           </Typography>
           {transactions.length > 0 && (
             <LineChart
-              title="Vývoj bodů na Klubovém kontu"
+              title="Pohyby na účtě"
               description="Graf vývoje bodů za posledních 10 let"
               series={series}
               categories={categories}
@@ -147,13 +169,12 @@ export default function AccountStats({ customer, transactions, isLoading }: Acco
           )}
         </div>
 
-        {/* Year selector and stats section */}
         <div className="flex gap-4">
-          <YearSelector 
-            selectedYear={selectedYear} 
-            onYearChange={setSelectedYear} 
+          <YearSelector
+            selectedYear={selectedYear}
+            onYearChange={setSelectedYear}
           />
-          <StatsSection 
+          <StatsSection
             selectedYear={selectedYear}
             clubAccountBalance={clubAccountBalance}
             withdrawPrice={withdrawPrice}
@@ -164,40 +185,39 @@ export default function AccountStats({ customer, transactions, isLoading }: Acco
         </div>
       </Card>
 
-      {/* Products section */}
-      <ProductsSection 
-        chartData={chartData}
-        products={mostFavouriteProducts}
-      />
+
     </div>
   );
 }
 
-// Sub-components (can be moved to separate files if needed)
-const YearSelector = ({ selectedYear, onYearChange }) => (
+const YearSelector: React.FC<YearSelectorProps> = ({ selectedYear, onYearChange }) => (
   <div className="flex flex-col justify-between p-4">
     <Button className="w-full" onClick={() => onYearChange(selectedYear + 1)}>+</Button>
     <SimpleSelectInput
       label="Vybrat Rok..."
       onChange={onYearChange}
-      options={yearSelectOptions().map(option => ({
-        id: option.value,
-        name: option.label
-      }))}
-      value={selectedYear}
+      options={yearSelectOptions()}
+      value={selectedYear || new Date().getFullYear()}
     />
     <Button className="w-full" onClick={() => onYearChange(selectedYear - 1)}>-</Button>
   </div>
 );
 
-const StatsSection = ({ selectedYear, clubAccountBalance, withdrawPrice, transactions, sumPointsInYear, sumTransactionPointsInQuarter }) => (
+const StatsSection: React.FC<StatsSectionProps> = ({
+  selectedYear,
+  clubAccountBalance,
+  withdrawPrice,
+  transactions,
+  sumPointsInYear,
+  sumTransactionPointsInQuarter
+}) => (
   <div className="w-full">
     <div className="flex flex-row gap-4 mx-auto mb-4 justify-stretch">
-      <SimpleStat title="Bodový stav na konci roku" value={clubAccountBalance} units="b." />
+      <SimpleStat title="Klubové konto" value={clubAccountBalance} units="b." />
       <SimpleStat title="Celkově vybráno bonusů za" value={withdrawPrice} units="Kč" />
-      <SimpleStat 
-        title={`Suma bodů získaných ve vybraném roce: ${selectedYear === 0 ? "Nevybráno" : selectedYear}`} 
-        value={sumPointsInYear(selectedYear)} 
+      <SimpleStat
+        title={`Roční konto: ${selectedYear === 0 ? "Nevybráno" : selectedYear}`}
+        value={sumPointsInYear(selectedYear)}
       />
     </div>
     <div className="flex flex-row gap-4 mx-auto justify-stretch">
@@ -214,10 +234,10 @@ const StatsSection = ({ selectedYear, clubAccountBalance, withdrawPrice, transac
   </div>
 );
 
-const ProductsSection = ({ chartData, products }) => (
+const ProductsSection: React.FC<ProductsSectionProps> = ({ chartData, products }) => (
   <Card className="p-8 border rounded-sm">
     <Typography variant="h5" className="mb-4 color-gray-900">
-      Nejoblíbenější produkty
+    Přehled výběru Prémium bonusů
     </Typography>
     <div className="flex justify-between w-full gap-4">
       <div className="w-1/2">
@@ -228,9 +248,9 @@ const ProductsSection = ({ chartData, products }) => (
           <div key={index} className="w-full">
             <ProductCardWidget
               title={product.bonusName}
-              points={product.sum.toString()}
-              count={`${product.count}`}
-              price={`${product.price}`}
+              points={product.sum}
+              count={product.count}
+              price={product.price}
               color="red"
             />
           </div>

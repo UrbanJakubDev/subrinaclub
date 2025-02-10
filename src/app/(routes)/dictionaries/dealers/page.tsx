@@ -12,9 +12,6 @@ export default async function DealersPage() {
         <Typography variant="h5" color="black">Seznam obchodníku</Typography>
       </div>
       <DealerTable defaultData={dealers} detailLinkPath="/dictionaries/dealers" />
-      <pre>
-        {JSON.stringify(dealers, null, 2)}
-      </pre>
     </PageComponent>
   );
 }

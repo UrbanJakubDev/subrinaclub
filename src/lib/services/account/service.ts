@@ -38,4 +38,12 @@ export class AccountService {
    async delete(id: number): Promise<Account> {
       return this.accountRepository.delete(id);
    }
+
+   async getAccountWithSavingPeriods(id: number): Promise<AccountResponseDTO | null> {
+      return this.accountRepository.getAccountWithSavingPeriods(id);
+   }
+
+   async getAllActiveAccounts(): Promise<AccountResponseDTO[]> {
+      return this.accountRepository.getAllActiveAccounts();
+   }
 }

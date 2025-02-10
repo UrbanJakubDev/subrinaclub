@@ -48,7 +48,7 @@ export default function UniversalForm<T extends FieldValues>({
          reset(result);
          if (successMessage) {
             toast.success(successMessage);
-         }  
+         }
       } catch (error) {
          toast.error('An error occurred while submitting the form.' + error);
       }
@@ -60,11 +60,11 @@ export default function UniversalForm<T extends FieldValues>({
    }
 
    return (
-      <Card className="mx-auto p-4 w-fit">
+      <div className="mx-auto p-4 w-fit">
          <FormProvider {...methods}>
 
             {
-               errors && (
+               errors.length > 0 && (
                   <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
                      <strong className="font-bold">Chyba!</strong>
                      <span className="block sm:inline"> {Object.values(errors).map((error: any) => error.message).join(', ')}</span>
@@ -85,6 +85,6 @@ export default function UniversalForm<T extends FieldValues>({
                </div>
             </form>
          </FormProvider>
-      </Card>
+      </div>
    );
 }

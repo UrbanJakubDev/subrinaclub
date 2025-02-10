@@ -6,7 +6,7 @@ import { customerService } from "@/lib/services/customer";
 
 export default async function CustomersPage() {
 
-  const customers = await customerService.getAll();
+  const customers = await customerService.getAll(true);
 
 
   if (!customers) {

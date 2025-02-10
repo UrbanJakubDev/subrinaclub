@@ -2,7 +2,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { CustomerWithAccountDataAndActiveSavingPeriodDTO } from "@/lib/services/customer/types";
 import { Transaction } from "@/types/transaction";
-import Skeleton from "@/components/ui/skeleton";
 import CustomerCard from "./customerCard";
 import AccountInfoCard from "./accountInfoCard";
 import AccountStats from "./account/accountStats";
@@ -38,25 +37,40 @@ export default function CustomerStatsView({ initialCustomer, initialTransactions
    ) => {
       setIsLoading(true);
       setIsTransactionsLoading(true);
+      
+      // Ensure newTransactions is always an array
+      const transactions = Array.isArray(newTransactions) ? newTransactions : [];
+      
       // Update local state
       setLocalCustomer(newCustomer);
       setLocalAccount(newCustomer.account);
       setLocalSavingPeriod(newCustomer.account.savingPeriod);
-      setTransactions(newTransactions);
+      setTransactions(transactions);
 
-      // Update global state
+      // Always update global state, even if there are no transactions
       setCustomer(newCustomer);
       setAccount(newCustomer.account);
       setSavingPeriod(newCustomer.account.savingPeriod);
+      
+      console.log('Refreshing data:', {
+        customer: newCustomer,
+        account: newCustomer.account,
+        savingPeriod: newCustomer.account.savingPeriod,
+        transactionsCount: transactions.length
+      });
+
       setIsLoading(false);
       setIsTransactionsLoading(false);
    }, [setCustomer, setAccount, setSavingPeriod]);
 
    // Handle initial data changes
    useEffect(() => {
-      console.log('Initial transactions:', initialTransactions);
-      refreshData(initialCustomer, initialTransactions);
-   }, [initialCustomer, initialTransactions, refreshData]);
+      console.log('Initial data:', {
+        customer: initialCustomer,
+        transactions: initialTransactions
+      });
+      refreshData(initialCustomer, initialTransactions || []); // Ensure transactions is always an array
+   }, [initialCustomer, refreshData]); // Remove initialTransactions from dependencies
 
 
    // Fetch data from API and update local and global state
@@ -164,7 +178,7 @@ export default function CustomerStatsView({ initialCustomer, initialTransactions
                   isLoading={isLoading || isTransactionsLoading}
                />
             </div>
-            <div className="my-2">
+            <div className="my-2 w-full">
                <TransactionsTable
                   tableName={`Transakce ${customer.fullName || ''}`}
                   accountId={account?.id}

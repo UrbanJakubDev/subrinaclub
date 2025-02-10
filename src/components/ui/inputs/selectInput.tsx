@@ -60,6 +60,7 @@ const SelectField = ({
   return (
     <div className={customClass}>
       <Select
+        className="w-full"
         label={label}
         value={value?.toString() ?? ''}
         onChange={(newValue) => {

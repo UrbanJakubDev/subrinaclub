@@ -1,4 +1,5 @@
 import { SelectOption } from "@/types/types";
+import { AccountResponseDTO } from "../account/types";
 
 
 export interface CustomerResponseDTO {
@@ -20,6 +21,7 @@ export interface CustomerResponseDTO {
    note: string | null;
    dealerId: number | null;
    salesManagerId: number | null;
+   account: AccountResponseDTO;
 }
 
 export interface CustomerSelectDTO extends SelectOption { }
@@ -63,6 +65,7 @@ export interface CustomerWithAccountDataAndActiveSavingPeriodDTO {
       customerId: number;
       accountNumber: string;
       balance: number;
+      averagePointsBeforeSalesManager: number;
       savingPeriod: {
          id: number;
          accountNumber: string;
@@ -73,4 +76,29 @@ export interface CustomerWithAccountDataAndActiveSavingPeriodDTO {
          endDate: Date;
       };
    };
+}
+
+export type SeznamObratuDTO = {
+   registrationNumber: string;
+   id: number;
+   fullName: string;
+   town: string | null;
+   salonName: string | null;
+   salesManager: string;
+   clubScore: number;
+   '2024': number;
+   '2023': number;
+   '2022': number;
+   '2021': number;
+   '2020': number;
+   '2019': number;
+   '2018': number;
+   '2017': number;
+   '2016': number;
+   '2015': number;
+   '2014': number;
+   '2013': number;
+   '2012': number;
+   '2011': number;
+   '2010': number;
 }

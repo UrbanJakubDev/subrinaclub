@@ -1,31 +1,57 @@
-# Use the official Node.js image.
-# https://hub.docker.com/_/node
-FROM node:lts-alpine
+FROM node:18-alpine AS builder
 
-# Install openssl for Prisma
-RUN apk add --no-cache openssl
+WORKDIR /app
 
-# Create and change to the app directory.
-WORKDIR /usr/src/app
+# Install dependencies required for Prisma
+RUN apk add --no-cache \
+    libc6-compat \
+    openssl \
+    openssl-dev \
+    openssl-libs-static
 
-# Copy application dependency manifests to the container image.
-# A wildcard is used to ensure both package.json AND package-lock.json are copied.
+# Install dependencies only when needed
 COPY package*.json ./
+RUN npm ci
 
-# Install dependencies.
-RUN npm install
-
-# Copy local code to the container image.
+# Copy all files
 COPY . .
 
 # Generate Prisma client
+ENV PRISMA_CLI_BINARY_TARGETS=native
 RUN npx prisma generate
 
-# Build the Next.js app
-# RUN npm run build
+# Build Next.js app
+ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV=production
+RUN npm run build
 
-# Run the Next.js app
-CMD ["npm", "run", "dev"]
+# Production image, copy all the files and run next
+FROM node:18-alpine AS runner
 
-# Document that the service listens on port 3000.
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED 1
+
+# Install production dependencies for Prisma
+RUN apk add --no-cache \
+    openssl \
+    libc6-compat
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copy built assets from builder
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/prisma ./prisma
+
+USER nextjs
+
 EXPOSE 3000
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+
+CMD ["node", "server.js"]

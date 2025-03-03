@@ -407,8 +407,8 @@ export default function BaseTable<T>({
   }, [rowSelection, onSelectionChange])
 
   return (
-    <div className="mx-auto overflow-auto w-full">
-      <Card className="p-4 text-gray-900 rounded-sm">
+    <div className="mx-auto w-full">
+      <Card className="p-4 text-gray-900 rounded-sm overflow-x-auto">
         <TableToolbar
           table={table}
           tableName={tableName}

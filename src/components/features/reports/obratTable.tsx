@@ -30,8 +30,11 @@ export default function ReportObratTable({ defaultData, detailLinkPath }: Props)
 
 
    // Column definitions
-   const columns = React.useMemo<ColumnDef<any>[]>(
-      () => [
+   const columns = React.useMemo<ColumnDef<any>[]>(() => {
+      const currentYear = new Date().getFullYear();
+      const startYear = 2011;
+      
+      const baseColumns: ColumnDef<any>[] = [
          {
             accessorKey: 'registrationNumber',
             header: 'Reg. číslo',
@@ -42,6 +45,12 @@ export default function ReportObratTable({ defaultData, detailLinkPath }: Props)
             accessorKey: 'fullName',
             header: 'Jméno',
             cell: info => info.getValue(),
+         },
+         {
+            accessorKey: 'salonName',
+            header: 'Salón',
+            cell: info => info.getValue(),
+            enableColumnFilter: false
          },
          {
             accessorKey: 'address',
@@ -68,12 +77,6 @@ export default function ReportObratTable({ defaultData, detailLinkPath }: Props)
             enableColumnFilter: false
          },
          {
-            accessorKey: 'salonName',
-            header: 'Salón',
-            cell: info => info.getValue(),
-            enableColumnFilter: false
-         },
-         {
             accessorKey: 'salesManager',
             header: 'Obchodní zástupce',
             cell: info => info.getValue(),
@@ -86,116 +89,39 @@ export default function ReportObratTable({ defaultData, detailLinkPath }: Props)
          },
          {
             accessorKey: 'clubScore',
-            header: 'Body',
+            header: 'Klubové konto',
             cell: info => info.getValue(),
             enableColumnFilter: false
          },
-         {
-            accessorKey: '2024',
-            header: '2024',
-            cell: info => info.getValue(),
-            enableColumnFilter: false,
-            footer: (props) => getFooterValue('sum', props)
-         },
-         {
-            accessorKey: '2023',
-            header: '2023',
-            cell: info => info.getValue(),
-            enableColumnFilter: false,
-            footer: (props) => getFooterValue('sum', props)
-         },
-         {
-            accessorKey: '2022',
-            header: '2022',
-            cell: info => info.getValue(),
-            enableColumnFilter: false,
-            footer: (props) => getFooterValue('sum', props)
-         },
-         {
-            accessorKey: '2021',
-            header: '2021',
-            cell: info => info.getValue(),
-            enableColumnFilter: false,
-            footer: (props) => getFooterValue('sum', props)
-         },
-         {
-            accessorKey: '2020',
-            header: '2020',
-            cell: info => info.getValue(),
-            enableColumnFilter: false,
-            footer: (props) => getFooterValue('sum', props)
-         },
-         {
-            accessorKey: '2019',
-            header: '2019',
-            cell: info => info.getValue(),
-            enableColumnFilter: false,
-            footer: (props) => getFooterValue('sum', props) 
-         },
-         {
-            accessorKey: '2018',
-            header: '2018',
-            cell: info => info.getValue(),
-            enableColumnFilter: false,
-            footer: (props) => getFooterValue('sum', props)    
-         },
-         {
-            accessorKey: '2017',
-            header: '2017',
-            cell: info => info.getValue(),
-            enableColumnFilter: false,
-            footer: (props) => getFooterValue('sum', props)       
-         },
-         {
-            accessorKey: '2016',
-            header: '2016',
-            cell: info => info.getValue(),
-            enableColumnFilter: false,
-            footer: (props) => getFooterValue('sum', props)       
-         },
-         {
-            accessorKey: '2015',
-            header: '2015',
-            cell: info => info.getValue(),
-            enableColumnFilter: false,
-            footer: (props) => getFooterValue('sum', props)       
-         },
-         {
-            accessorKey: '2014', 
-            header: '2014',
-            cell: info => info.getValue(),
-            enableColumnFilter: false,
-            footer: (props) => getFooterValue('sum', props)          
-         },
-         {
-            accessorKey: '2013',
-            header: '2013',
-            cell: info => info.getValue(),
-            enableColumnFilter: false,
-            footer: (props) => getFooterValue('sum', props)          
-         },
-         {
-            accessorKey: '2012',
-            header: '2012',
-            cell: info => info.getValue(),
-            enableColumnFilter: false,
-            footer: (props) => getFooterValue('sum', props)
-         },
-         {
-            accessorKey: '2011',
-            header: '2011',
-            cell: info => info.getValue(),
-            enableColumnFilter: false,
-            footer: (props) => getFooterValue('sum', props)
-         },
-         {
-            accessorKey: '2010',
-            header: '2010',
-            cell: info => info.getValue(),
-            enableColumnFilter: false,
-            footer: (props) => getFooterValue('sum', props)
-         },
+      ];
 
+      // Generate quarter columns dynamically
+      const quarterColumns = Array.from({ length: 4 }, (_, index) => {
+         const quarter = index + 1;
+         return {
+            accessorKey: `Q${quarter}`,
+            header: `Q${quarter}`,
+            cell: (info: any) => info.getValue(),
+            enableColumnFilter: false,
+            footer: (props: any) => getFooterValue('sum', props)
+         };
+      });
+
+      // Combine base columns with quarter columns
+      
+      // Generate year columns dynamically
+      const yearColumns = Array.from({ length: currentYear - startYear + 1 }, (_, index) => {
+         const year = currentYear - index;
+         return {
+            accessorKey: year.toString(),
+            header: year.toString(),
+            cell: (info: any) => info.getValue(),
+            enableColumnFilter: false,
+            footer: (props: any) => getFooterValue('sum', props)
+         };
+      });
+
+      const actionColumn: ColumnDef<any>[] = [
          {
             accessorKey: "actions",
             header: "Akce",
@@ -204,11 +130,12 @@ export default function ReportObratTable({ defaultData, detailLinkPath }: Props)
             ),
             enableColumnFilter: false,
          }
-        
-      ],
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      []
-   )
+      ];
+
+      return [...baseColumns, ...quarterColumns, ...yearColumns, ...actionColumn];
+   }, 
+   // eslint-disable-next-line react-hooks/exhaustive-deps
+   [])
 
    const [data, _setData] = React.useState(() => [...defaultData])
 

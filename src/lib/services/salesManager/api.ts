@@ -6,9 +6,6 @@ export class SalesManagerAPI {
     async getTransactionsForCustomerAccounts(salesManagerId: number, year: number) {
 
         const transactions = await this.repository.getTransactionsForCustomerAccounts(salesManagerId, year);
-
-
-
         return transactions;
     }
 

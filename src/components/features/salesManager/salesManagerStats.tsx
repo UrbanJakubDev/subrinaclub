@@ -1,13 +1,10 @@
 "use client";
 
 import React from "react";
-import SimpleStat from "../../ui/stats/cardsWidgets/simple";
 import SalesManagerStatsTable from "./salesManagerStatsTable";
-import LineChart from "../../ui/charts/line";
 import { Card, Typography } from "@material-tailwind/react";
 import { quarterSelectOptions, yearSelectOptions } from "@/lib/utils/dateFnc";
 import SimpleSelectInput from "../../ui/inputs/simpleSelectInput";
-import CustomersActiveWidget from "@/components/ui/stats/cardsWidgets/customersActiveWidget";
 import NoData from "@/components/ui/noData";
 import Skeleton from "@/components/ui/skeleton";
 import ColumnChart from "@/components/ui/charts/columnChart";
@@ -147,7 +144,6 @@ export default function SalesManagerStats({
   const [customersData, setCustomersData] = React.useState<Customer[]>([]);
   const [customersCountsInfo, setCustomersCountsInfo] = React.useState<CustomersCountsInfo>({
     allCustomers: 0,
-    systemActiveCustomers: 0,
     activeCustomers: 0
   });
 
@@ -236,6 +232,10 @@ export default function SalesManagerStats({
         Q4: quarterSums.Q4 - (customer.account?.averagePointsBeforeSalesManager || 0),
       };
 
+      // Check if the customer is active in the selected quarter based on if he has points in the selected year and quarter
+      const isCustomerActiveInSelectedQuarter = customerTransactions.some(transaction => transaction.year === selectedYear && transaction.quarter === selectedQuarter);
+
+
       return {
         ...customer,
         transactions: customerTransactions,
@@ -243,10 +243,16 @@ export default function SalesManagerStats({
         quarterDifferences,
         selectedQuarterDifference: quarterDifferences[`Q${selectedQuarter}` as keyof typeof quarterDifferences],
         currentYearPoints,
+        isCustomerActiveInSelectedQuarter,
       };
     });
   }, [selectedQuarter, sumQuarterPoints, salesManagerId, selectedYear]);
 
+
+  // Get count of active cutomers in selected year from ApiData and update customersCountsInfo
+  const getActiveCustomersCount = React.useCallback((apiData: any[]) => {
+    return apiData.filter(customer => customer.isCustomerActiveInSelectedQuarter).length;
+  }, [apiData]);
 
   // Handle year change
 
@@ -268,7 +274,6 @@ export default function SalesManagerStats({
     setCustomersData([]);
     setCustomersCountsInfo({
       allCustomers: 0,
-      systemActiveCustomers: 0,
       activeCustomers: 0
     });
 
@@ -289,6 +294,12 @@ export default function SalesManagerStats({
         const joinedData = joinData(customersData, transactionsData);
         setApiData(joinedData);
         setIsDataReady(true);
+
+        const activeCustomersCount = getActiveCustomersCount(joinedData);
+        setCustomersCountsInfo(prevCounts => ({
+          ...prevCounts,
+          activeCustomers: activeCustomersCount
+        }));
 
         // Update chart series after data is loaded
         const newQuarterSums = [1, 2, 3, 4].map(quarter =>
@@ -318,6 +329,7 @@ export default function SalesManagerStats({
     customersData.reduce((sum, customer) =>
       sum + (customer.account?.lifetimePoints || 0), 0
     ), [customersData]);
+
 
 
   // Calculate quarter points
@@ -407,12 +419,8 @@ export default function SalesManagerStats({
             customersCountsInfo={customersCountsInfo}
             clubPoints={totalPoints}
             yearPoints={quarterSum(1) + quarterSum(2) + quarterSum(3) + quarterSum(4)}
-            averagePointsForSelectedQuarter={quarterPoints[selectedQuarter - 1]}
-            selectedQuarterDifference={99}
           />
-          <pre>
-            {JSON.stringify(customersCountsInfo, null, 2)}
-          </pre>
+
         </div>
       </div>
 

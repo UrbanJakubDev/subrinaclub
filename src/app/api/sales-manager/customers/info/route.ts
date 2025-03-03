@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
     const allCustomers = customers.length;
     const systemActiveCustomers = customers.filter(customer => customer.active).length;
-    const activeCustomers = customers.filter(customer => customer.active && customer?.account?.currentYearPoints > 0).length;
+    const activeCustomers = customers.filter(customer => customer.active && customer?.account?.currentYearPoints && customer?.account?.currentYearPoints > 0).length;
     
     
     

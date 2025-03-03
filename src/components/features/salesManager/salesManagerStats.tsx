@@ -1,16 +1,14 @@
 "use client";
 
 import React from "react";
-import SimpleStat from "../../ui/stats/cardsWidgets/simple";
 import SalesManagerStatsTable from "./salesManagerStatsTable";
-import LineChart from "../../ui/charts/line";
 import { Card, Typography } from "@material-tailwind/react";
 import { quarterSelectOptions, yearSelectOptions } from "@/lib/utils/dateFnc";
 import SimpleSelectInput from "../../ui/inputs/simpleSelectInput";
-import CustomersActiveWidget from "@/components/ui/stats/cardsWidgets/customersActiveWidget";
 import NoData from "@/components/ui/noData";
 import Skeleton from "@/components/ui/skeleton";
 import ColumnChart from "@/components/ui/charts/columnChart";
+import CustomerPointsWidget from "./CustomerPointsWidget";
 
 // Add proper types for our data structures
 interface Transaction {
@@ -45,7 +43,6 @@ interface Account {
 
 interface CustomersCountsInfo {
   allCustomers: number;
-  systemActiveCustomers: number;
   activeCustomers: number;
 }
 
@@ -107,7 +104,7 @@ interface QuarterSums {
 interface ProcessedCustomerData extends Customer {
   transactions: Transaction[];
   quarterSums: QuarterSums;
-  quarterDifferences: Record<`Q${1|2|3|4}`, number>;
+  quarterDifferences: Record<`Q${1 | 2 | 3 | 4}`, number>;
   selectedQuarterDifference: number;
 }
 
@@ -128,7 +125,6 @@ export default function SalesManagerStats({
   const [selectedQuarter, setSelectedQuarter] = React.useState(1);
   const [isClient, setIsClient] = React.useState(false);
   const [isDataReady, setIsDataReady] = React.useState(false);
-
   // Memoize static options
   const yearDial = React.useMemo(() => yearSelectOptions(), []);
   const quarterDial = React.useMemo(() => quarterSelectOptions(), []);
@@ -143,12 +139,11 @@ export default function SalesManagerStats({
 
   // Transaction part
   const [transactionData, setTransactionData] = React.useState<Transaction[]>([]);
-  
+
   // Customers part
   const [customersData, setCustomersData] = React.useState<Customer[]>([]);
   const [customersCountsInfo, setCustomersCountsInfo] = React.useState<CustomersCountsInfo>({
     allCustomers: 0,
-    systemActiveCustomers: 0,
     activeCustomers: 0
   });
 
@@ -208,6 +203,8 @@ export default function SalesManagerStats({
     }, 0);
   }, [transactionData]);
 
+
+  // Join data from customers and transactions
   const joinData = React.useCallback((customers: Customer[], transactions: Transaction[]): ProcessedCustomerData[] => {
     if (!Array.isArray(customers) || !Array.isArray(transactions)) {
       return [];
@@ -218,6 +215,9 @@ export default function SalesManagerStats({
         (transaction) => transaction.accountId === customer.account?.id
       );
 
+      // Sum positiove points from the transactions fot the cutomer for the selected year and return this as currentYearPoints
+      const currentYearPoints = customerTransactions.reduce((sum, transaction) => sum + (transaction.points > 0 ? transaction.points : 0), 0);
+
       const quarterSums = {
         Q1: sumQuarterPoints(customerTransactions, 1),
         Q2: sumQuarterPoints(customerTransactions, 2),
@@ -225,12 +225,16 @@ export default function SalesManagerStats({
         Q4: sumQuarterPoints(customerTransactions, 4),
       };
 
-      const quarterDifferences: Record<`Q${1|2|3|4}`, number> = {
-        Q1: (customer.account?.averagePointsBeforeSalesManager || 0) - quarterSums.Q1,
-        Q2: (customer.account?.averagePointsBeforeSalesManager || 0) - quarterSums.Q2,
-        Q3: (customer.account?.averagePointsBeforeSalesManager || 0) - quarterSums.Q3,
-        Q4: (customer.account?.averagePointsBeforeSalesManager || 0) - quarterSums.Q4,
+      const quarterDifferences: Record<`Q${1 | 2 | 3 | 4}`, number> = {
+        Q1: quarterSums.Q1 - (customer.account?.averagePointsBeforeSalesManager || 0),
+        Q2: quarterSums.Q2 - (customer.account?.averagePointsBeforeSalesManager || 0),
+        Q3: quarterSums.Q3 - (customer.account?.averagePointsBeforeSalesManager || 0),
+        Q4: quarterSums.Q4 - (customer.account?.averagePointsBeforeSalesManager || 0),
       };
+
+      // Check if the customer is active in the selected quarter based on if he has points in the selected year and quarter
+      const isCustomerActiveInSelectedQuarter = customerTransactions.some(transaction => transaction.year === selectedYear && transaction.quarter === selectedQuarter);
+
 
       return {
         ...customer,
@@ -238,9 +242,19 @@ export default function SalesManagerStats({
         quarterSums,
         quarterDifferences,
         selectedQuarterDifference: quarterDifferences[`Q${selectedQuarter}` as keyof typeof quarterDifferences],
+        currentYearPoints,
+        isCustomerActiveInSelectedQuarter,
       };
     });
-  }, [selectedQuarter, sumQuarterPoints]);
+  }, [selectedQuarter, sumQuarterPoints, salesManagerId, selectedYear]);
+
+
+  // Get count of active cutomers in selected year from ApiData and update customersCountsInfo
+  const getActiveCustomersCount = React.useCallback((apiData: any[]) => {
+    return apiData.filter(customer => customer.isCustomerActiveInSelectedQuarter).length;
+  }, [apiData]);
+
+  // Handle year change
 
   const handleYearChange = (value: number) => {
     setSelectedYear(value);
@@ -250,6 +264,7 @@ export default function SalesManagerStats({
     setSelectedQuarter(value);
   };
 
+  // Get API data
   const getApiData = React.useCallback(async () => {
     if (!salesManagerId || !selectedYear) return;
 
@@ -259,7 +274,6 @@ export default function SalesManagerStats({
     setCustomersData([]);
     setCustomersCountsInfo({
       allCustomers: 0,
-      systemActiveCustomers: 0,
       activeCustomers: 0
     });
 
@@ -275,12 +289,17 @@ export default function SalesManagerStats({
         setCustomersData(customersData);
         setCustomersCountsInfo(customersInfo || {
           allCustomers: 0,
-          systemActiveCustomers: 0,
           activeCustomers: 0
         });
         const joinedData = joinData(customersData, transactionsData);
         setApiData(joinedData);
         setIsDataReady(true);
+
+        const activeCustomersCount = getActiveCustomersCount(joinedData);
+        setCustomersCountsInfo(prevCounts => ({
+          ...prevCounts,
+          activeCustomers: activeCustomersCount
+        }));
 
         // Update chart series after data is loaded
         const newQuarterSums = [1, 2, 3, 4].map(quarter =>
@@ -306,10 +325,19 @@ export default function SalesManagerStats({
   }, [selectedYear, fetchTransactions, fetchCustomers, fetchCustomersCountsInfo, joinData, salesManagerId]);
 
   // Calculate total points
-  const totalPoints = React.useMemo(() => 
-    customersData.reduce((sum, customer) => 
+  const totalPoints = React.useMemo(() =>
+    customersData.reduce((sum, customer) =>
       sum + (customer.account?.lifetimePoints || 0), 0
     ), [customersData]);
+
+
+
+  // Calculate quarter points
+  const quarterPoints = React.useMemo(() => {
+    return [1, 2, 3, 4].map(quarter =>
+      quarterSum(quarter)
+    );
+  }, [quarterSum]);
 
   // Effects
   React.useEffect(() => {
@@ -352,6 +380,30 @@ export default function SalesManagerStats({
             </div>
           </Card>
 
+          <Card className="shadow-md border p-4 border-gray-200 !rounded-lg grow mt-4">
+            <ColumnChart
+              series={chartSeries}
+              categories={chartCategories}
+              title="Počet bodů za čtvrtletí"
+              description="Počet bodů za členy, podle čtvrtletí pro obchodníka"
+            />
+          </Card>
+
+
+        </div>
+
+        <div className="flex flex-col justify-center w-2/3 h-full gap-4 mx-auto">
+          {/* <div className="flex justify-between gap-2">
+            <SimpleStat title="Celkem za členy v Q1" value={quarterSum(1)} />
+            <SimpleStat title="Celkem za členy v Q2" value={quarterSum(2)} />
+            <SimpleStat title="Celkem za členy v Q3" value={quarterSum(3)} />
+            <SimpleStat title="Celkem za členy v Q4" value={quarterSum(4)} />
+            <SimpleStat
+              title="Celkem za rok"
+              value={quarterSum(1) + quarterSum(2) + quarterSum(3) + quarterSum(4)}
+            />
+          </div>
+
           <div className="flex flex-col w-full gap-2 mx-auto my-4">
             <SimpleStat title="Klubové konto" value={totalPoints} />
             <CustomersActiveWidget
@@ -360,38 +412,33 @@ export default function SalesManagerStats({
               systemActiveCustomers={customersCountsInfo.systemActiveCustomers}
               activeCustomers={customersCountsInfo.activeCustomers}
             />
-          </div>
-        </div>
+          </div> */}
+          <CustomerPointsWidget
+            selectedQuarter={selectedQuarter}
+            quarterPoints={quarterPoints}
+            customersCountsInfo={customersCountsInfo}
+            clubPoints={totalPoints}
+            yearPoints={quarterSum(1) + quarterSum(2) + quarterSum(3) + quarterSum(4)}
+          />
 
-        <div className="flex flex-col justify-center w-2/3 h-full gap-4 mx-auto">
-          <div className="flex justify-between gap-2">
-            <SimpleStat title="Celkem za členy v Q1" value={quarterSum(1)} />
-            <SimpleStat title="Celkem za členy v Q2" value={quarterSum(2)} />
-            <SimpleStat title="Celkem za členy v Q3" value={quarterSum(3)} />
-            <SimpleStat title="Celkem za členy v Q4" value={quarterSum(4)} />
-            <SimpleStat 
-              title="Celkem za rok" 
-              value={quarterSum(1) + quarterSum(2) + quarterSum(3) + quarterSum(4)} 
-            />
-          </div>
-          <Card>
-            <ColumnChart 
-              series={chartSeries} 
-              categories={chartCategories} 
-              title="Počet bodů za čtvrtletí" 
-              description="Počet bodů za členy, podle čtvrtletí pro obchodníka"
-            />
-          </Card>
         </div>
       </div>
 
       {loading ? (
         <Skeleton type="table" />
       ) : isDataReady && apiData.length > 0 ? (
-        <SalesManagerStatsTable detailLinkPath="customers/" defaultData={apiData} />
+        <SalesManagerStatsTable
+          detailLinkPath="customers/"
+          defaultData={apiData}
+          selectedQuarter={selectedQuarter}
+          selectedYear={selectedYear}
+        />
       ) : (
         <NoData />
       )}
     </>
   );
 }
+
+
+

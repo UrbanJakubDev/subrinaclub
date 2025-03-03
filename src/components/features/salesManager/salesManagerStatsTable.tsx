@@ -76,11 +76,15 @@ type CustomerData = {
 type Props = {
   defaultData: CustomerData[];
   detailLinkPath?: string;
+  selectedQuarter: number;
+  selectedYear: number;
 };
 
 export default function SalesManagerStatsTable({
   defaultData,
   detailLinkPath,
+  selectedQuarter,
+  selectedYear,
 }: Props) {
   const tableName = "Sales Manager Stats";
 
@@ -88,16 +92,13 @@ export default function SalesManagerStatsTable({
   const columns = React.useMemo<ColumnDef<CustomerData>[]>(
     () => [
       {
-        accessorKey: "registrationNumber",
-        header: "Registrační číslo",
-        cell: ({ getValue }) => {
-          const value = getValue();
-          return typeof value === 'number' ? value.toString() : value;
-        }
-      },
-      {
         accessorKey: "fullName",
         header: "Jméno salonu",
+      },
+      {
+        accessorKey: "registrationNumber",
+        header: "Registrační číslo",
+        cell: ({ getValue }) => String(getValue() || ''),
       },
       {
         accessorKey: "address",
@@ -127,11 +128,14 @@ export default function SalesManagerStatsTable({
    
       {
         accessorKey: "quarterSums.Q1",
-        header: "Suma za Q1",
+        header: "Q1",
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
         footer: ({ table }) => {
           const total = table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + (row.getValue<number>('quarterSums.Q1') || 0),
+            (sum, row) => {
+              const value = row.original.quarterSums?.Q1 || 0;
+              return sum + value;
+            },
             0
           );
           return formatThousandDelimiter(total);
@@ -139,11 +143,14 @@ export default function SalesManagerStatsTable({
       },
       {
         accessorKey: "quarterSums.Q2",
-        header: "Suma za Q2",
+        header: "Q2",
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
         footer: ({ table }) => {
           const total = table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + (row.getValue<number>('quarterSums.Q2') || 0),
+            (sum, row) => {
+              const value = row.original.quarterSums?.Q2 || 0;
+              return sum + value;
+            },
             0
           );
           return formatThousandDelimiter(total);
@@ -151,11 +158,14 @@ export default function SalesManagerStatsTable({
       },
       {
         accessorKey: "quarterSums.Q3",
-        header: "Suma za Q3",
+        header: "Q3",
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
         footer: ({ table }) => {
           const total = table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + (row.getValue<number>('quarterSums.Q3') || 0),
+            (sum, row) => {
+              const value = row.original.quarterSums?.Q3 || 0;
+              return sum + value;
+            },
             0
           );
           return formatThousandDelimiter(total);
@@ -163,11 +173,44 @@ export default function SalesManagerStatsTable({
       },
       {
         accessorKey: "quarterSums.Q4",
-        header: "Suma za Q4",
+        header: "Q4",
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
         footer: ({ table }) => {
           const total = table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + (row.getValue<number>('quarterSums.Q4') || 0),
+            (sum, row) => {
+              const value = row.original.quarterSums?.Q4 || 0;
+              return sum + value;
+            },
+            0
+          );
+          return formatThousandDelimiter(total);
+        },
+      },
+      {
+        accessorKey: "account.lifetimePoints",
+        header: "Klubové konto",
+        cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
+        footer: ({ table }) => {
+          const total = table.getFilteredRowModel().rows.reduce(
+            (sum, row) => {
+              const value = row.original.account?.lifetimePoints || 0;
+              return sum + value;
+            },
+            0
+          );
+          return formatThousandDelimiter(total);
+        },
+      },
+      {
+        accessorKey: "currentYearPoints",
+        header: `Roční konto ${selectedYear}`,
+        cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
+        footer: ({ table }) => {
+          const total = table.getFilteredRowModel().rows.reduce(
+            (sum, row) => {
+              const value = row.original.currentYearPoints || 0;
+              return sum + value;
+            },
             0
           );
           return formatThousandDelimiter(total);
@@ -175,17 +218,22 @@ export default function SalesManagerStatsTable({
       },
       {
         accessorKey: "account.averagePointsBeforeSalesManager",
-        header: "Průměrné body před přiřazením obchodního zástupce",
+        header: "Průměr za 4Q",
       },
       {
         accessorKey: "selectedQuarterDifference",
-        header: "Rozdíl v kvartálu",
+        header: `Rozdíl od ${selectedQuarter}Q ${selectedYear}`,
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
-      },
-      {
-        accessorKey: "account.lifetimePoints",
-        header: "Klubové konto",
-        cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
+        footer: ({ table }) => {
+          const total = table.getFilteredRowModel().rows.reduce(
+            (sum, row) => {
+              const value = row.original.selectedQuarterDifference || 0;
+              return sum + value;
+            },
+            0
+          );
+          return formatThousandDelimiter(total);
+        },
       },
       {
         accessorKey: "actions",
@@ -210,6 +258,7 @@ export default function SalesManagerStatsTable({
         data,
         columns,
         tableName,
+        
       }}
     />
   );

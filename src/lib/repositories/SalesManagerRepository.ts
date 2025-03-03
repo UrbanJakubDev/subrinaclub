@@ -60,7 +60,11 @@ export class SalesManagerRepository extends BaseRepository<
             salesManagerId: salesManagerId
          },
          include: {
-            account: true
+            account: true,
+            dealer: true,
+         },
+         orderBy: {
+            fullName: 'asc'
          }
       });
 
@@ -72,7 +76,6 @@ export class SalesManagerRepository extends BaseRepository<
    async getCustomersCountsInfo(salesManagerId: number, year: number): Promise<{
       allCustomers: number;
       activeCustomers: number;
-      systemActiveCustomers: number;
    }> {
       // Get total count of customers
       const allCustomers = await this.prisma.customer.count({
@@ -95,18 +98,11 @@ export class SalesManagerRepository extends BaseRepository<
          }
       });
 
-      // Get count of customers marked as active in system
-      const systemActiveCustomers = await this.prisma.customer.count({
-         where: {
-            salesManagerId: salesManagerId,
-            active: true
-         }
-      });
+
 
       return {
          allCustomers,
-         activeCustomers,
-         systemActiveCustomers
+         activeCustomers
       };
    }
 

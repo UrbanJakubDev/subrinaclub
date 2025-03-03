@@ -42,6 +42,7 @@ export default function FullReportBonusTable({ defaultData, detailLinkPath, tabl
       {
          accessorKey: 'count',
          header: 'Počet celkem',
+         footer: (props) => getFooterValue('sum', props),
          meta: { formatNumber: true },
       },
       {
@@ -59,6 +60,7 @@ export default function FullReportBonusTable({ defaultData, detailLinkPath, tabl
       {
          accessorKey: 'countThisSeason',
          header: 'Počet za období',
+         footer: (props) => getFooterValue('sum', props),
          meta: { formatNumber: true },
       }
    ], [])

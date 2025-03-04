@@ -345,24 +345,24 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
                     return row.salesManager?.fullName ?? '';
                 }
             },
-            {
-                accessorKey: "account.lifetimePoints",
-                header: "Klubové konto",
-                cell: (info) => <ChipComponent value={info.getValue()} />,
-                footer: (info) => {
-                    const total = info.table
-                        .getFilteredRowModel()
-                        .rows.reduce(
-                            (sum, row) => {
-                                // Safely access the nested value
-                                const points = row.original.account?.lifetimePoints ?? 0;
-                                return sum + points;
-                            },
-                            0
-                        );
-                    return `${formatThousandDelimiter(total)}`;
-                },
-            },
+            // {
+            //     accessorKey: "account.lifetimePoints",
+            //     header: "Klubové konto",
+            //     cell: (info) => <ChipComponent value={info.getValue()} />,
+            //     footer: (info) => {
+            //         const total = info.table
+            //             .getFilteredRowModel()
+            //             .rows.reduce(
+            //                 (sum, row) => {
+            //                     // Safely access the nested value
+            //                     const points = row.original.account?.lifetimePoints ?? 0;
+            //                     return sum + points;
+            //                 },
+            //                 0
+            //             );
+            //         return `${formatThousandDelimiter(total)}`;
+            //     },
+            // },
             {
                 accessorKey: "account.savingPeriod.availablePoints",
                 header: "Body v šetřícím období",
@@ -381,25 +381,24 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
                     return `${formatThousandDelimiter(total)}`;
                 },
             },
-            {
-                accessorKey: "account.id",
-                header: "ID Účtu",
-                accessorFn: (row) => { return row.account?.id.toString() }
-            },
-
-            {
-                accessorKey: "account.active",
-                header: "Status účtu",
-                accessorFn: (row) => {
-                    return row.account?.active ?? false;
-                },
-                cell: ({ getValue }) => <StatusChip status={getValue()} />,
-                filterFn: (row, columnId, filterValue) => {
-                    const cellValue = row.getValue(columnId);
-                    const boolFilterValue = filterValue === "true";
-                    return filterValue === "" || cellValue === boolFilterValue;
-                },
-            },
+            // {
+            //     accessorKey: "account.id",
+            //     header: "ID Účtu",
+            //     accessorFn: (row) => { return row.account?.id.toString() }
+            // },
+            // {
+            //     accessorKey: "account.active",
+            //     header: "Status účtu",
+            //     accessorFn: (row) => {
+            //         return row.account?.active ?? false;
+            //     },
+            //     cell: ({ getValue }) => <StatusChip status={getValue()} />,
+            //     filterFn: (row, columnId, filterValue) => {
+            //         const cellValue = row.getValue(columnId);
+            //         const boolFilterValue = filterValue === "true";
+            //         return filterValue === "" || cellValue === boolFilterValue;
+            //     },
+            // },
             {
                 accessorKey: "account.savingPeriod.status",
                 header: "Šetřící období",

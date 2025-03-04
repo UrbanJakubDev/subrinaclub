@@ -16,6 +16,8 @@ export type Account = {
    totalDepositedPoints: number
    totalWithdrawnPoints: number
 
+   averagePointsBeforeSalesManager: number | null
+
    customerId: number
    customer: Customer
 

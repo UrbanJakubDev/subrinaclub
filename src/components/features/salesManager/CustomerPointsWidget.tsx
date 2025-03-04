@@ -56,7 +56,7 @@ const CustomerPointsWidget = ({ selectedQuarter, quarterPoints, customersCountsI
 
             </div>
             <CustomersActiveWidget
-                title="Aktivní zákazníci"
+                title="Přehled aktivních/neaktivních zákazníků"
                 allCustomers={customersCountsInfo.allCustomers}
                 activeCustomers={customersCountsInfo.activeCustomers}
             />

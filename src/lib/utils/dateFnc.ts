@@ -9,6 +9,7 @@ export const inputDateToDbDate = (date: string) => {
 export const yearSelectOptions = () => {
   const currentYear = new Date().getFullYear();
   const years = [];
+  // Generate options from current year down to 2010
   for (let i = currentYear; i >= 2010; i--) {
     years.push({ value: i, label: i.toString() });
   }
@@ -59,4 +60,36 @@ export const timestampToDate = (timestamp: string): string => {
 export const formatDateToCz = (date: string | Date | null): string => {
   if (!date) return '';
   return new Date(date).toLocaleDateString('cs-CZ', { timeZone: 'UTC' });
+};
+
+/**
+ * Safely formats a date to a localized string with proper error handling
+ * @param date The date to format (can be Date object, string, or null/undefined)
+ * @param locale The locale to use for formatting (defaults to 'cs-CZ')
+ * @param options Additional options for toLocaleDateString
+ * @param fallback Fallback string to return if date is invalid (defaults to 'N/A')
+ * @returns Formatted date string or fallback value
+ */
+export const safeFormatDate = (
+  date: Date | string | null | undefined,
+  locale: string = 'cs-CZ',
+  options: Intl.DateTimeFormatOptions = { timeZone: 'UTC' },
+  fallback: string = 'N/A'
+): string => {
+  if (!date) return fallback;
+  
+  try {
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    
+    // Check if date is valid
+    if (isNaN(dateObj.getTime())) {
+      console.warn('Invalid date:', date);
+      return fallback;
+    }
+    
+    return dateObj.toLocaleDateString(locale, options);
+  } catch (error) {
+    console.error('Error formatting date:', error, date);
+    return fallback;
+  }
 };

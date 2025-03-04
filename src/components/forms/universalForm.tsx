@@ -14,6 +14,7 @@ interface UniversalFormProps<T extends FieldValues> {
    onSubmit: (data: T) => Promise<T>;
    children: (methods: UseFormReturn<T>) => React.ReactNode;
    successMessage?: string;
+   customError?: string | null;
 }
 
 export default function UniversalForm<T extends FieldValues>({
@@ -22,6 +23,7 @@ export default function UniversalForm<T extends FieldValues>({
    onSubmit,
    children,
    successMessage,
+   customError,
 }: UniversalFormProps<T>) {
    const [formData, setFormData] = React.useState<T>(initialData);
 
@@ -41,6 +43,11 @@ export default function UniversalForm<T extends FieldValues>({
    }, [initialData, reset]);
 
    const processForm: SubmitHandler<T> = async (data) => {
+      // Don't submit if there's a custom error
+      if (customError) {
+         toast.error("Nelze uložit: " + customError);
+         return;
+      }
 
       try {
          const result = await onSubmit(data);
@@ -59,24 +66,36 @@ export default function UniversalForm<T extends FieldValues>({
       return <Skeleton />;  // Optionally add a loading spinner
    }
 
+   // Determine if the submit button should be disabled
+   const isSubmitDisabled = isSubmitting || !!customError;
+
    return (
       <div className="mx-auto p-4 w-fit">
          <FormProvider {...methods}>
 
-            {
-               errors.length > 0 && (
-                  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                     <strong className="font-bold">Chyba!</strong>
-                     <span className="block sm:inline"> {Object.values(errors).map((error: any) => error.message).join(', ')}</span>
-                  </div>
-               )
-            }
+            {Object.keys(errors).length > 0 && (
+               <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                  <strong className="font-bold">Chyba!</strong>
+                  <span className="block sm:inline"> {Object.values(errors).map((error: any) => error.message).join(', ')}</span>
+               </div>
+            )}
+            
+            {customError && (
+               <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                  <strong className="font-bold">Chyba validace:</strong>
+                  <span className="block sm:inline"> {customError}</span>
+               </div>
+            )}
 
             <form onSubmit={handleSubmit(processForm)} >
                {children(methods)}
                {/* Submit and Cancel buttons */}
                <div className="w-full flex justify-end gap-3 mt-4">
-                  <Button type="submit" disabled={isSubmitting}>
+                  <Button 
+                     type="submit" 
+                     disabled={isSubmitDisabled}
+                     className={isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}
+                  >
                      {isSubmitting ? 'Ukládání...' : 'Uložit'}
                   </Button>
                   <Button color="red" type="button" onClick={() => reset(formData)}>

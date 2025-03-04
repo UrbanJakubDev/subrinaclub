@@ -88,6 +88,7 @@ export default function SalesManagerTable({
   const router = useRouter();
   const columns = useTableColumns(detailLinkPath);
   const [data] = React.useState<SalesManagerData[]>(() => [...defaultData]);
+  const tableName = "Obchodní zástupci"
 
   const handleAdd = React.useCallback(() => {
     router.push("/sales-managers/new");
@@ -97,7 +98,7 @@ export default function SalesManagerTable({
     <MyTable
       data={data}
       columns={columns}
-      tableName="salesManager"
+      tableName={tableName}
       addBtn={true}
       onAddClick={handleAdd}
     />

@@ -54,7 +54,7 @@ export default function SavingPeriodStats({ savingPeriod, transactions = [], isL
         <p>
           No saving period selected.
         </p>
-        <SavingPeriodForm />
+        {/* <SavingPeriodForm /> */}
       </Card>
     );
   }

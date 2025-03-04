@@ -428,6 +428,7 @@ export default function SalesManagerStats({
         <Skeleton type="table" />
       ) : isDataReady && apiData.length > 0 ? (
         <SalesManagerStatsTable
+          title="Statistika bodů pro obchodníka"
           detailLinkPath="customers/"
           defaultData={apiData}
           selectedQuarter={selectedQuarter}

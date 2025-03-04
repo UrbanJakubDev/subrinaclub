@@ -4,8 +4,7 @@ import Link from "next/link";
 import React from "react";
 import MyTable, { getFooterValue } from "@/components/tables/ui/baseTable";
 import { Button } from "@material-tailwind/react";
-import { Card } from "@material-tailwind/react";
-import { faAddressCard, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import formatThousandDelimiter from "@/lib/utils/formatFncs";
 
@@ -78,15 +77,17 @@ type Props = {
   detailLinkPath?: string;
   selectedQuarter: number;
   selectedYear: number;
+  title: string;
 };
 
 export default function SalesManagerStatsTable({
+  title,
   defaultData,
   detailLinkPath,
   selectedQuarter,
   selectedYear,
 }: Props) {
-  const tableName = "Sales Manager Stats";
+  const tableName = title;
 
   // Column definitions
   const columns = React.useMemo<ColumnDef<CustomerData>[]>(
@@ -131,24 +132,28 @@ export default function SalesManagerStatsTable({
         header: "Q1",
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
         footer: (props) => getFooterValue('sum', props),
+        enableColumnFilter: false,
       },
       {
         accessorKey: "quarterSums.Q2",
         header: "Q2",
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
         footer: (props) => getFooterValue('sum', props),
+        enableColumnFilter: false,
       },
       {
         accessorKey: "quarterSums.Q3",
         header: "Q3",
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
         footer: (props) => getFooterValue('sum', props),
+        enableColumnFilter: false,
       },
       {
         accessorKey: "quarterSums.Q4",
         header: "Q4",
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
         footer: (props) => getFooterValue('sum', props),
+        enableColumnFilter: false,
       },
       {
         accessorKey: "account.lifetimePoints",

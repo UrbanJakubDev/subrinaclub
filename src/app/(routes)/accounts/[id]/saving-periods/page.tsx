@@ -1,6 +1,4 @@
-import { prisma } from "@/lib/db/pgDBClient";
 import SavingPeriodsManager from "@/components/features/savingPeriod/SavingPeriodsManager";
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { accountService } from "@/lib/services/account";
@@ -39,6 +37,8 @@ export default async function AccountSavingPeriodsPage({ params }: PageProps) {
                ID účtu: {account.id}
             </p>
          </div>
+
+         
          
          <SavingPeriodsManager 
             account={account} 

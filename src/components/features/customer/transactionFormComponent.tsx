@@ -2,13 +2,11 @@
 import ModalComponent from '@/components/ui/modal';
 import TransactionForm from '@/components/features/transactions/transactionForm';
 import { Transaction } from '@/types/transaction';
-import { Card, Typography } from '@material-tailwind/react';
-import Skeleton from '@/components/ui/skeleton';
-import { useCallback, useEffect, useState } from 'react';
+import { Typography } from '@material-tailwind/react';
+import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useModalStore } from '@/stores/ModalStore';
 import { useStatsStore } from '@/stores/CustomerStatsStore';
-import Loader from '@/components/ui/loader';
 
 const newTransaction: Transaction = {
   id: 0,
@@ -92,6 +90,7 @@ export default function TransactionFormComponent() {
                 <p>Registrační číslo: {customer?.registrationNumber}</p>
 
                 <Typography variant='h5' className='mt-8' >Aktivní šetřící období</Typography>
+                <p>{savingPeriod?.id}</p>
                 <p>{`od: ${savingPeriod?.startYear}/${savingPeriod?.startQuarter} do: ${savingPeriod?.endYear}/${savingPeriod?.endQuarter}`}</p>
 
                 <Typography variant='h5' className='mt-8'>Body v šetřícím období k dispozici</Typography>

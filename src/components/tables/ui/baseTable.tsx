@@ -143,21 +143,19 @@ IndeterminateCheckbox.displayName = 'IndeterminateCheckbox'
 // Separate components for better organization
 const TableHeader = <T,>({ headerGroup, table }: TableHeaderProps<T>) => (
   <React.Fragment key={headerGroup.id}>
-    <tr>
+    <tr className="bg-gray-100 border-b border-gray-300">
       {headerGroup.headers.map(header => (
-        <th key={header.id} colSpan={header.colSpan}>
-          <div className="py-1">
-            <div className="mx-2 text-left text-gray-700">
-              {flexRender(header.column.columnDef.header, header.getContext())}
-            </div>
+        <th key={header.id} colSpan={header.colSpan} className="text-center border-r border-gray-200 px-3 py-2">
+          <div className="font-medium text-gray-800">
+            {flexRender(header.column.columnDef.header, header.getContext())}
           </div>
         </th>
       ))}
     </tr>
-    <tr>
+    <tr className="bg-gray-50">
       {headerGroup.headers.map(header => (
-        <th key={header.id} colSpan={header.colSpan}>
-          <div className="flex items-center py-1 text-left">
+        <th key={header.id} colSpan={header.colSpan} className="border-r border-gray-200 px-2 py-1">
+          <div className="flex items-center justify-between">
             {header.column.getCanSort() && (
               <SortIcon header={header} />
             )}
@@ -177,15 +175,15 @@ const SortIcon = <T,>({ header }: SortIconProps<T>) => {
   if (!header.column.getCanSort()) return null
 
   const sortDirection = header.column.getIsSorted()
-  const icon = sortDirection === false 
+  const icon = sortDirection === false
     ? <FontAwesomeIcon icon={faSort} />
     : sortDirection === 'asc'
-    ? <FontAwesomeIcon icon={faSortUp} />
-    : <FontAwesomeIcon icon={faSortDown} />
+      ? <FontAwesomeIcon icon={faSortUp} />
+      : <FontAwesomeIcon icon={faSortDown} />
 
   return (
     <div
-      className="cursor-pointer select-none"
+      className="cursor-pointer select-none m-2 text-xl"
       onClick={header.column.getToggleSortingHandler()}
     >
       {icon}
@@ -409,8 +407,8 @@ export default function BaseTable<T>({
   }, [rowSelection, onSelectionChange])
 
   return (
-    <div className="mx-auto overflow-auto w-full">
-      <Card className="p-4 text-gray-900 rounded-sm">
+    <div className="mx-auto w-full">
+      <Card className="p-4 text-gray-900 rounded-sm overflow-x-auto">
         <TableToolbar
           table={table}
           tableName={tableName}
@@ -432,7 +430,7 @@ export default function BaseTable<T>({
                 {row.getVisibleCells().map(cell => {
                   const shouldFormatNumber = cell.column.columnDef.meta?.formatNumber
                   const value = cell.getValue()
-                  
+
                   return (
                     <td key={cell.id} className="text-left whitespace-nowrap max-w-44 text-wrap px-2">
                       {shouldFormatNumber && (typeof value === 'number' || (typeof value === 'string' && !isNaN(Number(value))))

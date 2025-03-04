@@ -1,11 +1,10 @@
 "use client";
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import React from 'react';
 import InputField from '../../ui/inputs/basicInput';
 import InputDateFiled from '../../ui/inputs/dateInput';
 import { toast } from 'react-toastify';
-import Loader from '../../ui/loader';
-import { Typography } from '@material-tailwind/react';
+import { Typography, Select, Option } from '@material-tailwind/react';
 import UniversalForm from '../../forms/universalForm';
 import SelectField from '../../ui/inputs/selectInput';
 import { quarterSelectOptions, yearSelectOptions } from '@/lib/utils/dateFnc';
@@ -15,7 +14,6 @@ import Skeleton from '@/components/ui/skeleton';
 import { useStatsStore } from '@/stores/CustomerStatsStore';
 import { TransactionType } from '@prisma/client';
 import { useModalStore } from '@/stores/ModalStore';
-import QuarterSlider from '@/components/ui/inputs/quarterSlider';
 import { Account, SavingPeriod } from '@/types/types';
 import { Bonus } from '@/types/bonus';
 import SwitchField from '@/components/ui/inputs/inputSwitcher';
@@ -58,6 +56,7 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
    const yearDial = yearSelectOptions();
    const quarterDial = quarterSelectOptions();
    const { actions } = useModalStore()
+   const [dateRangeError, setDateRangeError] = useState<string | null>(null);
 
    useEffect(() => {
       if (transaction) {
@@ -70,6 +69,26 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
    const handleFormChange = (formMethods: any) => {
       const bonusId = formMethods.watch('bonusId');
       const points = formMethods.watch('points');
+      const year = formMethods.watch('year');
+      const quarter = formMethods.watch('quarter');
+
+      // Only validate if we have all the necessary data
+      if (activeSavingPeriod && year && quarter) {
+         // Simple year-quarter comparison instead of date objects
+         const selectedYQ = year * 10 + quarter;
+         const startYQ = activeSavingPeriod.startYear * 10 + activeSavingPeriod.startQuarter;
+         const endYQ = activeSavingPeriod.endYear * 10 + activeSavingPeriod.endQuarter;
+         
+         if (selectedYQ < startYQ || selectedYQ > endYQ) {
+            const errorMsg = `Vybrané období (${year}/${quarter}) je mimo rozsah aktivního šetřícího období (${activeSavingPeriod.startYear}/${activeSavingPeriod.startQuarter} - ${activeSavingPeriod.endYear}/${activeSavingPeriod.endQuarter})`;
+            setDateRangeError(errorMsg);
+         } else {
+            setDateRangeError(null);
+         }
+      } else {
+         // Clear error if we don't have enough data to validate
+         setDateRangeError(null);
+      }
 
       if (bonusId > 0 && points > 0) {
          formMethods.setValue('points', -Math.abs(points));
@@ -141,34 +160,79 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
          initialData={transactionData}
          validationSchema={transactionValidationSchema}
          onSubmit={handleSubmit}
+         customError={dateRangeError}
       >
          {(formMethods) => {
             React.useEffect(() => {
+               // Initialize form values
+               if (transactionData) {
+                  formMethods.setValue('year', transactionData.year);
+                  formMethods.setValue('quarter', transactionData.quarter);
+               }
+               
                const subscription = formMethods.watch((value, { name }) => {
-                  if (name === 'bonusId' || name === 'points') {
+                  if (name === 'bonusId' || name === 'points' || name === 'year' || name === 'quarter') {
                      handleFormChange(formMethods);
                   }
                });
+               
+               // Initial validation check
+               handleFormChange(formMethods);
+               
                return () => subscription.unsubscribe();
-            }, [formMethods]);
+            }, [formMethods, transactionData]);
 
             return (
                <div className='gap-4 mt-8'>
                   <div className="flex flex-row gap-4">
-                     <SelectField
-                        label="Rok"
-                        name="year"
-                        options={yearDial}
-                        defaultValue={transactionData.year || new Date().getFullYear()}
-                     />
+                     {/* Material Tailwind styled select for year */}
+                     <div className="w-1/2">
+                        <Select
+                           label="Rok"
+                           value={(formMethods.watch('year')?.toString() || '')}
+                           onChange={(value) => {
+                              if (value) {
+                                 const yearValue = parseInt(value);
+                                 formMethods.setValue('year', yearValue, { shouldValidate: true });
+                                 handleFormChange(formMethods);
+                              }
+                           }}
+                        >
+                           {yearDial.map(option => (
+                              <Option key={option.value} value={option.value.toString()}>
+                                 {option.label}
+                              </Option>
+                           ))}
+                        </Select>
+                     </div>
 
-                     <SelectField
-                        label="Čtvrtletí"
-                        name="quarter"
-                        options={quarterDial}
-                        defaultValue={transactionData.quarter || 1}
-                     />
+                     {/* Material Tailwind styled select for quarter */}
+                     <div className="w-1/2">
+                        <Select
+                           label="Čtvrtletí"
+                           value={(formMethods.watch('quarter')?.toString() || '')}
+                           onChange={(value) => {
+                              if (value) {
+                                 const quarterValue = parseInt(value);
+                                 formMethods.setValue('quarter', quarterValue, { shouldValidate: true });
+                                 handleFormChange(formMethods);
+                              }
+                           }}
+                        >
+                           {quarterDial.map(option => (
+                              <Option key={option.value} value={option.value.toString()}>
+                                 {option.label}
+                              </Option>
+                           ))}
+                        </Select>
+                     </div>
                   </div>
+                  
+                  {dateRangeError && (
+                     <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-red-500 text-sm">
+                        {dateRangeError}
+                     </div>
+                  )}
 
                   <div className="my-4 flex flex-col gap-4">
                      <InputField

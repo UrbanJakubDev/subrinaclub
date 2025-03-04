@@ -70,7 +70,7 @@ export default function Filter({
 
   if (typeof firstValue === "number") {
     return (
-      <div className="flex flex-row">
+      <div className="flex flex-col-reverse">
         <input
           type="number"
           value={(columnFilterValue as [number, number])?.[0] ?? ""}
@@ -81,7 +81,7 @@ export default function Filter({
             ])
           }
           placeholder={`Min`}
-          className="w-16 rounded ps-1"
+          className="w-16 rounded p-1"
         />
         <input
           type="number"
@@ -93,7 +93,7 @@ export default function Filter({
             ])
           }
           placeholder={`Max`}
-          className=" w-16 rounded ps-1"
+          className=" w-16 rounded p-1"
         />
       </div>
     );

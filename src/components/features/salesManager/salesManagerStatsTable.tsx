@@ -2,10 +2,9 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import React from "react";
-import MyTable from "@/components/tables/ui/baseTable";
+import MyTable, { getFooterValue } from "@/components/tables/ui/baseTable";
 import { Button } from "@material-tailwind/react";
-import { Card } from "@material-tailwind/react";
-import { faAddressCard, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import formatThousandDelimiter from "@/lib/utils/formatFncs";
 
@@ -76,28 +75,31 @@ type CustomerData = {
 type Props = {
   defaultData: CustomerData[];
   detailLinkPath?: string;
+  selectedQuarter: number;
+  selectedYear: number;
+  title: string;
 };
 
 export default function SalesManagerStatsTable({
+  title,
   defaultData,
   detailLinkPath,
+  selectedQuarter,
+  selectedYear,
 }: Props) {
-  const tableName = "Sales Manager Stats";
+  const tableName = title;
 
   // Column definitions
   const columns = React.useMemo<ColumnDef<CustomerData>[]>(
     () => [
       {
-        accessorKey: "registrationNumber",
-        header: "Registrační číslo",
-        cell: ({ getValue }) => {
-          const value = getValue();
-          return typeof value === 'number' ? value.toString() : value;
-        }
-      },
-      {
         accessorKey: "fullName",
         header: "Jméno salonu",
+      },
+      {
+        accessorKey: "registrationNumber",
+        header: "Registrační číslo",
+        cell: ({ getValue }) => String(getValue() || ''),
       },
       {
         accessorKey: "address",
@@ -127,65 +129,54 @@ export default function SalesManagerStatsTable({
    
       {
         accessorKey: "quarterSums.Q1",
-        header: "Suma za Q1",
+        header: "Q1",
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
-        footer: ({ table }) => {
-          const total = table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + (row.getValue<number>('quarterSums.Q1') || 0),
-            0
-          );
-          return formatThousandDelimiter(total);
-        },
+        footer: (props) => getFooterValue('sum', props),
+        enableColumnFilter: false,
       },
       {
         accessorKey: "quarterSums.Q2",
-        header: "Suma za Q2",
+        header: "Q2",
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
-        footer: ({ table }) => {
-          const total = table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + (row.getValue<number>('quarterSums.Q2') || 0),
-            0
-          );
-          return formatThousandDelimiter(total);
-        },
+        footer: (props) => getFooterValue('sum', props),
+        enableColumnFilter: false,
       },
       {
         accessorKey: "quarterSums.Q3",
-        header: "Suma za Q3",
+        header: "Q3",
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
-        footer: ({ table }) => {
-          const total = table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + (row.getValue<number>('quarterSums.Q3') || 0),
-            0
-          );
-          return formatThousandDelimiter(total);
-        },
+        footer: (props) => getFooterValue('sum', props),
+        enableColumnFilter: false,
       },
       {
         accessorKey: "quarterSums.Q4",
-        header: "Suma za Q4",
+        header: "Q4",
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
-        footer: ({ table }) => {
-          const total = table.getFilteredRowModel().rows.reduce(
-            (sum, row) => sum + (row.getValue<number>('quarterSums.Q4') || 0),
-            0
-          );
-          return formatThousandDelimiter(total);
-        },
-      },
-      {
-        accessorKey: "account.averagePointsBeforeSalesManager",
-        header: "Průměrné body před přiřazením obchodního zástupce",
-      },
-      {
-        accessorKey: "selectedQuarterDifference",
-        header: "Rozdíl v kvartálu",
-        cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
+        footer: (props) => getFooterValue('sum', props),
+        enableColumnFilter: false,
       },
       {
         accessorKey: "account.lifetimePoints",
         header: "Klubové konto",
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
+        footer: (props) => getFooterValue('sum', props),
+      },
+      {
+        accessorKey: "currentYearPoints",
+        header: `Roční konto ${selectedYear}`,
+        cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
+        footer: (props) => getFooterValue('sum', props),
+      },
+      {
+        accessorKey: "account.averagePointsBeforeSalesManager",
+        header: "Průměr za 4Q",
+        cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
+      },
+      {
+        accessorKey: "selectedQuarterDifference",
+        header: `Rozdíl od ${selectedQuarter}Q ${selectedYear}`,
+        cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
+        footer: (props) => getFooterValue('sum', props),
       },
       {
         accessorKey: "actions",
@@ -210,6 +201,7 @@ export default function SalesManagerStatsTable({
         data,
         columns,
         tableName,
+        
       }}
     />
   );

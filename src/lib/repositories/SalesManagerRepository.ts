@@ -60,7 +60,15 @@ export class SalesManagerRepository extends BaseRepository<
             salesManagerId: salesManagerId
          },
          include: {
-            account: true,
+            account: {
+               include: {
+                  savingPeriods: {
+                     where: {
+                        status: "ACTIVE"
+                     }
+                  }
+               }
+            },
             dealer: true,
          },
          orderBy: {

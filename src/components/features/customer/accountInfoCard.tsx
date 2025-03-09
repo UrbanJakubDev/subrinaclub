@@ -12,6 +12,7 @@ import { Card } from "@material-tailwind/react";
 import StatusChip from "@/components/tables/ui/statusChip";
 import LoadingSpinner from "@/components/ui/loadingSpinner";
 import SavingPeriodActions from "./SavingPeriodActions";
+import { QuarterDate } from '@/lib/utils/quarterDateUtils';
 
 const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod, isLoading }) => {
    const router = useRouter();
@@ -21,9 +22,11 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
    const savingPeriodStart = savingPeriod ? `${savingPeriod.startYear}/${savingPeriod.startQuarter}` : '';
    const savingPeriodEnd = savingPeriod ? `${savingPeriod.endYear}/${savingPeriod.endQuarter}` : '';
 
-   const actualYear = new Date().getFullYear();
-   const actualQuarter = Math.floor(new Date().getMonth() / 3) + 1;
-
+   // Initt QuarterDateUtils with the current date
+   const quarterDate = new QuarterDate();
+   const { actualYear, actualQuarter } = quarterDate.getActualYearAndQuarter();
+   const { followingYear, followingQuarter } = quarterDate.getFollowingYearAndQuarter();
+   
    if (isLoading) return <Skeleton className="w-1/4" />;
    if (!account) return <pre>Account not found</pre>;
 
@@ -59,8 +62,8 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
             body: JSON.stringify(
                closeNow ? {
                   createNewPeriod: true,
-                  startYear: actualYear,
-                  startQuarter: actualQuarter
+                  startYear: followingYear,
+                  startQuarter: followingQuarter
                } : {
                   createNewPeriod: true
                }
@@ -147,7 +150,7 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
                                     Uzavřete aktuální šetřící období k roku <strong>{actualYear}</strong> a čtvrtletí <strong>{actualQuarter}</strong>.
                                  </p>
                                  <p>
-                                    Bude vytvořeno nové šetřící období začínající od aktuálního roku <strong>{actualYear}</strong> a čtvrtletí <strong>{actualQuarter}</strong>.
+                                    Bude vytvořeno nové šetřící období začínající od aktuálního roku <strong>{followingYear}</strong> a čtvrtletí <strong>{followingQuarter}</strong>.
                                  </p>
                               </>
                            ) : (

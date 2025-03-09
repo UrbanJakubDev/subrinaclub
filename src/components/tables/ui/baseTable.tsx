@@ -28,6 +28,7 @@ import {
 import { Button, ButtonGroup, Card, Input, Checkbox } from "@material-tailwind/react"
 import { timestampToDate } from "@/lib/utils/dateFnc"
 import Filter from "./baseTableFnc"
+import Link from "next/link"
 
 // Add utility function for number formatting
 const formatNumber = (value: any): string => {
@@ -336,6 +337,25 @@ const TableToolbar = <T,>({ table, tableName, addBtn, onAddClick, bulkActions }:
   )
 }
 
+interface TableRowProps<T> {
+  row: Row<T>
+  header: HeaderGroup<T>
+}
+
+const TableRow = <T,>({ row, header }: TableRowProps<T>) => {
+  return (
+    <tr key={row.id} className="text-left hover:bg-zinc-50 whitespace-nowrap">
+      {row.getVisibleCells().map(cell => {
+        return (
+          <td key={cell.id} className="text-left whitespace-nowrap max-w-44 text-wrap px-2">
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </td>
+        );
+      })}
+    </tr>
+  );
+};
+
 export default function BaseTable<T>({
   data,
   columns,
@@ -423,26 +443,11 @@ export default function BaseTable<T>({
               <TableHeader key={headerGroup.id} headerGroup={headerGroup} table={table} />
             ))}
           </thead>
-
           <tbody>
             {table.getRowModel().rows.map(row => (
-              <tr key={row.id} className="text-left hover:bg-zinc-50 whitespace-nowrap">
-                {row.getVisibleCells().map(cell => {
-                  const shouldFormatNumber = cell.column.columnDef.meta?.formatNumber
-                  const value = cell.getValue()
-
-                  return (
-                    <td key={cell.id} className="text-left whitespace-nowrap max-w-44 text-wrap px-2">
-                      {shouldFormatNumber && (typeof value === 'number' || (typeof value === 'string' && !isNaN(Number(value))))
-                        ? formatNumber(value)
-                        : flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  )
-                })}
-              </tr>
+              <TableRow key={row.id} row={row} header={table.getHeaderGroups()[0]} />
             ))}
           </tbody>
-
           <tfoot>
             {table.getFooterGroups().map(footerGroup => (
               <tr key={footerGroup.id} className="pt-4 font-semibold border-t">

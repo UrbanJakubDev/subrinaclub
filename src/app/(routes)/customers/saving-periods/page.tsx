@@ -7,7 +7,7 @@ export default async function SavingPeriodOverwievPage() {
     const customerWithSavingPeriods = await customerService.getCustomersWithAccountAndActiveSavingPeriod()
 
     return (
-        <PageComponent>
+        <PageComponent full>
             <CustomerSavingPeriodsTable defaultData={customerWithSavingPeriods} detailLinkPath="/customers" />
         </PageComponent>
     )

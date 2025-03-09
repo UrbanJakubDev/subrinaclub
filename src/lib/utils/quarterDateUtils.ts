@@ -108,3 +108,67 @@ export class QuarterDateUtils {
      return end.getTime() - start.getTime();
    }
  }
+
+
+
+ export class QuarterDate {
+   
+   constructor(
+    public date: Date = new Date(),
+    public year: number = date.getFullYear(),
+    public quarter: number = Math.floor(date.getMonth() / 3) + 1,
+  ) {}
+
+  setDate(date: Date) {
+    this.date = date;
+    this.year = date.getFullYear();
+    this.quarter = Math.floor(date.getMonth() / 3) + 1;
+  }
+
+  setYearAndQuarter(year: number, quarter: number) {
+    this.year = year;
+    this.quarter = quarter;
+  }
+
+  // Get actual year and quarter in one object
+  getActualYearAndQuarter() {
+    return {
+      actualYear: this.date.getFullYear(),
+      actualQuarter: Math.floor(this.date.getMonth() / 3) + 1
+    }
+  }
+
+  getFollowingYearAndQuarter() {
+    const currentQuarter = Math.floor(this.date.getMonth() / 3) + 1;
+    const currentYear = this.date.getFullYear();
+
+    if (currentQuarter === 4) {
+      return {
+        year: currentYear + 1,
+        quarter: 1
+      };
+    }
+
+    return {
+      followingYear: currentYear,
+      followingQuarter: currentQuarter + 1
+    };
+  }
+
+  getPreviousYearAndQuarter() {
+    const currentQuarter = Math.floor(this.date.getMonth() / 3) + 1;
+    const currentYear = this.date.getFullYear();
+
+    if (currentQuarter === 1) {
+      return {
+        year: currentYear - 1,
+        quarter: 4
+      };
+    }
+
+    return {
+      previousYear: currentYear,
+      previousQuarter: currentQuarter - 1
+    };
+  } 
+ }

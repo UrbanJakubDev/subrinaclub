@@ -6,6 +6,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import ActionButtons from "@/components/tables/ui/actionButtons";
 import StatusChip from "@/components/tables/ui/statusChip";
 import MyTable from "@/components/tables/ui/baseTable";
+import StatusIcon from "@/components/tables/ui/statusIcon";
+import Link from "next/link";
 
 
 interface SalesManagerData {
@@ -26,15 +28,15 @@ interface SalesManagerTableProps {
 
 const useTableColumns = (detailLinkPath?: string): ColumnDef<SalesManagerData>[] => {
   return React.useMemo(() => [
-    {
-      accessorKey: "id",
-      header: "ID",
-      enableColumnFilter: false,
-    },
+    // {
+    //   accessorKey: "id",
+    //   header: "ID",
+    //   enableColumnFilter: false,
+    // },
     {
       accessorKey: "active",
       header: "Aktivní v systému",
-      cell: ({ getValue }) => <StatusChip status={getValue()} />,
+      cell: ({ getValue }) => <StatusIcon active={getValue() as boolean} />,
       filterFn: (row, columnId, filterValue) => {
         if (filterValue === "") return true;
         const cellValue = row.getValue(columnId);
@@ -55,6 +57,11 @@ const useTableColumns = (detailLinkPath?: string): ColumnDef<SalesManagerData>[]
       accessorKey: "fullName",
       header: "Jméno",
       filterFn: "auto",
+      cell: ({ row }) => (
+        <Link href={`/sales-managers/${row.original.id}`} className="text-blue-600 hover:text-blue-800 hover:underline">
+          {row.original.fullName}
+        </Link>
+      ),
     },
     {
       accessorKey: "phone",
@@ -72,7 +79,7 @@ const useTableColumns = (detailLinkPath?: string): ColumnDef<SalesManagerData>[]
         <ActionButtons 
           id={row.original.id} 
           detailLinkPath={detailLinkPath} 
-          hasStats
+          // hasStats
         />
       ),
       enableColumnFilter: false,

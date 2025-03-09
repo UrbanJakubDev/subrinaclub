@@ -109,7 +109,7 @@ export default function SavingPeriodsManager({ account, savingPeriods }: SavingP
                <div className="flex justify-between items-start">
                   <div className="w-full">
                      <div className="flex items-center gap-2 mb-2">
-                        <StatusChip status={period.status} />
+                        <StatusChip status={period.status === "ACTIVE" ? true : false} />
                         <span className="text-sm text-gray-500">
                            ID: {period.id}
                         </span>

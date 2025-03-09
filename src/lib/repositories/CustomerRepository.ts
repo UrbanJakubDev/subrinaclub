@@ -62,7 +62,7 @@ export class CustomerRepository extends BaseRepository<
                }
             }
          }
-         
+
       });
 
       return accountData;
@@ -91,7 +91,19 @@ export class CustomerRepository extends BaseRepository<
       });
    }
 
-   async getCustomersForReportSeznamObratu(): Promise<SeznamObratuDTO[]> {
+   async getCustomersForReportSeznamObratu(year_from: number = new Date().getFullYear(), year_to: number = 2010): Promise<SeznamObratuDTO[]> {
+      // Get current year for quarterly data
+      const currentYear = new Date().getFullYear();
+      
+      // Build dynamic year columns for the query
+      let yearColumns = '';
+      let years: number[] = [];
+      
+      for (let year = year_from; year >= year_to; year--) {
+         yearColumns += `sum(case when t."year" = ${year} then t.points else 0 end) as "${year}", `;
+         years.push(year);
+      }
+      
       const result = await this.prisma.$queryRaw<SeznamObratuDTO[]>`
          SELECT
             c."registrationNumber",
@@ -105,35 +117,20 @@ export class CustomerRepository extends BaseRepository<
             max(c."salonName") as "salonName",
             max(sm."fullName") as "salesManager",
             sum(t.points) as "clubScore",
-            sum(case when (t."year" = 2025 and t."quarter" = 1) then t.points else 0 end) as "Q1",
-            sum(case when (t."year" = 2025 and t."quarter" = 2) then t.points else 0 end) as "Q2",
-            sum(case when (t."year" = 2025 and t."quarter" = 3) then t.points else 0 end) as "Q3",
-            sum(case when (t."year" = 2025 and t."quarter" = 4) then t.points else 0 end) as "Q4",
-            sum(case when t."year" = 2025 then t.points else 0 end) as "2025",
-            sum(case when t."year" = 2024 then t.points else 0 end) as "2024",
-            sum(case when t."year" = 2023 then t.points else 0 end) as "2023",
-            sum(case when t."year" = 2022 then t.points else 0 end) as "2022",
-            sum(case when t."year" = 2021 then t.points else 0 end) as "2021",
-            sum(case when t."year" = 2020 then t.points else 0 end) as "2020",
-            sum(case when t."year" = 2019 then t.points else 0 end) as "2019",
-            sum(case when t."year" = 2018 then t.points else 0 end) as "2018",
-            sum(case when t."year" = 2017 then t.points else 0 end) as "2017",
-            sum(case when t."year" = 2016 then t.points else 0 end) as "2016",
-            sum(case when t."year" = 2015 then t.points else 0 end) as "2015",
-            sum(case when t."year" = 2014 then t.points else 0 end) as "2014",
-            sum(case when t."year" = 2013 then t.points else 0 end) as "2013",
-            sum(case when t."year" = 2012 then t.points else 0 end) as "2012",
-            sum(case when t."year" = 2011 then t.points else 0 end) as "2011",
-            sum(case when t."year" = 2010 then t.points else 0 end) as "2010"
+            sum(case when (t."year" = ${currentYear} and t."quarter" = 1) then t.points else 0 end) as "Q1",
+            sum(case when (t."year" = ${currentYear} and t."quarter" = 2) then t.points else 0 end) as "Q2",
+            sum(case when (t."year" = ${currentYear} and t."quarter" = 3) then t.points else 0 end) as "Q3",
+            sum(case when (t."year" = ${currentYear} and t."quarter" = 4) then t.points else 0 end) as "Q4",
+            ${Prisma.raw(yearColumns.trim().slice(0, -1))}
          FROM
             "Customer" c
          JOIN
             "Account" a ON c.id = a."customerId"
          JOIN
             "Transaction" t ON t."accountId" = a.id
-         JOIN 
+         LEFT OUTER JOIN 
             "SalesManager" sm ON c."salesManagerId" = sm.id
-         JOIN 
+         LEFT OUTER JOIN 
             "Dealer" d ON c."dealerId" = d.id
          WHERE
             t."type" = 'DEPOSIT'
@@ -141,30 +138,25 @@ export class CustomerRepository extends BaseRepository<
          GROUP BY
             c."registrationNumber"`;
 
-      const formattedResult = result.map(row => ({
-         ...row,
-         clubScore: Number(row.clubScore),
-         Q1: Number(row['Q1']),
-         Q2: Number(row['Q2']),
-         Q3: Number(row['Q3']),
-         Q4: Number(row['Q4']),
-         '2025': Number(row['2025']),
-         '2024': Number(row['2024']),
-         '2023': Number(row['2023']),
-         '2022': Number(row['2022']),
-         '2021': Number(row['2021']),
-         '2020': Number(row['2020']),
-         '2019': Number(row['2019']),
-         '2018': Number(row['2018']),
-         '2017': Number(row['2017']),
-         '2016': Number(row['2016']),
-         '2015': Number(row['2015']),
-         '2014': Number(row['2014']),
-         '2013': Number(row['2013']),
-         '2012': Number(row['2012']),
-         '2011': Number(row['2011']),
-         '2010': Number(row['2010']),
-      }));
+      // Dynamically format the result based on the years
+      const formattedResult = result.map(row => {
+         const formattedRow: any = {
+            ...row,
+            clubScore: Number(row.clubScore),
+            Q1: Number((row as any).Q1 ?? 0),
+            Q2: Number((row as any).Q2 ?? 0),
+            Q3: Number((row as any).Q3 ?? 0), 
+            Q4: Number((row as any).Q4 ?? 0),
+         };
+         
+         // Add dynamic year properties
+         years.forEach(year => {
+            const yearStr = year.toString();
+            formattedRow[yearStr] = Number(row[yearStr as keyof SeznamObratuDTO] ?? 0);
+         });
+         
+         return formattedRow;
+      });
 
       return formattedResult;
    }

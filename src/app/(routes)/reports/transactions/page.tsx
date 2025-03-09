@@ -1,13 +1,11 @@
 import ReportObratTable from "@/components/features/reports/obratTable"
-import SimpleTable from "@/components/tables/simpleTable"
 import { customerService } from "@/lib/services/customer"
 
 type Props = {}
 
 const TransactionsReportPage = async (props: Props) => {
 
-   const customer = customerService
-   const customers = await customer.getCustomersForReportSeznamObratu()
+   const customers = await customerService.getCustomersForReportSeznamObratu()
 
   
 

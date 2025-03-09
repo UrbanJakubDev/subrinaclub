@@ -58,7 +58,7 @@ const useTableColumns = (detailLinkPath?: string): ColumnDef<SalesManagerData>[]
       header: "Jméno",
       filterFn: "auto",
       cell: ({ row }) => (
-        <Link href={`/sales-managers/${row.original.id}`} className="text-blue-600 hover:text-blue-800 hover:underline">
+        <Link href={`/sales-managers/${row.original.id}/stats`} className="text-blue-600 hover:text-blue-800 hover:underline">
           {row.original.fullName}
         </Link>
       ),

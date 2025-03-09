@@ -1,6 +1,5 @@
 import { faChartSimple, faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button } from "@material-tailwind/react";
 import Link from "next/link";
 
 type Props = {

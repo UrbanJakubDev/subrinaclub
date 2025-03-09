@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { BaseRepository } from "./base/BaseRepository";
 import { Customer } from "@/types/customer";
-import { CustomerResponseDTO, CustomerWithAccountDataAndActiveSavingPeriodDTO, SeznamObratuDTO } from "../services/customer/types";
+import { CustomerWithAccountDataAndActiveSavingPeriodDTO, SeznamObratuDTO } from "../services/customer/types";
 
 
 

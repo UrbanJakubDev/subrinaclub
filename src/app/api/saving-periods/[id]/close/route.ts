@@ -10,7 +10,6 @@ export async function POST(
 
       // Parse the request body for optional start dates
       const { startYear, startQuarter, createNewPeriod = true } = await request.json();
-      console.log(startYear, startQuarter, createNewPeriod);
 
       // Get the current saving period
       const currentPeriod = await prisma.savingPeriod.findUnique({
@@ -24,6 +23,9 @@ export async function POST(
             { status: 404 }
          );
       }
+
+      // Log The current period
+      console.log(currentPeriod);
 
       // Calculate next quarter and year
       let nextStartQuarter: number;
@@ -56,6 +58,9 @@ export async function POST(
             nextEndYear++;
          }
       }
+
+      // Log The next period
+      console.log(nextStartYear, nextStartQuarter, nextEndYear, nextEndQuarter);
 
       // Close current period
       await prisma.savingPeriod.update({

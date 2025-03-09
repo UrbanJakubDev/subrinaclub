@@ -102,6 +102,10 @@ export default function SalesManagerStatsTable({
         cell: ({ getValue }) => String(getValue() || ''),
       },
       {
+        accessorKey: "salonName",
+        header: "Název salonu",
+      },
+      {
         accessorKey: "address",
         header: "Adresa",
         cell: ({ getValue }) => getValue() || '-',
@@ -124,7 +128,7 @@ export default function SalesManagerStatsTable({
       },
       {
         accessorKey: "dealer.fullName",
-        header: "Jméno Obchodníka",
+        header: "Velkoobchod",
       },
    
       {
@@ -167,6 +171,7 @@ export default function SalesManagerStatsTable({
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
         footer: (props) => getFooterValue('sum', props),
       },
+      
       {
         accessorKey: "account.averagePointsBeforeSalesManager",
         header: "Průměr za 4Q",
@@ -178,6 +183,17 @@ export default function SalesManagerStatsTable({
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
         footer: (props) => getFooterValue('sum', props),
       },
+      {
+        accessorKey: "account.savingPeriods.availablePoints",
+        header: "Průběžné konto",
+        cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
+        footer: (props) => getFooterValue('sum', props),
+      },
+      {
+        accessorKey: "account.savingPeriods.endDateTime",
+        header: "Datum uzavření",
+      },
+
       {
         accessorKey: "actions",
         header: "Akce",

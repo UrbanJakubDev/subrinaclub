@@ -11,6 +11,7 @@ import ActionButtons from "@/components/tables/ui/actionButtons";
 import StatusChip from "@/components/tables/ui/statusChip";
 import StatusIcon from "@/components/tables/ui/statusIcon";
 import { toast } from "react-toastify";
+import Link from "next/link";
 
 interface Customer {
     id: string;
@@ -328,10 +329,31 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
                 accessorKey: "fullName",
                 header: "Jméno",
                 filterFn: "auto",
+                cell: ({ row }) => (
+                    <Link href={`/customers/${row.original.id}/stats`} className="text-blue-600 hover:text-blue-800 hover:underline">
+                        {row.original.fullName}
+                    </Link>
+                ),
             },
             {
                 accessorKey: "salonName",
                 header: "Salón",
+            },
+            {
+                accessorKey: "address",
+                header: "Adresa",
+            },
+            {
+                accessorKey: "town",
+                header: "Město",
+            },
+            {
+                accessorKey: "psc",
+                header: "PSČ",
+            },
+            {
+                accessorKey: "phone",
+                header: "Telefon",
             },
             {
                 accessorKey: "ico",
@@ -479,7 +501,6 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
                     <ActionButtons
                         id={row.original.id}
                         detailLinkPath={detailLinkPath}
-                        hasStats
                     />
                 ),
                 enableColumnFilter: false,

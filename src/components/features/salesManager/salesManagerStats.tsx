@@ -9,6 +9,7 @@ import NoData from "@/components/ui/noData";
 import Skeleton from "@/components/ui/skeleton";
 import ColumnChart from "@/components/ui/charts/columnChart";
 import CustomerPointsWidget from "./CustomerPointsWidget";
+import { QuarterDate } from "@/lib/utils/quarterDateUtils";
 
 // Add proper types for our data structures
 interface Transaction {
@@ -118,11 +119,17 @@ type SalesManagerStatsProps = {
 export default function SalesManagerStats({
   salesManager,
 }: SalesManagerStatsProps) {
+
+  // Actual year and quarter
+  const qd = new QuarterDate(new Date());
+  const actualYear = qd.getActualYearAndQuarter().actualYear;
+  const actualQuarter = qd.getActualYearAndQuarter().actualQuarter;
+
   const salesManagerId = salesManager?.id;
   const [loading, setLoading] = React.useState<boolean>(true);
   const [apiData, setApiData] = React.useState<ProcessedCustomerData[]>([]);
-  const [selectedYear, setSelectedYear] = React.useState(2024);
-  const [selectedQuarter, setSelectedQuarter] = React.useState(1);
+  const [selectedYear, setSelectedYear] = React.useState(actualYear);
+  const [selectedQuarter, setSelectedQuarter] = React.useState(actualQuarter);
   const [isClient, setIsClient] = React.useState(false);
   const [isDataReady, setIsDataReady] = React.useState(false);
   // Memoize static options

@@ -7,6 +7,9 @@ type CustomerPointsWidgetProps = {
     clubPoints: number;
     quarterPoints: number[];
     yearPoints: number;
+    selectedQuarterDifferencePositive: number;
+    selectedQuarterDifferenceSum: number;
+    averagePointsBeforeSalesManagerSum: number;
     customersCountsInfo: {
         allCustomers: number;
         activeCustomers: number;
@@ -27,7 +30,7 @@ const basicCard = (title: string, value: number, icon: string, selected: boolean
 }
 
 
-const CustomerPointsWidget = ({ selectedQuarter, quarterPoints, customersCountsInfo, clubPoints, yearPoints }: CustomerPointsWidgetProps) => {
+const CustomerPointsWidget = ({ selectedQuarter, quarterPoints, customersCountsInfo, clubPoints, yearPoints, selectedQuarterDifferencePositive, selectedQuarterDifferenceSum, averagePointsBeforeSalesManagerSum }: CustomerPointsWidgetProps) => {
     return (
         <>
             <div className="bg-white rounded-lg shadow-md p-6"> {/* Hlavní kontejner widgetu */}
@@ -42,12 +45,12 @@ const CustomerPointsWidget = ({ selectedQuarter, quarterPoints, customersCountsI
                         {/* Celkem bodů - Výrazný box */}
                         {basicCard("Klubové konto", clubPoints, "💰")}
                         {basicCard("Roční konto", yearPoints, "📈")}
-                        {basicCard("Rozdíl", quarterPoints[selectedQuarter - 1], "📈")}
-                        {basicCard("Rozdíl kladný", quarterPoints[selectedQuarter - 1], "📈")}
+                        {basicCard("Rozdíl", selectedQuarterDifferenceSum, "📈")}
+                        {basicCard("Rozdíl kladný", selectedQuarterDifferencePositive, "📈")}
                     </div>
                     <div className="grid grid-cols-5 gap-4 mb-6">
                         {/* Body za čtvrtletí - Menší boxy */}
-                        {basicCard(`Průměr za poslední 4 čtvrtletí`, quarterPoints[selectedQuarter - 1], "📈")}
+                        {basicCard(`Průměr za poslední 4 čtvrtletí`, averagePointsBeforeSalesManagerSum, "📈")}
                         {quarterPoints.map((points, index) => (
                             basicCard(`Q${index + 1}`, points, "📈", index === selectedQuarter - 1)
                         ))}

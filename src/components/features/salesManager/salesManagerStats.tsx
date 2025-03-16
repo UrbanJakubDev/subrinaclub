@@ -338,13 +338,33 @@ export default function SalesManagerStats({
     ), [customersData]);
 
 
-
   // Calculate quarter points
   const quarterPoints = React.useMemo(() => {
     return [1, 2, 3, 4].map(quarter =>
       quarterSum(quarter)
     );
   }, [quarterSum]);
+
+  // Sum positive points in selectedQuarterDifference column in apiData
+  const selectedQuarterDifferencePositive = React.useMemo(() => {
+    return apiData.reduce((sum, customer) =>
+      sum + (customer.selectedQuarterDifference > 0 ? customer.selectedQuarterDifference : 0), 0
+    );
+  }, [apiData]);
+
+  // Sum points in selectedQuarterDifference column in apiData
+  const selectedQuarterDifferenceSum = React.useMemo(() => {
+    return apiData.reduce((sum, customer) =>
+      sum + (customer.selectedQuarterDifference), 0
+    );
+  }, [apiData]);
+
+  // Sum averagePointsBeforeSalesManager in apiData
+  const averagePointsBeforeSalesManagerSum = React.useMemo(() => {
+    return apiData.reduce((sum, customer) =>
+      sum + (customer.account?.averagePointsBeforeSalesManager || 0), 0
+    );
+  }, [apiData]);
 
   // Effects
   React.useEffect(() => {
@@ -426,6 +446,9 @@ export default function SalesManagerStats({
             customersCountsInfo={customersCountsInfo}
             clubPoints={totalPoints}
             yearPoints={quarterSum(1) + quarterSum(2) + quarterSum(3) + quarterSum(4)}
+            selectedQuarterDifferencePositive={selectedQuarterDifferencePositive}
+            selectedQuarterDifferenceSum={selectedQuarterDifferenceSum}
+            averagePointsBeforeSalesManagerSum={averagePointsBeforeSalesManagerSum}
           />
 
         </div>
@@ -444,6 +467,10 @@ export default function SalesManagerStats({
       ) : (
         <NoData />
       )}
+
+      <pre>
+        {JSON.stringify(apiData, null, 2)}
+      </pre>
     </>
   );
 }

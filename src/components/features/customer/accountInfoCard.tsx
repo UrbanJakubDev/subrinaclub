@@ -19,14 +19,16 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
    const [isClosing, setIsClosing] = useState(false);
    const [isCreating, setIsCreating] = useState(false);
    const { actions } = useModalStore();
-   const savingPeriodStart = savingPeriod ? `${savingPeriod.startYear}/${savingPeriod.startQuarter}` : '';
-   const savingPeriodEnd = savingPeriod ? `${savingPeriod.endYear}/${savingPeriod.endQuarter}` : '';
+   const savingPeriodStart = savingPeriod ? `${savingPeriod.startYear} / 0${savingPeriod.startQuarter}` : '';
+   const savingPeriodEnd = savingPeriod ? `${savingPeriod.endYear} / 0${savingPeriod.endQuarter}` : '';
 
-   // Initt QuarterDateUtils with the current date
+   // Initialize QuarterDateUtils with the current date
    const quarterDate = new QuarterDate();
    const { actualYear, actualQuarter } = quarterDate.getActualYearAndQuarter();
-   const { followingYear, followingQuarter } = quarterDate.getFollowingYearAndQuarter();
-   
+   const { previousYear, previousQuarter } = quarterDate.getPreviousYearAndQuarter();
+   const [selectedYear, setSelectedYear] = useState<number>(previousYear);
+   const [selectedQuarter, setSelectedQuarter] = useState<number>(previousQuarter);
+
    if (isLoading) return <Skeleton className="w-1/4" />;
    if (!account) return <pre>Account not found</pre>;
 
@@ -40,7 +42,9 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
             availablePoints: savingPeriod.availablePoints,
             closeNow,
             actualYear,
-            actualQuarter
+            actualQuarter,
+            selectedYear,
+            selectedQuarter
          });
       } else {
          // If no points, proceed directly
@@ -51,9 +55,15 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
    // Function to execute the API call to close the saving period
    const executeCloseSavingPeriod = async (closeNow: boolean) => {
       if (!savingPeriod) return;
-      
+
+      const newSavingPeriod = {
+         startYear: selectedYear,
+         startQuarter: selectedQuarter
+      }
+
       try {
          setIsClosing(true);
+         setIsCreating(true);
          const response = await fetch(`/api/saving-periods/${savingPeriod.id}/close`, {
             method: 'POST',
             headers: {
@@ -62,8 +72,8 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
             body: JSON.stringify(
                closeNow ? {
                   createNewPeriod: true,
-                  startYear: followingYear,
-                  startQuarter: followingQuarter
+                  startYear: newSavingPeriod.startYear,
+                  startQuarter: newSavingPeriod.startQuarter
                } : {
                   createNewPeriod: true
                }
@@ -80,27 +90,43 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
          alert('Nepodařilo se uzavřít šetřící období. Zkuste to prosím znovu.');
       } finally {
          setIsClosing(false);
+         setIsCreating(false);
       }
    };
 
+   // Handle year input change with proper type conversion
+   const handleYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = parseInt(e.target.value, 10);
+      if (!isNaN(value)) {
+         setSelectedYear(value);
+      }
+   };
+
+   // Handle quarter input change with proper type conversion and validation
+   const handleQuarterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const value = parseInt(e.target.value, 10);
+      if (!isNaN(value) && value >= 1 && value <= 4) {
+         setSelectedQuarter(value);
+      }
+   };
 
    // Confirmation Dialog Component
    const CloseSavingPeriodConfirmation = () => {
       const { actions, data } = useModalStore();
-      
+
       if (!data) return null;
-      
+
       const { availablePoints, closeNow, actualYear, actualQuarter } = data;
-      
+
       const handleConfirm = () => {
          actions.closeModal();
          executeCloseSavingPeriod(closeNow);
       };
-      
+
       const handleCancel = () => {
          actions.closeModal();
       };
-      
+
       return (
          <ModalComponent
             modalId="closeSavingPeriodConfirmation"
@@ -130,7 +156,7 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
                      </div>
                   </div>
                </div>
-               
+
                {/* Explanation of what will happen */}
                <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
                   <div className="flex">
@@ -149,9 +175,54 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
                                  <p className="font-medium">
                                     Uzavřete aktuální šetřící období k roku <strong>{actualYear}</strong> a čtvrtletí <strong>{actualQuarter}</strong>.
                                  </p>
-                                 <p>
-                                    Bude vytvořeno nové šetřící období začínající od aktuálního roku <strong>{followingYear}</strong> a čtvrtletí <strong>{followingQuarter}</strong>.
+                                 <p className="mb-4">
+                                    Bude vytvořeno nové šetřící období začínající od roku <strong>{selectedYear}</strong> a čtvrtletí <strong>{selectedQuarter}</strong>.
                                  </p>
+
+                                 <div className="bg-white p-4 rounded-md border border-blue-200 mb-2">
+                                    <Typography variant="small" className="text-gray-700 font-medium mb-2">
+                                       Vyberte počáteční rok a čtvrtletí pro nové šetřící období:
+                                    </Typography>
+                                    
+                                    <div className="grid grid-cols-2 gap-4">
+                                       <div>
+                                          <label htmlFor="yearInput" className="block text-sm font-medium text-gray-700 mb-1">
+                                             Rok
+                                          </label>
+                                          <input
+                                             id="yearInput"
+                                             type="number"
+                                             min={actualYear - 1}
+                                             max={actualYear + 5}
+                                             value={selectedYear}
+                                             onChange={handleYearChange}
+                                             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                          />
+                                       </div>
+                                       
+                                       <div>
+                                          <label htmlFor="quarterSelect" className="block text-sm font-medium text-gray-700 mb-1">
+                                             Čtvrtletí
+                                          </label>
+                                          <select
+                                             id="quarterSelect"
+                                             value={selectedQuarter}
+                                             onChange={handleQuarterChange}
+                                             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                          >
+                                             <option value={1}>Q1</option>
+                                             <option value={2}>Q2</option>
+                                             <option value={3}>Q3</option>
+                                             <option value={4}>Q4</option>
+                                          </select>
+                                       </div>
+                                    </div>
+                                    
+                                    <p className="text-xs text-gray-500 mt-2">
+                                       Tyto hodnoty budou použity pro vytvoření nového šetřícího období.
+                                       Výchozí hodnoty jsou nastaveny na předchozí čtvrtletí.
+                                    </p>
+                                 </div>
                               </>
                            ) : (
                               <>
@@ -167,20 +238,20 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
                      </div>
                   </div>
                </div>
-               
+
                <Typography variant="paragraph" className="font-bold text-gray-900">
                   Opravdu chcete pokračovat?
                </Typography>
-               
+
                <div className="flex justify-end space-x-3 mt-6">
-                  <Button 
+                  <Button
                      onClick={handleCancel}
                      variant="outlined"
                      color="gray"
                   >
                      Zrušit
                   </Button>
-                  <Button 
+                  <Button
                      onClick={handleConfirm}
                      variant="filled"
                      color="red"
@@ -201,7 +272,7 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
    return (
       <>
          <CloseSavingPeriodConfirmation />
-         
+
          <Card className="p-8 flex flex-col rounded-sm">
             <Typography variant="h3" color="black">Stav účtu</Typography>
             <span className="text-sm text-gray-500">Účet s ID: {account.id}</span>
@@ -230,7 +301,7 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
                         <p>Průběžné konto: {savingPeriod.totalDepositedPoints?.toString()}</p>
                         <p>Průběžné konto k dispozici: {savingPeriod.availablePoints}</p>
                         <p>Průměrné body před přiřazením obchodního zástupce: {account.averagePointsBeforeSalesManager?.toString()}</p>
-                        <SavingPeriodActions 
+                        <SavingPeriodActions
                            isClosing={isClosing}
                            onClose={handleCloseSavingPeriod}
                         />

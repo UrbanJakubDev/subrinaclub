@@ -3,6 +3,7 @@ import Card from "@/components/ui/mtui";
 import Skeleton from "@/components/ui/skeleton";
 import Typography from "@/components/ui/typography";
 import { CustomerCardProps } from "@/lib/services/customer/types";
+import Link from "next/link";
 import React from 'react';
 
 const formatDate = (date: string | Date | null) => {
@@ -38,8 +39,9 @@ const CustomerCard = ({ customer, isLoading }: CustomerCardProps) => {
          </div>
          <div className="">
             <div className="max-w-1/2">
-               <p>Obchodní zástupce: {customer.salesManager?.fullName || "..."}</p>
-               <p>Od: {customer.salesManagerSinceQuarter || "..."}  {customer.salesManagerSinceYear || "..."}</p>
+               <p>Obchodní zástupce: <Link href={`/sales-managers/${customer.salesManagerId}/stats`} className="text-blue-600 hover:text-blue-800 hover:underline">{customer.salesManager?.fullName || "..."}</Link></p>
+               <p>Od: {customer.salesManagerSinceYear ? `${customer.salesManagerSinceYear} / 0${customer.salesManagerSinceQ}` : "..."}</p>
+
             </div>
             <div className="max-w-1/2">
                <p>Velkoobchod: {customer.dealer?.fullName || "..."}</p>

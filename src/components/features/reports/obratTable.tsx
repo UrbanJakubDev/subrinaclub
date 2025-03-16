@@ -42,10 +42,15 @@ export default function ReportObratTable({ defaultData, detailLinkPath }: Props)
             footer: (props) => getFooterValue('count', props)
          },
          {
-            accessorKey: 'fullName',
-            header: 'Jméno',
-            cell: info => info.getValue(),
-         },
+            accessorKey: "fullName",
+            header: "Jméno",
+            filterFn: "auto",
+            cell: ({ row }) => (
+                <Link href={`/customers/${row.original.id}/stats`} className="text-blue-600 hover:text-blue-800 hover:underline">
+                    {row.original.fullName}
+                </Link>
+            ),
+        },
          {
             accessorKey: 'salonName',
             header: 'Salón',
@@ -79,7 +84,12 @@ export default function ReportObratTable({ defaultData, detailLinkPath }: Props)
          {
             accessorKey: 'salesManager',
             header: 'Obchodní zástupce',
-            cell: info => info.getValue(),
+            cell: ({ row }) => (
+               <Link href={`/sales-managers/${row.original.salesManagerId}/stats`} className="text-blue-600 hover:text-blue-800 hover:underline">
+                   {row.original.salesManager}
+               </Link>
+           ),
+
          },
          {
             accessorKey: 'dealer',

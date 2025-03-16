@@ -57,7 +57,8 @@ export class TransactionAPI {
                                 fullName: true,
                                 salesManager: {
                                     select: {
-                                        fullName: true
+                                        fullName: true,
+                                        id: true
                                     }
                                 },
                                 dealer: {
@@ -77,6 +78,7 @@ export class TransactionAPI {
             ...transaction,
             customerName: transaction.account.customer.fullName,
             salesManagerName: transaction.account.customer.salesManager?.fullName,
+            salesManagerId: transaction.account.customer.salesManager?.id,
             dealerName: transaction.account.customer.dealer?.fullName,
             bonusName: transaction.bonus?.name,
             customerId: transaction.account.customer.id,

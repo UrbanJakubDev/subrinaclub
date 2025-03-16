@@ -115,6 +115,7 @@ export class CustomerRepository extends BaseRepository<
             max(c."phone") as "phone",
             max(d."fullName") as "dealer",
             max(c."salonName") as "salonName",
+            max(sm."id") as "salesManagerId",
             max(sm."fullName") as "salesManager",
             sum(t.points) as "clubScore",
             sum(case when (t."year" = ${currentYear} and t."quarter" = 1) then t.points else 0 end) as "Q1",

@@ -94,8 +94,14 @@ export default function SalesManagerStatsTable({
     () => [
       {
         accessorKey: "fullName",
-        header: "Jméno salonu",
-      },
+        header: "Jméno",
+        filterFn: "auto",
+        cell: ({ row }) => (
+            <Link href={`/customers/${row.original.id}/stats`} className="text-blue-600 hover:text-blue-800 hover:underline">
+                {row.original.fullName}
+            </Link>
+        ),
+    },
       {
         accessorKey: "registrationNumber",
         header: "Registrační číslo",
@@ -176,6 +182,7 @@ export default function SalesManagerStatsTable({
         accessorKey: "account.averagePointsBeforeSalesManager",
         header: "Průměr za 4Q",
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
+        footer: (props) => getFooterValue('sum', props),
       },
       {
         accessorKey: "selectedQuarterDifference",
@@ -194,16 +201,16 @@ export default function SalesManagerStatsTable({
         header: "Datum uzavření",
       },
 
-      {
-        accessorKey: "actions",
-        header: "Akce",
-        cell: ({ row }) => (
-          <Link href={`/customers/${row.original.id}/stats`}>
-            <Button size="sm" className="font-light"><FontAwesomeIcon icon={faUser} style={{ color: "#ffffff", }} /> Detail </Button>
-          </Link>
-        ),
-        enableColumnFilter: false,
-      },
+      // {
+      //   accessorKey: "actions",
+      //   header: "Akce",
+      //   cell: ({ row }) => (
+      //     <Link href={`/customers/${row.original.id}/stats`}>
+      //       <Button size="sm" className="font-light"><FontAwesomeIcon icon={faUser} style={{ color: "#ffffff", }} /> Detail </Button>
+      //     </Link>
+      //   ),
+      //   enableColumnFilter: false,
+      // },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],

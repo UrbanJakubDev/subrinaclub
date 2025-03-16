@@ -50,7 +50,8 @@ interface ProductsSectionProps {
 }
 
 export default function AccountStats({ customer, transactions, isLoading }: AccountStatsProps) {
-  const [selectedYear, setSelectedYear] = useState(2024);
+  const currentYear = new Date().getFullYear();
+  const [selectedYear, setSelectedYear] = useState(currentYear);
   const clubAccountBalance = customer?.account?.lifetimePoints;
 
   // Helper functions

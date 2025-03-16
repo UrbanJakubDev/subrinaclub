@@ -494,18 +494,18 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
                     return filterValue === "" || cellValue === boolFilterValue;
                 },
             },
-            {
-                accessorKey: "action",
-                header: "",
-                cell: ({ row }) => (
-                    <ActionButtons
-                        id={row.original.id}
-                        detailLinkPath={detailLinkPath}
-                    />
-                ),
-                enableColumnFilter: false,
-                enableSorting: false,
-            },
+            // {
+            //     accessorKey: "action",
+            //     header: "",
+            //     cell: ({ row }) => (
+            //         <ActionButtons
+            //             id={row.original.id}
+            //             detailLinkPath={detailLinkPath}
+            //         />
+            //     ),
+            //     enableColumnFilter: false,
+            //     enableSorting: false,
+            // },
         ],
         // eslint-disable-next-line react-hooks/exhaustive-deps
         []

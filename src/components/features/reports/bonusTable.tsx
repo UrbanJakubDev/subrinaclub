@@ -23,13 +23,23 @@ export default function ReportBonusTable({ defaultData, detailLinkPath, tableNam
    // Column definitions
    const columns = React.useMemo<ColumnDef<any>[]>(() => [
       {
-         accessorKey: 'customerName',
-         header: 'Zákazník',
-         footer: (props) => getFooterValue('count', props)
-      },
+         accessorKey: "customerName",
+         header: "Jméno",
+         filterFn: "auto",
+         cell: ({ row }) => (
+             <Link href={`/customers/${row.original.customerId}/stats`} className="text-blue-600 hover:text-blue-800 hover:underline">
+                 {row.original.customerName}
+             </Link>
+         ),
+     },
       {
          accessorKey: 'salesManagerName',
          header: 'Sales Manager',
+         cell: ({ row }) => (
+            <Link href={`/sales-managers/${row.original.salesManagerId}/stats`} className="text-blue-600 hover:text-blue-800 hover:underline">
+                {row.original.salesManagerName}
+            </Link>
+        ),
       },
       {
          accessorKey: 'dealerName',

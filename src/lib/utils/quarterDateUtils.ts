@@ -161,8 +161,8 @@ export class QuarterDateUtils {
 
     if (currentQuarter === 1) {
       return {
-        year: currentYear - 1,
-        quarter: 4
+        previousYear: currentYear - 1,
+        previousQuarter: 4
       };
     }
 
@@ -170,5 +170,5 @@ export class QuarterDateUtils {
       previousYear: currentYear,
       previousQuarter: currentQuarter - 1
     };
-  } 
- }
+  }
+}

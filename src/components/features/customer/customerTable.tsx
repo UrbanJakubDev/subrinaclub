@@ -261,6 +261,10 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         },
       },
       {
+        accessorKey: "account.lifetimePointsCorrection",
+        header: "Korekce",
+      },
+      {
         accessorFn: (row) => row.account?.savingPeriodAvailablePoints ?? 0,
         header: "Průběžné konto",
         footer: (info) => {

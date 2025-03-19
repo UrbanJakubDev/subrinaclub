@@ -117,7 +117,7 @@ export class CustomerRepository extends BaseRepository<
             max(c."salonName") as "salonName",
             max(sm."id") as "salesManagerId",
             max(sm."fullName") as "salesManager",
-            sum(t.points) as "clubScore",
+            max(a."lifetimePoints") + max(a."lifetimePointsCorrection") as "lifetimePointsCorrected",
             sum(case when (t."year" = ${currentYear} and t."quarter" = 1) then t.points else 0 end) as "Q1",
             sum(case when (t."year" = ${currentYear} and t."quarter" = 2) then t.points else 0 end) as "Q2",
             sum(case when (t."year" = ${currentYear} and t."quarter" = 3) then t.points else 0 end) as "Q3",

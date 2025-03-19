@@ -58,6 +58,14 @@ export default async function AccountsPage() {
                               Šetřící období
                            </Link>
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                           <Link
+                              href={`/accounts/${account.id}`}
+                              className="text-blue-600 hover:text-blue-800 hover:underline"
+                           >
+                              Detail účtu
+                              </Link>
+                        </td>
                      </tr>
                   ))}
                </tbody>

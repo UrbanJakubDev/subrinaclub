@@ -156,13 +156,14 @@ export class CustomerService {
                select: {
                   fullName: true,
                }
-            
+
             },
             account: {
                select: {
                   id: true,
                   currentYearPoints: true,
                   lifetimePoints: true,
+                  lifetimePointsCorrection: true,
                   averagePointsBeforeSalesManager: true,
                   savingPeriods: {
                      select: {
@@ -185,6 +186,9 @@ export class CustomerService {
          }
       });
 
+      customers.forEach(customer => {
+         customer.account.lifetimePointsCorrected = customer.account.lifetimePoints + customer.account.lifetimePointsCorrection;
+      });
 
 
       // Round acount.averagePointsBeforeSalesManager to 0 decimals
@@ -220,6 +224,8 @@ export class CustomerService {
          delete result.account.savingPeriods;
       }
 
+      // Add lifetimePointsCorrected attribute
+      result.account.lifetimePointsCorrected = result.account.lifetimePoints + result.account.lifetimePointsCorrection;
 
       return result;
    }

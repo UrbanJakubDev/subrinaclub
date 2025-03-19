@@ -71,17 +71,17 @@ export class CustomerAPI {
         const activeSavingPeriod = response.account.savingPeriods?.[0] || null;
 
         return {
-            ...response,
+            ...response[0],
             account: {
-                id: response.account.id,
-                customerId: response.id,
-                active: response.active,
-                createdAt: response.createdAt,
-                currentYearPoints: response.account.currentYearPoints || 0,
-                lifetimePoints: response.account.lifetimePoints || 0,
+                id: response[0].account.id,
+                customerId: response[0].id,
+                active: response[0].active,
+                createdAt: response[0].createdAt,
+                currentYearPoints: response[0].account.currentYearPoints,
+                lifetimePoints: response[0].account.lifetimePoints,
                 savingPeriod: activeSavingPeriod ? {
                     id: activeSavingPeriod.id,
-                    accountId: response.account.id,
+                    accountId: response[0].account.id,
                     status: activeSavingPeriod.status,
                     startDateTime: activeSavingPeriod.startDateTime,
                     endDateTime: activeSavingPeriod.endDateTime,
@@ -130,6 +130,7 @@ export class CustomerAPI {
                     id: true,
                     currentYearPoints: true,
                     lifetimePoints: true,
+                    lifetimePointsCorrection: true,
                     averagePointsBeforeSalesManager: true,
                     savingPeriods: {
                         select: {
@@ -159,6 +160,7 @@ export class CustomerAPI {
                 salesManager: customer.salesManager,
                 account: customer.account ? {
                     ...customer.account,
+                    lifetimePointsCorrected: customer.account.lifetimePoints + customer.account.lifetimePointsCorrection,
                     savingPeriodAvailablePoints: customer.account.savingPeriods?.[0]?.availablePoints ?? 0,
                     averagePointsBeforeSalesManager: customer.account.averagePointsBeforeSalesManager 
                         ? Math.round(customer.account.averagePointsBeforeSalesManager)

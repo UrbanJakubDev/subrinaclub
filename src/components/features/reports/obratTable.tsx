@@ -98,10 +98,11 @@ export default function ReportObratTable({ defaultData, detailLinkPath }: Props)
             enableColumnFilter: false
          },
          {
-            accessorKey: 'clubScore',
+            accessorKey: 'lifetimePointsCorrected',
             header: 'Klubové konto',
             cell: info => info.getValue(),
-            enableColumnFilter: false
+            enableColumnFilter: false,
+            footer: (props) => getFooterValue('sum', props)
          },
       ];
 

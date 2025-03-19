@@ -138,14 +138,14 @@ export class QuarterDateUtils {
     }
   }
 
-  getFollowingYearAndQuarter() {
-    const currentQuarter = Math.floor(this.date.getMonth() / 3) + 1;
-    const currentYear = this.date.getFullYear();
+  getFollowingYearAndQuarter(year?: number, quarter?: number) {
+    const currentQuarter = quarter || Math.floor(this.date.getMonth() / 3) + 1;
+    const currentYear = year || this.date.getFullYear();
 
     if (currentQuarter === 4) {
       return {
-        year: currentYear + 1,
-        quarter: 1
+        followingYear: currentYear + 1,
+        followingQuarter: 1
       };
     }
 
@@ -155,9 +155,9 @@ export class QuarterDateUtils {
     };
   }
 
-  getPreviousYearAndQuarter() {
-    const currentQuarter = Math.floor(this.date.getMonth() / 3) + 1;
-    const currentYear = this.date.getFullYear();
+  getPreviousYearAndQuarter(year?: number, quarter?: number) {
+    const currentQuarter = quarter || Math.floor(this.date.getMonth() / 3) + 1;
+    const currentYear = year || this.date.getFullYear();
 
     if (currentQuarter === 1) {
       return {

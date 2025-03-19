@@ -52,7 +52,7 @@ interface ProductsSectionProps {
 export default function AccountStats({ customer, transactions, isLoading }: AccountStatsProps) {
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
-  const clubAccountBalance = customer?.account?.lifetimePoints;
+  const clubAccountBalance = customer?.account?.lifetimePointsCorrected;
 
   // Helper functions
   const sumPointsInYear = (year: number): number => {

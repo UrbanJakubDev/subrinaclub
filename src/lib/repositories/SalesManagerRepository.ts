@@ -34,6 +34,7 @@ export class SalesManagerRepository extends BaseRepository<
             account: {
                select: {
                   lifetimePoints: true,
+                  lifetimePointsCorrection: true
                }
             }
          }
@@ -41,7 +42,7 @@ export class SalesManagerRepository extends BaseRepository<
 
       // Sum up lifetimePoints from all customer accounts
       const totalPoints = result.reduce((sum, customer) => {
-         return sum + (customer.account?.lifetimePoints || 0);
+         return sum + (customer.account?.lifetimePoints || 0) + (customer.account?.lifetimePointsCorrection || 0);
       }, 0);
 
       return totalPoints;

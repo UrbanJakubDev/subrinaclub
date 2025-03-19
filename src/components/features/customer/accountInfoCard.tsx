@@ -23,12 +23,16 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
    const savingPeriodEnd = savingPeriod ? `${savingPeriod.endYear} / 0${savingPeriod.endQuarter}` : '';
 
    // Initialize QuarterDateUtils with the current date
-   const quarterDate = new QuarterDate();
-   const { actualYear, actualQuarter } = quarterDate.getActualYearAndQuarter();
-   const { previousYear, previousQuarter } = quarterDate.getPreviousYearAndQuarter();
-   const [selectedYear, setSelectedYear] = useState<number>(previousYear);
-   const [selectedQuarter, setSelectedQuarter] = useState<number>(previousQuarter);
-
+   const qd = new QuarterDate();
+   
+   // Get current year and quarter
+   const actualYear = qd.getActualYearAndQuarter().actualYear;
+   const actualQuarter = qd.getActualYearAndQuarter().actualQuarter;
+   
+   // Initialize selected year and quarter with current values
+   const [selectedYear, setSelectedYear] = useState(actualYear);
+   const [selectedQuarter, setSelectedQuarter] = useState(actualQuarter);
+   
    if (isLoading) return <Skeleton className="w-1/4" />;
    if (!account) return <pre>Account not found</pre>;
 
@@ -173,7 +177,7 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
                            {closeNow ? (
                               <>
                                  <p className="font-medium">
-                                    Uzavřete aktuální šetřící období k roku <strong>{actualYear}</strong> a čtvrtletí <strong>{actualQuarter}</strong>.
+                                    Uzavřete aktuální šetřící období.
                                  </p>
                                  <p className="mb-4">
                                     Bude vytvořeno nové šetřící období začínající od roku <strong>{selectedYear}</strong> a čtvrtletí <strong>{selectedQuarter}</strong>.
@@ -279,7 +283,7 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account, savingPeriod
             <div className="w-full flex flex-col gap-8 mt-6">
                <article>
                   <Typography variant="h5" color="black">Body na účtu</Typography>
-                  <p>Klubové konto: {account.lifetimePoints}</p>
+                  <p>Klubové konto: {account.lifetimePointsCorrected}</p>
                   <p>Roční konto: {new Date().getFullYear()}: {account.currentYearPoints}</p>
                </article>
 

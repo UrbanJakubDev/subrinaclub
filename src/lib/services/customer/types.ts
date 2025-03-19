@@ -66,6 +66,8 @@ export interface CustomerWithAccountDataAndActiveSavingPeriodDTO {
       accountNumber: string;
       balance: number;
       averagePointsBeforeSalesManager: number;
+      lifetimePoints: number;
+      lifetimePointsCorrection: number;
       savingPeriod: {
          id: number;
          accountNumber: string;

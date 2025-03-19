@@ -125,7 +125,7 @@ model Transaction {
   points          Int
   type            TransactionType
   description     String?
-  directSale      Boolean @default(false)
+  directSale      Boolean         @default(false)
 
   acceptedBonusOrder DateTime?
   sentBonusOrder     DateTime?
@@ -156,6 +156,7 @@ model Account {
   totalWithdrawnPonits Int @default(0)
 
   averagePointsBeforeSalesManager Decimal? @default(0) @dbPG.Decimal(10, 2)
+  lifetimePointsCorrection        Int?     @default(0)
 
   customerId Int      @unique
   customer   Customer @relation(fields: [customerId], references: [id])

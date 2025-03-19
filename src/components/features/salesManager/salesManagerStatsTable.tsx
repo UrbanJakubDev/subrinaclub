@@ -44,6 +44,7 @@ type CustomerData = {
     id: number;
     active: boolean;
     lifetimePoints: number;
+    lifetimePointsCorrected: number;
     currentYearPoints: number;
     totalDepositedPoints: number;
     totalWithdrawnPonits: number;
@@ -166,7 +167,7 @@ export default function SalesManagerStatsTable({
         enableColumnFilter: false,
       },
       {
-        accessorKey: "account.lifetimePoints",
+        accessorKey: "account.lifetimePointsCorrected",
         header: "Klubové konto",
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
         footer: (props) => getFooterValue('sum', props),

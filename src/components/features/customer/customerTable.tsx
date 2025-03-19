@@ -244,7 +244,7 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         },
       },
       {
-        accessorKey: "account.lifetimePoints",
+        accessorKey: "account.lifetimePointsCorrected",
         header: "Klubové konto",
         cell: (info) => <ChipComponent value={info.getValue()} />,
         footer: (info) => {

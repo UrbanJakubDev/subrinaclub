@@ -22,14 +22,15 @@ export class SalesManagerAPI {
             registrationNumber: customer.registrationNumber?.toString() ?? '',
             account: {
                 ...customer.account,
+                lifetimePointsCorrected: customer.account.lifetimePoints + customer.account.lifetimePointsCorrection,
                 averagePointsBeforeSalesManager: customer.account.averagePointsBeforeSalesManager ? Math.round(customer.account.averagePointsBeforeSalesManager) : 0,
-            savingPeriods: customer.account.savingPeriods.length > 0 ? {
-                availablePoints: customer.account.savingPeriods[0].availablePoints,
-                endDateTime: customer.account.savingPeriods[0].endYear + "/0" + customer.account.savingPeriods[0].endQuarter
-            } : {
-                availablePoints: 0,
-                endDateTime: null
-            }
+                savingPeriods: customer.account.savingPeriods.length > 0 ? {
+                    availablePoints: customer.account.savingPeriods[0].availablePoints,
+                    endDateTime: customer.account.savingPeriods[0].endYear + "/0" + customer.account.savingPeriods[0].endQuarter
+                } : {
+                    availablePoints: 0,
+                    endDateTime: null
+                }
             }
         }));
 

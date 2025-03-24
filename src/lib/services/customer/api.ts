@@ -149,7 +149,10 @@ export class CustomerAPI {
             where: {
                 active: active ?? undefined
             },
-            include
+            include: include,
+            orderBy: {
+                fullName: 'asc'
+            }
         });
 
         // Transform the data to match the service response
@@ -167,7 +170,7 @@ export class CustomerAPI {
                         : undefined
                 } : null
             };
-            
+
             return transformedCustomer;
         });
     }

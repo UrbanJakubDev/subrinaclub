@@ -31,6 +31,8 @@ interface Customer {
   account?: {
     currentYearPoints: number;
     lifetimePoints: number;
+    lifetimePointsCorrection: number;
+    lifetimePointsCorrected: number;  
     savingPeriodAvailablePoints: number;
   };
 }
@@ -252,7 +254,7 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
             .getFilteredRowModel()
             .rows.reduce(
               (sum, row) => {
-                const points = row.original.account?.lifetimePoints ?? 0;
+                const points = row.original.account?.lifetimePointsCorrected ?? 0;
                 return sum + points;
               },
               0

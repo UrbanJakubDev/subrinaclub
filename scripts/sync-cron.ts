@@ -1,8 +1,5 @@
 import { CronService } from '../src/lib/services/cronService'
-import dotenv from 'dotenv'
 
-// Load environment variables
-dotenv.config()
 
 async function main() {
     try {

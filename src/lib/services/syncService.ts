@@ -1,8 +1,5 @@
-import { db } from '../db'
-import { eq } from 'drizzle-orm'
-import { customers, accounts, transactions } from '../db/schema'
-import type { Customer } from '@/types/customer'
-import type { Account } from '@/types/types'
+import { customerService } from "./customer"
+import { transactionService } from "./transaction"
 
 interface SyncData {
     [key: string]: {
@@ -18,30 +15,23 @@ export class SyncService {
 
     async syncUsers() {
         try {
-            // Get all active customers with their accounts and transactions
-            const customersWithData = await db.query.customers.findMany({
-                where: eq(customers.active, true),
-                with: {
-                    account: {
-                        with: {
-                            transactions: true,
-                        },
-                    },
-                    dealer: true,
-                },
-            })
+            // Get all active customers with their accounts
+            const customers = await customerService.getCustomersWithAccountAndActiveSavingPeriod()
 
             const syncData: SyncData = {}
 
-            for (const customer of customersWithData) {
+            for (const customer of customers) {
                 if (!customer.registrationNumber) continue
+
+                // Get transactions for customer account
+                const transactions = await transactionService.getByAccountId(customer.account?.id)
 
                 // Format transaction data
                 const transactionString =
-                    customer.account?.transactions
+                    transactions
                         .map(
                             t =>
-                                `${t.quarter}*${t.year}*${t.points}*${t.value}*${t.date.toISOString()}*${t.voucher || ''}`,
+                                `${t.quarter}*${t.year}*${t.points}*${t.bonusPrice}*${t.sentBonusOrder?.toISOString()}*${t.bonus || ''}`,
                         )
                         .join(';') || ''
 

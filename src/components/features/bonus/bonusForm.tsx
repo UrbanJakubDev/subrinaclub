@@ -21,7 +21,7 @@ export default function BonusForm({ initialBonusData }: BonusFormProps) {
 
   // Handle form submission
   const handleSubmit: SubmitHandler<Bonus> = async (data) => {
-    console.log(data);
+    
     if (bonusData.id) {
       await updateBonusServerAction(bonusData.id.toString(), data);
     }

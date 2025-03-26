@@ -71,17 +71,17 @@ export class CustomerAPI {
         const activeSavingPeriod = response.account.savingPeriods?.[0] || null;
 
         return {
-            ...response[0],
+            ...response,
             account: {
-                id: response[0].account.id,
-                customerId: response[0].id,
-                active: response[0].active,
-                createdAt: response[0].createdAt,
-                currentYearPoints: response[0].account.currentYearPoints,
-                lifetimePoints: response[0].account.lifetimePoints,
+                id: response.account.id,
+                customerId: response.id,
+                active: response.active,
+                createdAt: response.createdAt,
+                currentYearPoints: response.account.currentYearPoints,
+                lifetimePoints: response.account.lifetimePoints,
                 savingPeriod: activeSavingPeriod ? {
                     id: activeSavingPeriod.id,
-                    accountId: response[0].account.id,
+                    accountId: response.account.id,
                     status: activeSavingPeriod.status,
                     startDateTime: activeSavingPeriod.startDateTime,
                     endDateTime: activeSavingPeriod.endDateTime,

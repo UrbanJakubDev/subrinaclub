@@ -31,7 +31,6 @@ export default function DealerForm({ initialDealerData }: DealerFormProps) {
 
   // Handle form submission
   const handleSubmit = async (data: Dealer): Promise<Dealer> => {
-    console.log(data);
     if (data.id) {
       await updateDealerServerAction(data.id.toString(), data);
     } else {

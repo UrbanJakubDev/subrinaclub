@@ -25,6 +25,7 @@ export default function CustomerStatsView({ initialCustomer, initialTransactions
    const [transactions, setTransactions] = useState(initialTransactions);
    const [isLoading, setIsLoading] = useState(false);
    const [isTransactionsLoading, setIsTransactionsLoading] = useState(false);
+   const [test, setTest] = useState(null);
 
    // Store setters for global state
    const { setCustomer, setAccount, setSavingPeriod } = useStatsStore();
@@ -41,6 +42,15 @@ export default function CustomerStatsView({ initialCustomer, initialTransactions
       // Ensure newTransactions is always an array
       const transactions = Array.isArray(newTransactions) ? newTransactions : [];
       
+      // Validate customer data before updating state
+      if (!newCustomer || !newCustomer.account) {
+         console.error('Invalid customer data received:', newCustomer);
+         toast.error('Received invalid customer data from server');
+         setIsLoading(false);
+         setIsTransactionsLoading(false);
+         return;
+      }
+      
       // Update local state
       setLocalCustomer(newCustomer);
       setLocalAccount(newCustomer.account);
@@ -52,12 +62,7 @@ export default function CustomerStatsView({ initialCustomer, initialTransactions
       setAccount(newCustomer.account);
       setSavingPeriod(newCustomer.account.savingPeriod);
       
-      console.log('Refreshing data:', {
-        customer: newCustomer,
-        account: newCustomer.account,
-        savingPeriod: newCustomer.account.savingPeriod,
-        transactionsCount: transactions.length
-      });
+    
 
       setIsLoading(false);
       setIsTransactionsLoading(false);
@@ -65,10 +70,7 @@ export default function CustomerStatsView({ initialCustomer, initialTransactions
 
    // Handle initial data changes
    useEffect(() => {
-      console.log('Initial data:', {
-        customer: initialCustomer,
-        transactions: initialTransactions
-      });
+   
       refreshData(initialCustomer, initialTransactions || []); // Ensure transactions is always an array
    }, [initialCustomer, refreshData]); // Remove initialTransactions from dependencies
 
@@ -108,19 +110,35 @@ export default function CustomerStatsView({ initialCustomer, initialTransactions
       setIsLoading(true);
       setIsTransactionsLoading(true);
       try {
-         const [newCustomer, newTransactions] = await Promise.all([
-            fetchCustomer(customer.id),
-            fetchTransactions(customer.account.id)
-         ]);
+         // Use separate variables and sequential fetching for better error handling
+         const newCustomer = await fetchCustomer(customer.id);
+         setTest(newCustomer);
+         // Early validation to provide more specific error messages
+         if (!newCustomer) {
+            throw new Error('Failed to fetch customer data');
+         }
          
-         console.log('API Response - New transactions:', newTransactions);
-         
-         if (newCustomer && Array.isArray(newTransactions)) {
+         if (!newCustomer.account) {
+            console.error('Customer API response missing account property:', newCustomer);
+            // If customer data is valid but account is missing, use existing account data as fallback
+            // This will allow the app to continue functioning with partial data
+            const mergedCustomer = {
+               ...newCustomer,
+               account: customer.account // Fallback to the current account data
+            };
+            
+            // Now fetch transactions
+            const newTransactions = await fetchTransactions(customer.account.id);
+            refreshData(mergedCustomer, newTransactions);
+            toast.warning('Retrieved partial customer data - some information may be outdated');
+         } else {
+            // Normal flow with complete data
+            const newTransactions = await fetchTransactions(newCustomer.account.id);
             refreshData(newCustomer, newTransactions);
-            console.log('After refresh - Updated transactions:', newTransactions);
          }
       } catch (error) {
-         toast.error(`Failed to refresh data ${error}`);
+         console.error('Data refresh error:', error);
+         toast.error(`Failed to refresh data: ${error instanceof Error ? error.message : String(error)}`);
       } finally {
          setIsLoading(false);
          setIsTransactionsLoading(false);
@@ -133,7 +151,6 @@ export default function CustomerStatsView({ initialCustomer, initialTransactions
 
    const handleDelete = async (transactionId: number) => {
       setIsTransactionsLoading(true);
-      console.log('Before delete - Current transactions:', transactions);
       
       try {
          await deleteTransaction(transactionId);
@@ -189,6 +206,7 @@ export default function CustomerStatsView({ initialCustomer, initialTransactions
                />
             </div>
          </div>
+
       </>
    );
 }

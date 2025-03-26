@@ -46,7 +46,6 @@ export async function createSavingPeriod(account_id: any, data: any) {
             active: true,
         },
     });
-    console.log('lastSavingPeriod', lastSavingPeriod);
 
     if (lastSavingPeriod) {
         await prisma.savingPeriod.update({
@@ -59,7 +58,6 @@ export async function createSavingPeriod(account_id: any, data: any) {
             },
         });
     }
-    console.log('lastSavingPeriod - after update', lastSavingPeriod);
 
     const savingPeriod = await prisma.savingPeriod.create({
         data: {

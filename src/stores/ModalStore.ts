@@ -17,14 +17,12 @@ export const useModalStore = create<ModalState>((set, get) => ({
   data: null,
   actions: {
     openModal: (modalId: string, data: any = null) => {
-      console.log('Opening modal:', { modalId, data });
       set({ 
         modalId,
         data
       });
     },
     closeModal: () => {
-      console.log('Closing modal');
       set({ 
         modalId: null,
         data: null

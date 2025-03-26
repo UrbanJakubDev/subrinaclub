@@ -38,13 +38,7 @@ export default function TransactionFormComponent() {
   const [transaction, setTransaction] = useState<Transaction>(newTransaction);
   const [dials, setDials] = useState<any[]>([]);
 
-  console.log('TransactionFormComponent render:', {
-    modalId,
-    customer: customer?.id,
-    account: account?.id,
-    savingPeriod: savingPeriod?.id,
-    isModalOpen: modalId === 'transactionForm'
-  });
+ 
 
   // Fetch bonus options
   useEffect(() => {

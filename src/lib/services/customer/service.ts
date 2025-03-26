@@ -96,7 +96,6 @@ export class CustomerService {
             ...cleanData
          } = data;
 
-         console.log('cleanData', cleanData);
 
          // Create repository input
          const updateInput = {
@@ -215,7 +214,6 @@ export class CustomerService {
    }
 
    async getAccountDataWithActiveSavingPeriod(id: Number): Promise<CustomerWithAccountDataAndActiveSavingPeriodDTO[]> {
-
       const result = await this.customerRepository.getAccountDataWithActiveSavingPeriod(id);
 
       // Flatten the account.savingPeriods array to a single saving period

@@ -49,7 +49,6 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
 
   // Handle selected rows
   const handleSelectionChange = (selectedRows: Customer[]) => {
-    console.log('Selected rows:', selectedRows);
   };
 
   const handleDeactivateCustomers = async (selectedRows: Customer[]) => {

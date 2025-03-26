@@ -24,7 +24,6 @@ export async function migrateDealers() {
       FROM dealers
     `;
 
-    console.log(`Found ${oldDealers.length} dealers to migrate`);
 
     // Migrate each dealer to new PostgreSQL DB
     for (const dealer of oldDealers) {
@@ -47,7 +46,6 @@ export async function migrateDealers() {
       });
     }
 
-    console.log('Dealer migration completed successfully');
   } catch (error) {
     console.error('Error migrating dealers:', error);
     throw error;

@@ -25,7 +25,6 @@ export async function POST(
       }
 
       // Log The current period
-      console.log(currentPeriod);
 
       // Calculate next quarter and year
       let nextStartQuarter: number;
@@ -59,8 +58,6 @@ export async function POST(
          }
       }
 
-      // Log The next period
-      console.log(nextStartYear, nextStartQuarter, nextEndYear, nextEndQuarter);
 
       // Close current period
       await prisma.savingPeriod.update({

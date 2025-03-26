@@ -37,7 +37,6 @@ export async function updateAccountById(id: number, data: any) {
     // delete id from data
     delete data.id;
 
-    console.log(data);
 
     const account = await prisma.account.update({
         where: {

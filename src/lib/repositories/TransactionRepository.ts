@@ -86,7 +86,6 @@ export class TransactionRepository extends BaseRepository<
 
    async createTransaction(input: CreateTransactionInput): Promise<Transaction> {
       const data = this.prepareTransactionData(input);
-      console.log(`Creating transaction with data: ${JSON.stringify(data)}`);
 
       const result = await this.prisma.transaction.create({ data });
       return result;
@@ -94,7 +93,6 @@ export class TransactionRepository extends BaseRepository<
 
    async updateTransaction(input: CreateTransactionInput): Promise<Transaction> {
       const data = this.prepareTransactionData(input);
-      console.log(`Updating transaction with data: ${JSON.stringify(data)}`);
 
       const result = await this.prisma.transaction.update({
          where: { id: input.id },

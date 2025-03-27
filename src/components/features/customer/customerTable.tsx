@@ -32,7 +32,7 @@ interface Customer {
     currentYearPoints: number;
     lifetimePoints: number;
     lifetimePointsCorrection: number;
-    lifetimePointsCorrected: number;  
+    lifetimePointsCorrected: number;
     savingPeriodAvailablePoints: number;
   };
 }
@@ -141,23 +141,25 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
   ];
 
   // Render Chip
-  const ChipComponent = ({ value }: { value: any }) => {
-    if (value > 2500) {
-      return (
-        <div className="flex items-center">
-          <Chip value={value} className="text-center bg-royal-gold text-gray-900" />
-        </div>
-      );
-    } else if (value > 1200) {
-      return (
-        <div className="flex items-center">
-          <Chip value={value} className="text-center bg-chrome-silver text-gray-900" />
-        </div>
-      );
-    } else {
-      return value;
-    }
-  };
+  const ChipComponent = React.useMemo(() => {
+    return ({ value }: { value: any }) => {
+      if (value > 2500) {
+        return (
+          <div className="flex items-center">
+            <Chip value={value} className="text-center bg-royal-gold text-gray-900" />
+          </div>
+        );
+      } else if (value > 1200) {
+        return (
+          <div className="flex items-center">
+            <Chip value={value} className="text-center bg-chrome-silver text-gray-900" />
+          </div>
+        );
+      } else {
+        return value;
+      }
+    };
+  }, []);
 
 
 
@@ -289,7 +291,7 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
           return lifetimePoints > 0;
         },
         cell: ({ getValue }) => <StatusChip status={getValue() as boolean} />,
-        filterFn: (row, columnId, filterValue) => {
+        filterFn: (row: { getValue: (columnId: string) => any }, columnId: string, filterValue: string) => {
           const cellValue = row.getValue(columnId);
           const boolFilterValue = filterValue === "true";
           return filterValue === "" || cellValue === boolFilterValue;
@@ -330,9 +332,6 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
           bulkActions: bulkActions
         }}
       />
-      <pre>
-        {JSON.stringify(data, null, 2)}
-      </pre>
     </>
   );
 }

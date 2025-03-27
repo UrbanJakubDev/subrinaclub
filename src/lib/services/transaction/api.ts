@@ -3,7 +3,9 @@ import { CreateTransactionDTO } from "./validation";
 import { Transaction } from "@/types/transaction";
 import { QuarterDateUtils } from "@/lib/utils/quarterDateUtils";
 import { TransactionResponseDTO } from "./types";
-import { TransactionType } from "@prisma/client";
+import { Prisma, TransactionType } from "@prisma/client";
+import { SeznamObratuDTO } from "../customer/types";
+import { prisma } from "@/lib/db/pgDBClient";
 
 
 export class TransactionAPI {
@@ -55,6 +57,7 @@ export class TransactionAPI {
                             select: {
                                 id: true,
                                 fullName: true,
+                                registrationNumber: true,
                                 salesManager: {
                                     select: {
                                         fullName: true,
@@ -82,6 +85,7 @@ export class TransactionAPI {
             dealerName: transaction.account.customer.dealer?.fullName,
             bonusName: transaction.bonus?.name,
             customerId: transaction.account.customer.id,
+            registrationNumber: transaction.account.customer.registrationNumber?.toString() ?? '',
             account: undefined,
             bonus: undefined
         }));
@@ -139,4 +143,75 @@ export class TransactionAPI {
 
         return finalGroupedTransactions;
     }
+
+    async getCustomersForReportSeznamObratu(year_from: number = new Date().getFullYear(), year_to: number = 2010): Promise<SeznamObratuDTO[]> {
+        // Get current year for quarterly data
+        const currentYear = new Date().getFullYear();
+        
+        // Build dynamic year columns for the query
+        let yearColumns = '';
+        let years: number[] = [];
+        
+        for (let year = year_from; year >= year_to; year--) {
+           yearColumns += `sum(case when t."year" = ${year} then t.points else 0 end) as "${year}", `;
+           years.push(year);
+        }
+        
+        const result = await prisma.$queryRaw<SeznamObratuDTO[]>`
+           SELECT
+              c."registrationNumber",
+              max(c.id) as "id",
+              max(c."fullName") as "fullName",
+              max(c."address") as "address",
+              max(c."town") as "town",
+              max(c."psc") as "zip",
+              max(c."phone") as "phone",
+              max(d."fullName") as "dealer",
+              max(c."salonName") as "salonName",
+              max(sm."id") as "salesManagerId",
+              max(sm."fullName") as "salesManager",
+              max(a."lifetimePoints") + max(a."lifetimePointsCorrection") as "lifetimePointsCorrected",
+              sum(case when (t."year" = ${currentYear} and t."quarter" = 1) then t.points else 0 end) as "Q1",
+              sum(case when (t."year" = ${currentYear} and t."quarter" = 2) then t.points else 0 end) as "Q2",
+              sum(case when (t."year" = ${currentYear} and t."quarter" = 3) then t.points else 0 end) as "Q3",
+              sum(case when (t."year" = ${currentYear} and t."quarter" = 4) then t.points else 0 end) as "Q4",
+              ${Prisma.raw(yearColumns.trim().slice(0, -1))}
+           FROM
+              "Customer" c
+           JOIN
+              "Account" a ON c.id = a."customerId"
+           JOIN
+              "Transaction" t ON t."accountId" = a.id
+           LEFT OUTER JOIN 
+              "SalesManager" sm ON c."salesManagerId" = sm.id
+           LEFT OUTER JOIN 
+              "Dealer" d ON c."dealerId" = d.id
+           WHERE
+              t."type" = 'DEPOSIT'
+              and c."active" = true
+           GROUP BY
+              c."registrationNumber"`;
+  
+        // Dynamically format the result based on the years
+        const formattedResult = result.map(row => {
+           const formattedRow: any = {
+              ...row,
+              clubScore: Number(row.clubScore),
+              Q1: Number((row as any).Q1 ?? 0),
+              Q2: Number((row as any).Q2 ?? 0),
+              Q3: Number((row as any).Q3 ?? 0), 
+              Q4: Number((row as any).Q4 ?? 0),
+           };
+           
+           // Add dynamic year properties
+           years.forEach(year => {
+              const yearStr = year.toString();
+              formattedRow[yearStr] = Number(row[yearStr as keyof SeznamObratuDTO] ?? 0);
+           });
+           
+           return formattedRow;
+        });
+  
+        return formattedResult;
+     }
 }

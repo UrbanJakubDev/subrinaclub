@@ -130,12 +130,12 @@ export default function CustomerForm({ initialCustomerData, dials, nextRegNumber
                             label="Registrace od"
                             name="registratedSince"
                             defaultValue={customerData.registratedSince}
-                            helperText="RRRR-MM-DD"
+                            helperText="DD-MM-RRRR"
                         />
                     </div>
                     <div className="flex gap-4">
                         <InputField
-                            label="Jméno a příjmení"
+                            label="Příjmení a Jméno"
                             type="text"
                             name="fullName"
                             defaultValue={customerData.fullName}
@@ -144,7 +144,7 @@ export default function CustomerForm({ initialCustomerData, dials, nextRegNumber
                             label="Datum narození"
                             name="birthDate"
                             defaultValue={customerData.birthDate}
-                            helperText="RRRR-MM-DD"
+                            helperText="DD-MM-RRRR"
                         />
 
                         <InputField
@@ -196,6 +196,7 @@ export default function CustomerForm({ initialCustomerData, dials, nextRegNumber
                             defaultValue={customerData.note}
                         />
                         <SelectField
+                            customClass="w-1/4"
                             label="GDPR"
                             name="gdpr"
                             options={gdprOptions}
@@ -203,9 +204,9 @@ export default function CustomerForm({ initialCustomerData, dials, nextRegNumber
                         />
                     </div>
                     <hr />
-                    <div className="flex gap-4 w-full">
+                    <div className="flex gap-4 w-full ">
                         <SelectField 
-                            className="w-full"
+                            customClass="w-full"
                             label="Velkoobchod"
                             name="dealerId"
                             options={dials.dealers}

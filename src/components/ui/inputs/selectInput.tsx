@@ -58,8 +58,11 @@ const SelectField = ({
   register(name)
 
   return (
-    <div className={customClass}>
+    <div className={customClass} 
+    // style={{ width: '100%' }}
+    >
       <Select
+        
         className="w-full"
         label={label}
         value={value?.toString() ?? ''}

@@ -467,10 +467,6 @@ export default function SalesManagerStats({
       ) : (
         <NoData />
       )}
-
-      <pre>
-        {JSON.stringify(apiData, null, 2)}
-      </pre>
     </>
   );
 }

@@ -174,4 +174,71 @@ export class CustomerAPI {
             return transformedCustomer;
         });
     }
+
+
+    async getCustomersWithAccountAndActiveSavingPeriod(): Promise<CustomerWithAccountDataAndActiveSavingPeriodDTO[]> {
+        const customers = await this.customerRepository.findAll({
+           where: {
+              active: true
+           },
+           include: {
+              account: {
+                 include: {
+                    savingPeriods: {
+                       where: {
+                          status: 'ACTIVE'
+                       },
+                       take: 1
+                    }
+                 }
+              },
+              salesManager: {
+                 select: {
+                    id: true,
+                    fullName: true
+                 }
+              },
+              dealer: {
+                 select: {
+                    id: true,
+                    fullName: true
+                 }
+              }
+           }
+        });
+  
+        // Flatten the account.savingPeriods array to a single saving period
+        customers.forEach(customer => {
+           if (customer.account?.savingPeriods?.length) {
+              customer.account.savingPeriod = customer.account.savingPeriods[0];
+              delete customer.account.savingPeriods;
+           }
+        });
+  
+        // Add daysLeft attribute by calculating days between endDateTime and today
+        customers.forEach(customer => {
+           if (customer.account?.savingPeriod?.endDateTime) {
+              const endDate = new Date(customer.account.savingPeriod.endDateTime);
+              const today = new Date();
+              customer.account.savingPeriod.daysLeft = Math.ceil(
+                 (endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+              );
+           }
+        });
+  
+        // Add endThisQuarter attribute by comparing end dates with current quarter/year
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentQuarter = Math.floor(today.getMonth() / 3) + 1;
+  
+        customers.forEach(customer => {
+           if (customer.account?.savingPeriod) {
+              customer.account.savingPeriod.endThisQuarter =
+                 customer.account.savingPeriod.endYear === currentYear &&
+                 customer.account.savingPeriod.endQuarter === currentQuarter;
+           }
+        });
+  
+        return customers;
+     }
 }

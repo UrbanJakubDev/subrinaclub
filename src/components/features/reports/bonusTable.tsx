@@ -23,6 +23,10 @@ export default function ReportBonusTable({ defaultData, detailLinkPath, tableNam
    // Column definitions
    const columns = React.useMemo<ColumnDef<any>[]>(() => [
       {
+         accessorKey: "registrationNumber",
+         header: "Reg. číslo",
+      },
+      {
          accessorKey: "customerName",
          header: "Jméno",
          filterFn: "auto",

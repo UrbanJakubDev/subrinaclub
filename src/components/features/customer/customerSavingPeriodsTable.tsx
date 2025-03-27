@@ -45,6 +45,7 @@ interface Customer {
 type Props = {
     defaultData: Customer[];
     detailLinkPath?: string;
+    onRefetchNeeded?: () => void;
 };
 
 type StartPeriodFormData = {
@@ -52,7 +53,7 @@ type StartPeriodFormData = {
     startQuarter: number;
 };
 
-export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath }: Props) {
+export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath, onRefetchNeeded }: Props) {
     const router = useRouter();
     const tableName = "Přehled šetřících období";
     const [selectedRows, setSelectedRows] = useState<Customer[]>([]);
@@ -64,6 +65,17 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
             startQuarter: Math.floor(now.getMonth() / 3) + 1
         };
     });
+
+    // Handle refetch and reset selection
+    const handleRefetchAndResetSelection = React.useCallback(() => {
+        // Reset selected rows
+        setSelectedRows([]);
+        
+        // Call the parent's refetch function if provided
+        if (onRefetchNeeded) {
+            onRefetchNeeded();
+        }
+    }, [onRefetchNeeded]);
 
     // Memoize the transformed data
     const data = React.useMemo(() => {
@@ -173,8 +185,10 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
                 isLoading: false,
                 autoClose: 5000
             });
+        } finally {
+            handleRefetchAndResetSelection();
         }
-    }, [router]);
+    }, [router, handleRefetchAndResetSelection]);
 
     const handleCreateFreshSavingPeriods = React.useCallback(async () => {
         setIsFormOpen(true);
@@ -274,8 +288,10 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
                 isLoading: false,
                 autoClose: 5000
             });
+        } finally {
+            handleRefetchAndResetSelection();
         }
-    }, [formData.startQuarter, formData.startYear, router, selectedRows]);
+    }, [formData.startQuarter, formData.startYear, router, selectedRows, handleRefetchAndResetSelection]);
 
     // Memoize bulk actions
     const bulkActions = React.useMemo(() => [
@@ -366,6 +382,11 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
                 accessorFn: (row: Customer) => {
                     return row.salesManager?.fullName ?? '';
                 }
+            },
+            {
+                accessorKey: "dealer.fullName",
+                header: "Velkoobchod",
+                filterFn: "includesString",
             },
             // {
             //     accessorKey: "account.lifetimePoints",

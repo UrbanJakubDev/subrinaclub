@@ -219,7 +219,7 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
       },
       {
         accessorFn: (row) => row.salesManager?.fullName ?? '',
-        header: "Sales Manager",
+        header: "Obchodní zástupce",
         filterFn: "includesString",
       },
       {
@@ -266,7 +266,7 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
         header: "Korekce",
       },
       {
-        accessorFn: (row) => row.account?.savingPeriodAvailablePoints ?? 0,
+        accessorKey: "account.savingPeriodAvailablePoints",
         header: "Průběžné konto",
         footer: (info) => {
           const total = info.table
@@ -330,6 +330,9 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
           bulkActions: bulkActions
         }}
       />
+      <pre>
+        {JSON.stringify(data, null, 2)}
+      </pre>
     </>
   );
 }

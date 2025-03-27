@@ -51,7 +51,7 @@ function AccountTableWithData() {
       () => [
          {
             accessorKey: "customer.fullName",
-            header: "Jméno zákazníka",
+            header: "Jméno",
             filterFn: "auto",
             cell: ({ row }) => (
                <Link
@@ -68,12 +68,12 @@ function AccountTableWithData() {
          },
          {
             accessorKey: "lifetimePoints",
-            header: "Body celkem",
+            header: "Klubové konto",
             filterFn: "auto",
          },
          {
             accessorKey: "currentYearPoints",
-            header: "Body v tomto roce",
+            header: "Roční konto",
             filterFn: "auto",
          },
          {

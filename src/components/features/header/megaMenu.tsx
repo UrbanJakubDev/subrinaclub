@@ -32,12 +32,12 @@ const newMenuItems = [
             link: "/customers/saving-periods",
             icon: faCoins,
          },
-         {
-            title: "Stříbrná a zlatá pozice",
-            description: "Vyhodnocení stříbrné a zlaté pozice.",
-            link: "/customers",
-            icon: faMedal,
-         },
+         // {
+         //    title: "Stříbrná a zlatá pozice",
+         //    description: "Vyhodnocení stříbrné a zlaté pozice.",
+         //    link: "/customers",
+         //    icon: faMedal,
+         // },
          {
             title: "Seznam účtů",
             description: "Seznam aktivních účtů.",

@@ -45,22 +45,11 @@ function CustomerTableWithData({ activeUsers }: { activeUsers: boolean }) {
           throw new Error("Failed to fetch customers");
         }
         const fetchedData = await response.json();
-        // Transform the data to match the expected structure
-        const formattedData = fetchedData.map((customer: any) => ({
-          ...customer,
-          id: customer.id.toString(),
-          account: {
-            ...customer.account,
-            // Transform the nested savingPeriod.availablePoints to savingPeriodAvailablePoints
-            savingPeriodAvailablePoints: customer.account?.savingPeriod?.availablePoints ?? 0
-          }
-        }));
-
         // Sort by fullName ascending
-        formattedData.sort((a, b) => a.fullName.localeCompare(b.fullName));
+        fetchedData.sort((a, b) => a.fullName.localeCompare(b.fullName));
 
         
-        setData(formattedData);
+        setData(fetchedData);
       } catch (error) {
         console.error("Error fetching customers:", error);
         toast.error("Nepodařilo se načíst seznam zákazníků");

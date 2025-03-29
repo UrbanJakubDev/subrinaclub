@@ -1,71 +1,18 @@
 'use client';
 import { Card, Switch } from "@material-tailwind/react";
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import CustomerTable from "@/components/features/customer/customerTable";
 import Loader from "@/components/ui/loader";
 import PageComponent from "@/components/features/detailPage/pageComponent";
-import { toast } from "react-toastify";
+import { useCustomers } from "@/lib/queries/customer/queries";
+import { Customer } from "@/types/customer";
 
-// Define the Customer type
-interface Customer {
-  id: string;
-  active: boolean;
-  registrationNumber: string;
-  fullName: string;
-  salonName: string;
-  address?: string;
-  town?: string;
-  psc?: string;
-  phone?: string;
-  ico?: string;
-  salesManager?: {
-    fullName: string;
-  };
-  dealer?: {
-    fullName: string;
-  };
-  account?: {
-    currentYearPoints: number;
-    lifetimePoints: number;
-    savingPeriodAvailablePoints: number;
-  };
-}
-
-// Separate component for the customer table with data fetching
-function CustomerTableWithData({ activeUsers }: { activeUsers: boolean }) {
-  const [data, setData] = useState<Customer[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(`/api/customers?active=${activeUsers}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch customers");
-        }
-        const fetchedData = await response.json();
-        // Sort by fullName ascending
-        fetchedData.sort((a, b) => a.fullName.localeCompare(b.fullName));
-
-        
-        setData(fetchedData);
-      } catch (error) {
-        console.error("Error fetching customers:", error);
-        toast.error("Nepodařilo se načíst seznam zákazníků");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [activeUsers]);
-
-  if (loading) {
-    return <Loader />;
+interface CustomerResponse {
+  data: Customer[];
+  metadata: {
+    loadedAt: string;
+    timezone: string;
   }
-
-  return <CustomerTable defaultData={data} detailLinkPath="/customers" />;
 }
 
 export default function CustomersPage() {
@@ -73,9 +20,18 @@ export default function CustomersPage() {
 
   // Handle active users switch
   const handleActiveUsers = () => {
-    const newActiveUsers = !activeUsers;
-    setActiveUsers(newActiveUsers);
+    setActiveUsers(prev => !prev);
   }
+
+  const { data: response, isLoading, error, refetch } = useCustomers(activeUsers);
+
+  useEffect(() => {
+    refetch(); // Force refetch when activeUsers changes
+  }, [activeUsers, refetch]);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  if (!response) return <div>No customers found</div>;
 
   return (
     <PageComponent>
@@ -86,10 +42,19 @@ export default function CustomersPage() {
           checked={activeUsers}
           crossOrigin={undefined} />
       </Card>
-      
+
       <Suspense fallback={<div className="w-full flex justify-center p-8"><Loader /></div>}>
-        <CustomerTableWithData activeUsers={activeUsers} />
+        <CustomerTable
+          defaultData={response.data}
+          detailLinkPath="/customers"
+          timeInfo={new Date(response.metadata.loadedAt).toLocaleString()}
+        />
       </Suspense>
+
+
+      <pre className="mt-4">
+        {JSON.stringify(response, null, 2)}
+      </pre>
     </PageComponent>
   );
 }

@@ -109,6 +109,7 @@ interface PaginationProps<T> {
 interface TableToolbarProps<T> {
   table: Table<T>
   tableName: string
+  timeInfo: string
   addBtn?: boolean
   onAddClick?: () => void
   bulkActions?: {
@@ -248,7 +249,7 @@ const Pagination = <T,>({ table }: PaginationProps<T>) => (
   </div>
 )
 
-const TableToolbar = <T,>({ table, tableName, addBtn, onAddClick, bulkActions }: TableToolbarProps<T>) => {
+const TableToolbar = <T,>({ table, tableName,timeInfo, addBtn, onAddClick, bulkActions }: TableToolbarProps<T>) => {
   const selectedRows = table.getSelectedRowModel().rows
   const hasSelectedRows = selectedRows.length > 0
 
@@ -295,7 +296,7 @@ const TableToolbar = <T,>({ table, tableName, addBtn, onAddClick, bulkActions }:
       <div className="flex justify-between">
         <div>
           <h1 className="text-2xl font-semibold">{tableName}</h1>
-          <p className="text-sm text-gray-500">some text</p>
+          <p className="text-sm text-gray-500">{timeInfo}</p>
         </div>
         <div className="flex gap-2 py-2">
           {addBtn && (
@@ -360,6 +361,7 @@ export default function BaseTable<T>({
   data,
   columns,
   tableName,
+  timeInfo,
   addBtn = false,
   onAddClick,
   enableRowSelection = false,
@@ -432,6 +434,7 @@ export default function BaseTable<T>({
         <TableToolbar
           table={table}
           tableName={tableName}
+          timeInfo={timeInfo}
           addBtn={addBtn}
           onAddClick={onAddClick}
           bulkActions={bulkActions}

@@ -40,9 +40,10 @@ interface Customer {
 type Props = {
   defaultData: Customer[];
   detailLinkPath?: string;
+  timeInfo?: string;
 };
 
-export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
+export default function CustomerTable({ defaultData, detailLinkPath, timeInfo }: Props) {
 
   const router = useRouter()
   const tableName = "Přehled zákazníků";
@@ -314,7 +315,12 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
   );
 
 
-  const [data, _setData] = React.useState(() => [...defaultData]);
+  const [data, setData] = React.useState(() => [...defaultData]);
+
+  // Add this useEffect to update data when defaultData changes
+  React.useEffect(() => {
+    setData([...defaultData]);
+  }, [defaultData]);
 
   return (
     <>
@@ -323,6 +329,7 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
           data,
           columns,
           tableName,
+          timeInfo: "Last loaded: " + timeInfo,
           addBtn: true,
           onAddClick: () => {
             router.push(`${detailLinkPath}/new`);

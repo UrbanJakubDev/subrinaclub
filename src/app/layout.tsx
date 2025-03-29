@@ -5,6 +5,7 @@ import NavIndex from "../components/features/header";
 import Footer from "../components/features/footer";
 import Toast from "@/components/ui/toast";
 import Script from "next/script";
+import { Providers } from "./providers";
 
 const os = Open_Sans({ subsets: ["latin"] });
 
@@ -20,14 +21,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Script  src="node_modules/@material-tailwind/html@latest/scripts/dialog.js" />
+      <Script src="node_modules/@material-tailwind/html@latest/scripts/dialog.js" />
       <body className={os.className}>
-        <NavIndex />
-        <main className="flex-grow w-screen mx-auto overflow-hidden bg-gray-100">
-          {children}
-        </main>
-        <Footer />
-        <Toast />
+        <Providers>
+          <NavIndex />
+          <main className="flex-grow w-screen mx-auto overflow-hidden bg-gray-100">
+            {children}
+          </main>
+          <Footer />
+          <Toast />
+        </Providers>
       </body>
     </html>
   );

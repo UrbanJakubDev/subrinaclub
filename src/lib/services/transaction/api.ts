@@ -1,53 +1,52 @@
-import { TransactionRepository } from "@/lib/repositories/TransactionRepository";
-import { CreateTransactionDTO } from "./validation";
-import { Transaction } from "@/types/transaction";
-import { QuarterDateUtils } from "@/lib/utils/quarterDateUtils";
-import { TransactionResponseDTO } from "./types";
-import { Prisma, TransactionType } from "@prisma/client";
-import { SeznamObratuDTO } from "../customer/types";
-import { prisma } from "@/lib/db/pgDBClient";
-
+import { TransactionRepository } from '@/lib/repositories/TransactionRepository'
+import { CreateTransactionDTO } from './validation'
+import { Transaction } from '@/types/transaction'
+import { QuarterDateUtils } from '@/lib/utils/quarterDateUtils'
+import { TransactionResponseDTO } from './types'
+import { Prisma, TransactionType } from '@prisma/client'
+import { SeznamObratuDTO } from '../customer/types'
+import { prisma } from '@/lib/db/pgDBClient'
 
 export class TransactionAPI {
-    constructor(
-        private transactionRepository: TransactionRepository
-    ) { }
+    constructor(private transactionRepository: TransactionRepository) {}
 
     async createTransaction(data: CreateTransactionDTO): Promise<Transaction> {
-        return this.transactionRepository.createTransaction(data);
+        return this.transactionRepository.createTransaction(data)
     }
 
     async getTransactionsForCustomer(accountId: number): Promise<Transaction[]> {
-        return this.transactionRepository.getByAccountId(accountId);
+        return this.transactionRepository.getByAccountId(accountId)
     }
 
     async updateTransaction(data: CreateTransactionDTO): Promise<Transaction> {
-        return this.transactionRepository.updateTransaction(data);
+        return this.transactionRepository.updateTransaction(data)
     }
 
     async deleteTransaction(id: number): Promise<void> {
-        return this.transactionRepository.hardDelete(id);
+        return this.transactionRepository.hardDelete(id)
     }
 
-    async getTransactionsForSalesManager(accountId: number, year: number, quarter: number): Promise<TransactionResponseDTO[]> {
-        return this.transactionRepository.getTransactionsForSalesManager(accountId, year, quarter);
+    async getTransactionsForSalesManager(
+        accountId: number,
+        year: number,
+        quarter: number,
+    ): Promise<TransactionResponseDTO[]> {
+        return this.transactionRepository.getTransactionsForSalesManager(accountId, year, quarter)
     }
 
     // Function to make premuim bonus overview
     async premiumBonusReport(year: number, quarter: number): Promise<any> {
         // Firnd date range fo the quarter
-        const startDate = QuarterDateUtils.getQuarterStartDate(year, quarter);
-        const endDate = QuarterDateUtils.getQuarterEndDate(year, quarter);
-
-
+        const startDate = QuarterDateUtils.getQuarterStartDate(year, quarter)
+        const endDate = QuarterDateUtils.getQuarterEndDate(year, quarter)
 
         const transactions = await this.transactionRepository.findAll({
             where: {
                 acceptedBonusOrder: {
                     gte: startDate,
-                    lte: endDate
+                    lte: endDate,
                 },
-                type: TransactionType.WITHDRAWAL
+                type: TransactionType.WITHDRAWAL,
             },
             include: {
                 bonus: { select: { name: true } },
@@ -61,20 +60,19 @@ export class TransactionAPI {
                                 salesManager: {
                                     select: {
                                         fullName: true,
-                                        id: true
-                                    }
+                                        id: true,
+                                    },
                                 },
                                 dealer: {
                                     select: {
-                                        fullName: true
-                                    }
-                                }
+                                        fullName: true,
+                                    },
+                                },
                             },
-
-                        }
-                    }
-                }
-            }
+                        },
+                    },
+                },
+            },
         })
 
         const flattenedTransactions = transactions.map(transaction => ({
@@ -87,76 +85,84 @@ export class TransactionAPI {
             customerId: transaction.account.customer.id,
             registrationNumber: transaction.account.customer.registrationNumber?.toString() ?? '',
             account: undefined,
-            bonus: undefined
-        }));
+            bonus: undefined,
+        }))
 
-        return flattenedTransactions;
+        return flattenedTransactions
     }
-
 
     async premiumBonusReportFull(): Promise<any> {
         const transactions = await this.transactionRepository.findAll({
             where: {
-                type: TransactionType.WITHDRAWAL
+                type: TransactionType.WITHDRAWAL,
             },
             include: {
-                bonus: { select: { name: true, id: true } }
-            }
+                bonus: { select: { name: true, id: true } },
+            },
         })
 
         // Group transactions by bonus using an array instead of an object
-        const groupedTransactions = transactions.reduce((acc: Array<{
-            bonusId: string,
-            bonusName: string,
-            totalPoints: number,
-            count: number  // Added count type
-        }>, transaction) => {
-            const bonusId = transaction.bonus?.id;
-            const bonusName = transaction.bonus?.name;
-            if (!bonusId) return acc;
+        const groupedTransactions = transactions.reduce(
+            (
+                acc: Array<{
+                    bonusId: string
+                    bonusName: string
+                    totalPoints: number
+                    count: number // Added count type
+                }>,
+                transaction,
+            ) => {
+                const bonusId = transaction.bonus?.id
+                const bonusName = transaction.bonus?.name
+                if (!bonusId) return acc
 
-            const existingBonus = acc.find(item => item.bonusId === bonusId);
-            if (existingBonus) {
-                existingBonus.totalPoints += transaction.points;
-                existingBonus.price += transaction.bonusPrice;
-                existingBonus.count += 1;  // Increment count for existing bonus
-            } else {
-                acc.push({
-                    bonusId,
-                    bonusName,
-                    totalPoints: transaction.points,
-                    price: transaction.bonusPrice,
-                    count: 1  // Initialize count for new bonus
-                });
-            }
-            return acc;
-        }, []);
+                const existingBonus = acc.find(item => item.bonusId === bonusId)
+                if (existingBonus) {
+                    existingBonus.totalPoints += transaction.points
+                    existingBonus.price += transaction.bonusPrice
+                    existingBonus.count += 1 // Increment count for existing bonus
+                } else {
+                    acc.push({
+                        bonusId,
+                        bonusName,
+                        totalPoints: transaction.points,
+                        price: transaction.bonusPrice,
+                        count: 1, // Initialize count for new bonus
+                    })
+                }
+                return acc
+            },
+            [],
+        )
 
         // Apply Math.abs() to totalPoints after grouping
         const finalGroupedTransactions = groupedTransactions.map(group => ({
             ...group,
-            totalPoints: Math.abs(group.totalPoints)
-        }));
+            totalPoints: Math.abs(group.totalPoints),
+        }))
 
         // Sort the array by totalPoints
-        finalGroupedTransactions.sort((a, b) => b.totalPoints - a.totalPoints);
+        finalGroupedTransactions.sort((a, b) => b.totalPoints - a.totalPoints)
 
-        return finalGroupedTransactions;
+        return finalGroupedTransactions
     }
 
-    async getCustomersForReportSeznamObratu(year_from: number = new Date().getFullYear(), year_to: number = 2010): Promise<SeznamObratuDTO[]> {
+    async getCustomersForReportSeznamObratu(
+        year_from: number = new Date().getFullYear(),
+        year_to: number = 2010,
+    ): Promise<SeznamObratuDTO[]> {
         // Get current year for quarterly data
-        const currentYear = new Date().getFullYear();
-        
+        const currentYear = new Date().getFullYear()
+
         // Build dynamic year columns for the query
-        let yearColumns = '';
-        let years: number[] = [];
-        
+        let yearColumns = ''
+        let years: number[] = []
+
         for (let year = year_from; year >= year_to; year--) {
-           yearColumns += `sum(case when (t."year" = ${year} and t."type" = 'DEPOSIT') then t.points else 0 end) as "${year}", `;
-           years.push(year);
+            yearColumns += `sum(case when (t."year" = ${year} and t."type" = 'DEPOSIT') then t.points else 0 end) as "${year}", `
+            years.push(year)
         }
-        
+
         const result = await prisma.$queryRaw<SeznamObratuDTO[]>`
            SELECT
               c."registrationNumber",
@@ -180,38 +186,37 @@ export class TransactionAPI {
               "Customer" c
            JOIN
               "Account" a ON c.id = a."customerId"
-           JOIN
+           LEFT OUTER JOIN
               "Transaction" t ON t."accountId" = a.id
            LEFT OUTER JOIN 
               "SalesManager" sm ON c."salesManagerId" = sm.id
            LEFT OUTER JOIN 
               "Dealer" d ON c."dealerId" = d.id
            WHERE
-              t."type" = 'DEPOSIT'
-              and c."active" = true
+            c."active" = true
            GROUP BY
-              c."registrationNumber"`;
-  
+              c."registrationNumber"`
+
         // Dynamically format the result based on the years
         const formattedResult = result.map(row => {
-           const formattedRow: any = {
-              ...row,
-              clubScore: Number(row.clubScore),
-              Q1: Number((row as any).Q1 ?? 0),
-              Q2: Number((row as any).Q2 ?? 0),
-              Q3: Number((row as any).Q3 ?? 0), 
-              Q4: Number((row as any).Q4 ?? 0),
-           };
-           
-           // Add dynamic year properties
-           years.forEach(year => {
-              const yearStr = year.toString();
-              formattedRow[yearStr] = Number(row[yearStr as keyof SeznamObratuDTO] ?? 0);
-           });
-           
-           return formattedRow;
-        });
-  
-        return formattedResult;
-     }
+            const formattedRow: any = {
+                ...row,
+                clubScore: Number(row.clubScore),
+                Q1: Number((row as any).Q1 ?? 0),
+                Q2: Number((row as any).Q2 ?? 0),
+                Q3: Number((row as any).Q3 ?? 0),
+                Q4: Number((row as any).Q4 ?? 0),
+            }
+
+            // Add dynamic year properties
+            years.forEach(year => {
+                const yearStr = year.toString()
+                formattedRow[yearStr] = Number(row[yearStr as keyof SeznamObratuDTO] ?? 0)
+            })
+
+            return formattedRow
+        })
+
+        return formattedResult
+    }
 }

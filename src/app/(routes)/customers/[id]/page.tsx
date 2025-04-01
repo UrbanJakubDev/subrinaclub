@@ -32,7 +32,7 @@ export default async function UserDetail({ params }: CustomerDetailProps) {
     return (
       <PageComponent>
         <div className="mx-auto w-8/12">
-          <CustomerForm dials={{dealers, salesManagers}} nextRegNumber={nextRegistrationNumber} />
+         {nextRegistrationNumber && <CustomerForm dials={{dealers, salesManagers}} nextRegNumber={nextRegistrationNumber} />}
         </div>
       </PageComponent>
     );

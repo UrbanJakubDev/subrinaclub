@@ -4,6 +4,7 @@ import { Customer } from "@/types/customer";
 import { CustomerResponseDTO, CustomerSelectDTO, CustomerWithAccountDataAndActiveSavingPeriodDTO, SeznamObratuDTO } from "./types";
 import { Prisma } from "@prisma/client";
 import { act } from "react-dom/test-utils";
+import { QuarterDateUtils } from "@/lib/utils/quarterDateUtils";
 
 
 
@@ -25,6 +26,16 @@ export class CustomerService {
       // Remove relation IDs from main data
       const { dealerId, salesManagerId, ...customerData } = data;
 
+      // Get current date for saving period
+      const today = new Date();
+      const currentYear = today.getFullYear();
+      const currentQuarter = Math.floor(today.getMonth() / 3) + 1;
+
+      const quartersToAdd = 7;  // We add 7 because current quarter is the first one
+      const totalQuarters = currentQuarter + quartersToAdd;
+      const endYear = currentYear + Math.floor(totalQuarters / 4);
+      const endQuarter = totalQuarters % 4 || 4;  // Convert 0 to 4 for Q4
+
       try {
          // Create customer with nested account creation
          const customer = await this.customerRepository.create({
@@ -36,7 +47,6 @@ export class CustomerService {
                createdAt: new Date(),
                updatedAt: new Date(),
                ...relations,
-               // Create account in the same operation
                account: {
                   create: {
                      active: true,
@@ -45,14 +55,33 @@ export class CustomerService {
                      totalDepositedPoints: 0,
                      totalWithdrawnPonits: 0,
                      createdAt: new Date(),
-                     updatedAt: new Date()
+                     updatedAt: new Date(),
+                     // Add saving period creation
+                     savingPeriods: {
+                        create: {
+                           startYear: currentYear,
+                           startQuarter: currentQuarter,
+                           endYear: endYear,
+                           endQuarter: endQuarter,
+                           status: 'ACTIVE',
+                           availablePoints: 0,
+                           startDateTime: new Date(),
+                           endDateTime: QuarterDateUtils.getQuarterEndDate(endYear, endQuarter),
+                           createdAt: new Date(),
+                           updatedAt: new Date()
+                        }
+                     }
                   }
                }
             },
             include: {
                dealer: true,
                salesManager: true,
-               account: true
+               account: {
+                  include: {
+                     savingPeriods: true
+                  }
+               }
             }
          });
 

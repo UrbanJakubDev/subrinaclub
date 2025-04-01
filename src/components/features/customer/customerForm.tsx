@@ -66,6 +66,9 @@ export default function CustomerForm({ initialCustomerData, dials, nextRegNumber
     //     }
     // }
 
+    // Replace newCustomer registrationNumber with nextRegNumber
+    newCustomer.registrationNumber = nextRegNumber
+
     // Handle form submission
     const handleSubmit = async (data: CreateCustomerDTO) => {
         if (customerData.id) {

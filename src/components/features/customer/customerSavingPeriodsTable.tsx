@@ -228,13 +228,14 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
                     } else {
                         // If no active period exists, create a new one directly
                         const createResponse = await fetch(
-                            `/api/customers/${customer.id}/saving-periods/create`,
+                            `/api/saving-periods/create`,
                             { 
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
                                 },
                                 body: JSON.stringify({
+                                    id: customer.account?.id,
                                     startYear: formData.startYear,
                                     startQuarter: formData.startQuarter
                                 })

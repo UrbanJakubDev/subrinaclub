@@ -2,7 +2,6 @@
 
 import CustomerSavingPeriodsTable from "@/components/features/customer/customerSavingPeriodsTable";
 import PageComponent from "@/components/features/detailPage/pageComponent";
-import { customerAPI, customerService } from "@/lib/services/customer";
 import { useEffect } from "react";
 import { CustomerWithAccountDataAndActiveSavingPeriodDTO } from "@/lib/services/customer/types";
 import { useState } from "react";
@@ -29,6 +28,11 @@ export default function SavingPeriodOverwievPage() {
         fetchCustomerWithSavingPeriods();
     };
 
+    // Find in data customers hwich fullName contains Test
+    const testCustomers = customerWithSavingPeriods.filter(customer => customer.fullName.includes('Test'));
+    
+    
+
     return (
         <PageComponent full>
             {customerWithSavingPeriods.length === 0 ? (
@@ -40,6 +44,10 @@ export default function SavingPeriodOverwievPage() {
                     onRefetchNeeded={handleRefetch}
                 />
             )}
+            <div>
+                <h1>Test customers</h1>
+                <pre>{JSON.stringify(testCustomers, null, 2)}</pre>
+            </div>
         </PageComponent>
     )
 }

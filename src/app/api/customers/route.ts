@@ -13,12 +13,23 @@ export async function GET(request: NextRequest) {
         const isActive = activeParam === null ? undefined : activeParam.toLowerCase() === 'true'
         
         const customers = await customerAPI.getAllCustomers(isActive)
-        return NextResponse.json(customers)
+        return NextResponse.json(customers, {
+            headers: {
+                'Cache-Control': 'no-store, no-cache, must-revalidate',
+                'Pragma': 'no-cache',
+            },
+        })
     } catch (error) {
         console.error('Error fetching customers:', error)
         return NextResponse.json(
             { error: "Failed to fetch customers" },
-            { status: 500 }
+            { 
+                status: 500,
+                headers: {
+                    'Cache-Control': 'no-store, no-cache, must-revalidate',
+                    'Pragma': 'no-cache',
+                },
+            }
         )
     }
 }

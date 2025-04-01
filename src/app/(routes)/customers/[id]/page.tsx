@@ -1,11 +1,14 @@
-
+'use client'
 import PageHeader from "@/components/features/detailPage/pageHeader";
-import { getCustomerById } from "@/lib/db/queries/customers";
 import PageComponent from "@/components/features/detailPage/pageComponent";
-import { fetchDealersForOptionsFromDB } from "@/lib/db/queries/dealers";
-import { fetchSalesManagersOptionsFromDB } from "@/lib/db/queries/salesManagers";
 import CustomerForm from "@/components/features/customer/customerForm";
-import { customerService } from "@/lib/services/customer";
+import { useCustomer, useNextRegistrationNumber } from "@/lib/queries/customer/queries";
+import { Suspense } from "react";
+import Skeleton from "@/components/ui/skeleton";
+import Loader from "@/components/ui/loader";
+import { useDealersForSelect } from "@/lib/queries/dealer/queries";
+import { useSalesManagersForSelect } from "@/lib/queries/salesManager/queries";
+import { toast } from "react-toastify";
 
 
 type CustomerDetailProps = {
@@ -13,48 +16,76 @@ type CustomerDetailProps = {
 };
 
 
-export default async function UserDetail({ params }: CustomerDetailProps) {
+export default function UserDetail({ params }: CustomerDetailProps) {
   const isNewCustomer = params.id === "new";
- 
+  const customerId = parseInt(params.id);
 
-  // Load dealers and sales managers for select options
-  // TODO: Change to use dealerService and salesManagerService
-  const dealers = await fetchDealersForOptionsFromDB();
-  const salesManagers = await fetchSalesManagersOptionsFromDB();
+  const { data: customers, isLoading: customerLoading, error: customerError } = useCustomer(customerId);
+  const { data: dealers, isLoading: dealersLoading, error: dealersError } = useDealersForSelect();
+  const { data: salesManagers, isLoading: salesManagersLoading, error: salesManagersError } = useSalesManagersForSelect();
+  const { data: nextRegistrationNumber } = useNextRegistrationNumber();
 
+  const isLoading = customerLoading || dealersLoading || salesManagersLoading;
 
+  // Show loader while any data is loading
+  if (isLoading) return <Loader />;
 
+  // Handle errors
+  if (customerError) {
+    toast.error(`Error loading customer: ${customerError.message}`);
+    return null;
+  }
+  if (dealersError) {
+    toast.error(`Error loading dealers: ${dealersError.message}`);
+    return null;
+  }
+  if (salesManagersError) {
+    toast.error(`Error loading sales managers: ${salesManagersError.message}`);
+    return null;
+  }
+  if (!customers?.data && !isNewCustomer) {
+    toast.error('No customer found');
+    return null;
+  }
 
   if (isNewCustomer) {
-    // Get last customer registration number
-    const nextRegistrationNumber = await customerService.getNextRegistrationNumber();
-
     return (
       <PageComponent>
         <div className="mx-auto w-8/12">
-          <CustomerForm dials={{dealers, salesManagers}} nextRegNumber={nextRegistrationNumber} />
+          {nextRegistrationNumber && (
+            <CustomerForm dials={{ 
+              dealers: dealers?.data || [], 
+              salesManagers: salesManagers?.data || [] 
+            }} nextRegNumber={nextRegistrationNumber} />
+          )}
         </div>
       </PageComponent>
     );
   }
 
-  const customerId = parseInt(params.id);
-  const customer = await customerService.get(customerId)
+
 
   return (
 
     <PageComponent>
-
       <PageHeader
-        userName={customer.fullName || "Nový zákazník"}
-        userId={customer.id.toString()}
-        active={customer.active}
-        statsUrl={`/customers/${customer.id}/stats`}
+        userName={customers?.data.fullName || "Nový zákazník"}
+        userId={customers?.data.id.toString() || "0"}
+        active={customers?.data.active || false}
+        statsUrl={`/customers/${customers?.data.id}/stats`}
       />
       <div className="flex flex-grow gap-4 p-2">
-        <div className="h-full w-full">
-          <h2 className="text-lg font-semibold">{`Editace - ${customer.fullName}`}</h2>
-          <CustomerForm initialCustomerData={customer} dials={{ dealers, salesManagers }} />
+        
+        <div className="h-full w-2/3 mx-auto">
+          <Suspense fallback={<Skeleton className="w-full h-full" />}>
+            <CustomerForm 
+              initialCustomerData={customers?.data} 
+              dials={{ 
+                dealers: dealers?.data || [], 
+                salesManagers: salesManagers?.data || [] 
+              }} 
+            />
+          </Suspense>
         </div>
       </div>
 

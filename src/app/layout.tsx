@@ -6,7 +6,8 @@ import Footer from "../components/features/footer";
 import Toast from "@/components/ui/toast";
 import Script from "next/script";
 import { Providers } from "./providers";
-
+import { Suspense } from "react";
+import Loader from "@/components/ui/loader";
 const os = Open_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -25,9 +26,11 @@ export default function RootLayout({
       <body className={os.className}>
         <Providers>
           <NavIndex />
-          <main className="flex-grow w-screen mx-auto overflow-hidden bg-gray-100">
-            {children}
-          </main>
+          <Suspense fallback={<Loader />}>
+            <main className="flex-grow w-screen mx-auto overflow-hidden bg-gray-100">
+              {children}
+            </main>
+          </Suspense>
           <Footer />
           <Toast />
         </Providers>

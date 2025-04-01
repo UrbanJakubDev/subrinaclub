@@ -1,37 +1,35 @@
+'use client'
+
 import PageComponent from "@/components/features/detailPage/pageComponent";
 import PageHeader from "@/components/features/detailPage/pageHeader";
-import { customerService } from "@/lib/services/customer";
 import CustomerStatsView from "@/components/features/customer/CustomerStatsView";
-import { transactionService } from "@/lib/services/transaction";
+import { useCustomer } from "@/lib/queries/customer/queries";
 
-export default async function UserDetailStats({
+export default function UserDetailStatsPage({
   params: { id },
 }: {
   params: { id: string };
 }) {
-  const customer_id = await Promise.resolve(parseInt(id));
-  const customer = await customerService.getAccountDataWithActiveSavingPeriod(customer_id);
-  const account = customer?.account;
-  const transactions = await transactionService.getByAccountId(customer.account.id);
-
+  const customer_id = parseInt(id);
+  const { data: customer } = useCustomer(customer_id);
 
   return (
     <PageComponent>
-      {customer && account && (
+      {customer && (
         <>
           <PageHeader
-            userName={customer.fullName}
-            userId={customer.id.toString()}
-            active={customer.active}
-            formUrl={`/customers/${customer.id}`}
-            accountUrl={`/accounts/${account?.id}`}
+            userName={customer.data.fullName}
+            userId={customer.data.id.toString()}
+            active={customer.data.active}
+            formUrl={`/customers/${customer.data.id}`}
+            accountUrl={`/accounts/${customer.data.account?.id}`}
             addBtn
           />
         </>
       )}
 
-      {customer && account && transactions && (
-        <CustomerStatsView initialCustomer={customer} initialTransactions={transactions} />
+      {customer && (
+        <CustomerStatsView initialCustomer={customer.data} />
       )}
 
     </PageComponent>

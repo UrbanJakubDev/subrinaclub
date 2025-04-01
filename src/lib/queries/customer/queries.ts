@@ -1,23 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { customerApi } from '@/lib/api/customer/api';
 import { Customer } from '@/types/customer';
+import { ApiResponse } from '@/types/types';
 
 export const customerKeys = {
   all: ['customers'] as const,
   list: (active: boolean) => [...customerKeys.all, { active }] as const,
   detail: (id: number) => [...customerKeys.all, id] as const,
+  nextRegistrationNumber: () => [...customerKeys.all, 'nextRegistrationNumber'] as const,
 };
 
-interface CustomerResponse {
-  data: Customer[];
-  metadata: {
-    loadedAt: string;
-    timezone: string;
-  }
-}
-
 export const useCustomers = (active: boolean) => {
-  return useQuery<CustomerResponse>({
+  return useQuery<ApiResponse<Customer[]>>({
     queryKey: customerKeys.list(active),
     queryFn: () => customerApi.getAll(active),
     refetchOnMount: true,
@@ -26,9 +20,21 @@ export const useCustomers = (active: boolean) => {
 };
 
 export const useCustomer = (id: number) => {
-  return useQuery({
+  return useQuery<ApiResponse<Customer>>({
     queryKey: customerKeys.detail(id),
     queryFn: () => customerApi.getById(id),
     enabled: !!id,
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnMount: true,
+  });
+};
+
+export const useNextRegistrationNumber = () => {
+  return useQuery<ApiResponse<number>>({
+    queryKey: customerKeys.nextRegistrationNumber(),
+    queryFn: () => customerApi.getNextRegistrationNumber(),
+    staleTime: 0, // Always fresh data when requested
+    refetchOnMount: true,
   });
 };

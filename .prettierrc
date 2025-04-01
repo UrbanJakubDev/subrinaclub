@@ -10,6 +10,7 @@
    "bracketSpacing": true,
    "jsxBracketSameLine": true,
    "arrowParens": "avoid",
-   "htmlWhitespaceSensitivity": "strict"
-   
+   "htmlWhitespaceSensitivity": "strict",
+   "endOfLine": "auto",
+   "newLine": "lf"
 }

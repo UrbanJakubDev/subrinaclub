@@ -5,33 +5,21 @@ import CustomerTable from "@/components/features/customer/customerTable";
 import Loader from "@/components/ui/loader";
 import PageComponent from "@/components/features/detailPage/pageComponent";
 import { useCustomers } from "@/lib/queries/customer/queries";
-import { Customer } from "@/types/customer";
-
-interface CustomerResponse {
-  data: Customer[];
-  metadata: {
-    loadedAt: string;
-    timezone: string;
-  }
-}
+import Skeleton from "@/components/ui/skeleton";
+import NoData from "@/components/ui/noData";
 
 export default function CustomersPage() {
   const [activeUsers, setActiveUsers] = useState(true);
+  const { data: response, isLoading, error, refetch } = useCustomers(activeUsers);
 
   // Handle active users switch
   const handleActiveUsers = () => {
     setActiveUsers(prev => !prev);
   }
 
-  const { data: response, isLoading, error, refetch } = useCustomers(activeUsers);
-
   useEffect(() => {
-    refetch(); // Force refetch when activeUsers changes
+    refetch();
   }, [activeUsers, refetch]);
-
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
-  if (!response) return <div>No customers found</div>;
 
   return (
     <PageComponent>
@@ -44,17 +32,27 @@ export default function CustomersPage() {
       </Card>
 
       <Suspense fallback={<div className="w-full flex justify-center p-8"><Loader /></div>}>
-        <CustomerTable
-          defaultData={response.data}
-          detailLinkPath="/customers"
-          timeInfo={new Date(response.metadata.loadedAt).toLocaleString()}
-        />
+        <div className="w-full">
+          {isLoading ? (
+            <Skeleton className="w-full h-48"  />
+          ) : error ? (
+            <Card className="w-full p-6 bg-red-50">
+              <div className="text-red-700">
+                <h3 className="font-bold">Error occurred</h3>
+                <p>{error.message}</p>
+              </div>
+            </Card>
+          ) : !response?.data?.length ? (
+            <NoData />
+          ) : (
+            <CustomerTable
+              defaultData={response.data}
+              detailLinkPath="/customers"
+              timeInfo={new Date(response.metadata.loadedAt).toLocaleString()}
+            />
+          )}
+        </div>
       </Suspense>
-
-
-      <pre className="mt-4">
-        {JSON.stringify(response, null, 2)}
-      </pre>
     </PageComponent>
   );
 }

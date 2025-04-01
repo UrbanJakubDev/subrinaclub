@@ -13,66 +13,65 @@ import { toast } from "react-toastify";
 import { useStatsStore } from "@/stores/CustomerStatsStore";
 
 type CustomerStatsViewProps = {
-   initialCustomer: CustomerWithAccountDataAndActiveSavingPeriodDTO
-   initialTransactions: Transaction[]
+   initialCustomer: any
 }
 
-export default function CustomerStatsView({ initialCustomer, initialTransactions }: CustomerStatsViewProps) {
+export default function CustomerStatsView({ initialCustomer }: CustomerStatsViewProps) {
    // Local state for the component and its children
    const [customer, setLocalCustomer] = useState(initialCustomer);
    const [account, setLocalAccount] = useState(initialCustomer.account);
    const [savingPeriod, setLocalSavingPeriod] = useState(initialCustomer.account.savingPeriod);
-   const [transactions, setTransactions] = useState(initialTransactions);
+   const [transactions, setTransactions] = useState([]);
    const [isLoading, setIsLoading] = useState(false);
    const [isTransactionsLoading, setIsTransactionsLoading] = useState(false);
    const [test, setTest] = useState(null);
 
    // Store setters for global state
-   const { setCustomer, setAccount, setSavingPeriod } = useStatsStore();
+   // const { setCustomer, setAccount, setSavingPeriod } = useStatsStore();
    const { actions } = useModalStore();
 
-   // Update both local and global state
-   const refreshData = useCallback((
-      newCustomer: CustomerWithAccountDataAndActiveSavingPeriodDTO,
-      newTransactions: Transaction[]
-   ) => {
-      setIsLoading(true);
-      setIsTransactionsLoading(true);
-      
-      // Ensure newTransactions is always an array
-      const transactions = Array.isArray(newTransactions) ? newTransactions : [];
-      
-      // Validate customer data before updating state
-      if (!newCustomer || !newCustomer.account) {
-         console.error('Invalid customer data received:', newCustomer);
-         toast.error('Received invalid customer data from server');
-         setIsLoading(false);
-         setIsTransactionsLoading(false);
-         return;
-      }
-      
-      // Update local state
-      setLocalCustomer(newCustomer);
-      setLocalAccount(newCustomer.account);
-      setLocalSavingPeriod(newCustomer.account.savingPeriod);
-      setTransactions(transactions);
+   // // Update both local and global state
+   // const refreshData = useCallback((
+   //    newCustomer: CustomerWithAccountDataAndActiveSavingPeriodDTO,
+   //    newTransactions: Transaction[]
+   // ) => {
+   //    setIsLoading(true);
+   //    setIsTransactionsLoading(true);
 
-      // Always update global state, even if there are no transactions
-      setCustomer(newCustomer);
-      setAccount(newCustomer.account);
-      setSavingPeriod(newCustomer.account.savingPeriod);
-      
-    
+   //    // Ensure newTransactions is always an array
+   //    const transactions = Array.isArray(newTransactions) ? newTransactions : [];
 
-      setIsLoading(false);
-      setIsTransactionsLoading(false);
-   }, [setCustomer, setAccount, setSavingPeriod]);
+   //    // Validate customer data before updating state
+   //    if (!newCustomer || !newCustomer.account) {
+   //       console.error('Invalid customer data received:', newCustomer);
+   //       toast.error('Received invalid customer data from server');
+   //       setIsLoading(false);
+   //       setIsTransactionsLoading(false);
+   //       return;
+   //    }
 
-   // Handle initial data changes
-   useEffect(() => {
-   
-      refreshData(initialCustomer, initialTransactions || []); // Ensure transactions is always an array
-   }, [initialCustomer, refreshData]); // Remove initialTransactions from dependencies
+   //    // Update local state
+   //    setLocalCustomer(newCustomer);
+   //    setLocalAccount(newCustomer.account);
+   //    setLocalSavingPeriod(newCustomer.account.savingPeriod);
+   //    setTransactions(transactions);
+
+   //    // Always update global state, even if there are no transactions
+   //    setCustomer(newCustomer);
+   //    setAccount(newCustomer.account);
+   //    setSavingPeriod(newCustomer.account.savingPeriod);
+
+
+
+   //    setIsLoading(false);
+   //    setIsTransactionsLoading(false);
+   // }, [setCustomer, setAccount, setSavingPeriod]);
+
+   // // Handle initial data changes
+   // useEffect(() => {
+
+   //    refreshData(initialCustomer, initialTransactions || []); // Ensure transactions is always an array
+   // }, [initialCustomer, refreshData]); // Remove initialTransactions from dependencies
 
 
    // Fetch data from API and update local and global state
@@ -117,7 +116,7 @@ export default function CustomerStatsView({ initialCustomer, initialTransactions
          if (!newCustomer) {
             throw new Error('Failed to fetch customer data');
          }
-         
+
          if (!newCustomer.account) {
             console.error('Customer API response missing account property:', newCustomer);
             // If customer data is valid but account is missing, use existing account data as fallback
@@ -126,7 +125,7 @@ export default function CustomerStatsView({ initialCustomer, initialTransactions
                ...newCustomer,
                account: customer.account // Fallback to the current account data
             };
-            
+
             // Now fetch transactions
             const newTransactions = await fetchTransactions(customer.account.id);
             refreshData(mergedCustomer, newTransactions);
@@ -151,7 +150,7 @@ export default function CustomerStatsView({ initialCustomer, initialTransactions
 
    const handleDelete = async (transactionId: number) => {
       setIsTransactionsLoading(true);
-      
+
       try {
          await deleteTransaction(transactionId);
          await handleDataUpdate();
@@ -172,23 +171,19 @@ export default function CustomerStatsView({ initialCustomer, initialTransactions
    return (
       <>
          <div className="flex gap-8 my-2">
-            <CustomerCard
-               customer={customer}
-               isLoading={isLoading}
-            />
+            <CustomerCard customer_id={customer.id} />
             <AccountInfoCard
-               account={account}
-               savingPeriod={savingPeriod}
-               isLoading={isLoading}
+               account_id={account.id}
             />
+            {/*
             <SavingPeriodStats
                transactions={transactions}
                savingPeriod={savingPeriod}
                isLoading={isLoading || isTransactionsLoading}
-            />
+            /> */}
          </div>
          <div>
-            <div className="my-2">
+            {/* <div className="my-2">
                <AccountStats
                   customer={customer}
                   transactions={transactions}
@@ -204,7 +199,7 @@ export default function CustomerStatsView({ initialCustomer, initialTransactions
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                />
-            </div>
+            </div> */}
          </div>
 
       </>

@@ -11,7 +11,5 @@ export interface AccountResponseDTO extends Account {
 export interface AccountSelectDTO extends SelectOption {}
 
 export interface AccountInfoCardProps {
-   account: AccountResponseDTO | null;
-   savingPeriod: SavingPeriod | null;
-   isLoading?: boolean;
+   account_id: number;
 }

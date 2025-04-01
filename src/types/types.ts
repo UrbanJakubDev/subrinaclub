@@ -54,3 +54,13 @@ export type SavingPeriod = {
    accountId: number
    transactions: any[]
 }
+
+// NEW
+
+export type ApiResponse<T> = {
+   data: T;
+   metadata: {
+      loadedAt: string;
+      timezone: string;
+   }
+}

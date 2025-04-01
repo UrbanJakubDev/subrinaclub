@@ -153,7 +153,7 @@ export class TransactionAPI {
         let years: number[] = [];
         
         for (let year = year_from; year >= year_to; year--) {
-           yearColumns += `sum(case when t."year" = ${year} then t.points else 0 end) as "${year}", `;
+           yearColumns += `sum(case when (t."year" = ${year} and t."type" = 'DEPOSIT') then t.points else 0 end) as "${year}", `;
            years.push(year);
         }
         
@@ -171,10 +171,10 @@ export class TransactionAPI {
               max(sm."id") as "salesManagerId",
               max(sm."fullName") as "salesManager",
               max(a."lifetimePoints") + max(a."lifetimePointsCorrection") as "lifetimePointsCorrected",
-              sum(case when (t."year" = ${currentYear} and t."quarter" = 1) then t.points else 0 end) as "Q1",
-              sum(case when (t."year" = ${currentYear} and t."quarter" = 2) then t.points else 0 end) as "Q2",
-              sum(case when (t."year" = ${currentYear} and t."quarter" = 3) then t.points else 0 end) as "Q3",
-              sum(case when (t."year" = ${currentYear} and t."quarter" = 4) then t.points else 0 end) as "Q4",
+              sum(case when (t."year" = ${currentYear} and t."quarter" = 1  and t."type" = 'DEPOSIT')) then t.points else 0 end) as "Q1",
+              sum(case when (t."year" = ${currentYear} and t."quarter" = 2  and t."type" = 'DEPOSIT')) then t.points else 0 end) as "Q2",
+              sum(case when (t."year" = ${currentYear} and t."quarter" = 3  and t."type" = 'DEPOSIT')) then t.points else 0 end) as "Q3",
+              sum(case when (t."year" = ${currentYear} and t."quarter" = 4  and t."type" = 'DEPOSIT')) then t.points else 0 end) as "Q4",
               ${Prisma.raw(yearColumns.trim().slice(0, -1))}
            FROM
               "Customer" c

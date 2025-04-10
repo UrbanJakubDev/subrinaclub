@@ -20,7 +20,7 @@ export const useAccount = (id: number) => {
     return useQuery<ApiResponse<Account>>({
         queryKey: accountKeys.detail(id),
         queryFn: () => accountApi.getById(id),
-        enabled: !!id,
+        
     })
 }
 

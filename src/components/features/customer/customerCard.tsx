@@ -21,10 +21,14 @@ const CustomerCard = ({ customer_id }: { customer_id: number }) => {
    const params = useParams();
    const customerId = customer_id || params.id;
 
-   const { data: customer, isLoading, isError, isPending } = useCustomer(parseInt(customerId as string));
+   const { data, isLoading, isError } = useCustomer(parseInt(customerId as string));
+
+   // Access the values like this:
+   const customerData = data?.data;
+   const metadata = data?.metadata;
 
 
-   if (isLoading || !customer || isPending) return <Skeleton className="w-1/4" />;
+   if (isLoading || !customerData || !metadata) return <Skeleton className="w-1/4" />;
 
    if (isError) {
       toast.error("Nastala chyba při načítání zákazníka");
@@ -32,38 +36,37 @@ const CustomerCard = ({ customer_id }: { customer_id: number }) => {
 
    return (
       <Card className="p-8 border-gray-300 rounded-sm w-1/3">
-         <Typography variant="h2" color="black">{customer.data.registrationNumber} - {customer.data.fullName}</Typography>
-         <ServerStatus systemStatus={customer.data.active} lastUpdated={customer.metadata.loadedAt} id={customer.data.id} />
+         <Typography variant="h2" color="black">{customerData.registrationNumber} - {customerData.fullName}</Typography>
+         <ServerStatus systemStatus={customerData.active} lastUpdated={metadata?.loadedAt || 'N/A'} id={customerData.id} />
          <div className="flex py-4 gap-4">
             <article>
                <Typography variant="h5" color="black">Osobní informace</Typography>
-               <p>IČO: {customer.data.ico}</p>
-               <p>Registrován od: {formatDate(customer.data.registratedSince)}</p>
-               <p>Datum narození: {formatDate(customer.data.birthDate)}</p>
+               <p>IČO: {customerData.ico}</p>
+               <p>Registrován od: {formatDate(customerData.registratedSince)}</p>
+               <p>Datum narození: {formatDate(customerData.birthDate)}</p>
             </article>
             <article>
                <Typography variant="h5" color="black">Kontaktní informace</Typography>
-               <p>Email: {customer.data.email || "..."}</p>
-               <p>Telefon: {customer.data.phone || "..."}</p>
-               <p>Jméno Salonu: {customer.data.salonName || "..."}</p>
-               <p>Adresa: {customer.data.address || "..."}</p>
-               <p>Město: {customer.data.town || "..."}</p>
-               <p>PSČ: {customer.data.psc || "..."}</p>
+               <p>Email: {customerData.email || "..."}</p>
+               <p>Telefon: {customerData.phone || "..."}</p>
+               <p>Jméno Salonu: {customerData.salonName || "..."}</p>
+               <p>Adresa: {customerData.address || "..."}</p>
+               <p>Město: {customerData.town || "..."}</p>
+               <p>PSČ: {customerData.psc || "..."}</p>
             </article>
          </div>
          <div className="">
             <div className="max-w-1/2">
-               <p>Obchodní zástupce: <Link href={`/sales-managers/${customer.data.salesManagerId}/stats`} className="text-blue-600 hover:text-blue-800 hover:underline">{customer.data.salesManager?.fullName || "..."}</Link></p>
-               <p>Od: {customer.data.salesManagerSinceYear ? `${customer.data.salesManagerSinceYear} / 0${customer.data.salesManagerSinceQ}` : "..."}</p>
-
+               <p>Obchodní zástupce: <Link href={`/sales-managers/${customerData.salesManagerId}/stats`} className="text-blue-600 hover:text-blue-800 hover:underline">{customerData.salesManager?.fullName || "..."}</Link></p>
+               <p>Od: {customerData.salesManagerSinceYear ? `${customerData.salesManagerSinceYear} / 0${customerData.salesManagerSinceQ}` : "..."}</p>
             </div>
             <div className="max-w-1/2">
-               <p>Velkoobchod: {customer.data?.dealer?.fullName || "..."}</p>
+               <p>Velkoobchod: {customerData?.dealer?.fullName || "..."}</p>
             </div>
          </div>
          <div className="max-w-1/2">
             <Typography variant="h5" color="black">Poznámka</Typography>
-            <p>{customer.data.note || "..."}</p>
+            <p>{customerData.note || "..."}</p>
          </div>
       </Card>
    );

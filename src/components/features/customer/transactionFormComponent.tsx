@@ -7,6 +7,10 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useModalStore } from '@/stores/ModalStore';
 import { useStatsStore } from '@/stores/CustomerStatsStore';
+import { useAccount } from '@/lib/queries/account/queries';
+import { useSavingPeriod } from '@/lib/queries/savingPeriod/queries';
+import { useCustomer } from '@/lib/queries/customer/queries';
+import Skeleton from '@/components/ui/skeleton';
 
 const newTransaction: Transaction = {
   id: 0,
@@ -31,14 +35,14 @@ const newTransaction: Transaction = {
   directSale: false
 };
 
-export default function TransactionFormComponent() {
+export default function TransactionFormComponent({ accountId }: { accountId: number }) {
+
+  const { data: account, isLoading: isAccountLoading } = useAccount(accountId) as any;
   const { modalId, data: modalData, actions: modalActions } = useModalStore();
-  const { customer, account, activeSavingPeriod } = useStatsStore(state => state);
-  const savingPeriod = activeSavingPeriod;
   const [transaction, setTransaction] = useState<Transaction>(newTransaction);
   const [dials, setDials] = useState<any[]>([]);
 
- 
+  if (isAccountLoading) return <Skeleton type="chart" />;
 
   // Fetch bonus options
   useEffect(() => {
@@ -65,40 +69,36 @@ export default function TransactionFormComponent() {
       modalId="transactionForm"
       title={transaction.id ? 'Editovat body' : 'Přidat / Vybrat body'}
     >
-      {!customer || !savingPeriod ? (
-        <div className="p-4 text-center">
-          <p>Loading customer data...</p>
-        </div>
-      ) : (
-        <div className='flex p-8'>
-          <div className='flex flex-row gap-8'>
-            <TransactionForm
-              transaction={transaction}
-              bonusesDial={dials}
-            />
 
-            <div className='p-8 flex justify-between'>
-              <div>
-                <Typography variant='h4'>Zákazník</Typography>
-                <p>Jméno: {customer?.fullName}</p>
-                <p>Registrační číslo: {customer?.registrationNumber}</p>
+      <div className='flex p-8'>
+        <div className='flex flex-row gap-8'>
+          <TransactionForm
+            transaction={transaction}
+            bonusesDial={dials}
+          />
 
-                <Typography variant='h5' className='mt-8' >Aktivní šetřící období</Typography>
-                <p>{savingPeriod?.id}</p>
-                <p>{`od: ${savingPeriod?.startYear}/${savingPeriod?.startQuarter} do: ${savingPeriod?.endYear}/${savingPeriod?.endQuarter}`}</p>
+          <div className='p-8 flex justify-between'>
+            <div>
+              <Typography variant='h4'>Zákazník</Typography>
+              <p>Jméno: {account?.data?.customer?.fullName}</p>
+              <p>Registrační číslo: {account?.data?.customer?.registrationNumber}</p>
 
-                <Typography variant='h5' className='mt-8'>Body v šetřícím období k dispozici</Typography>
-                <p>{savingPeriod?.availablePoints}</p>
+              <Typography variant='h5' className='mt-8' >Aktivní šetřící období</Typography>
+              <p>{account?.data?.savingPeriods[0]?.id}</p>
+              <p>{`od: ${account?.data?.savingPeriods[0]?.startYear}/${account?.data?.savingPeriods[0]?.startQuarter} do: ${account?.data?.savingPeriods[0]?.endYear}/${account?.data?.savingPeriods[0]?.endQuarter}`}</p>
 
-              </div>
-              {/* <div>
+              <Typography variant='h5' className='mt-8'>Body v šetřícím období k dispozici</Typography>
+              <p>{account?.data?.savingPeriods[0]?.availablePoints}</p>
+
+            </div>
+            {/* <div>
                 <Typography variant='h6'>Chyba</Typography>
                 <p className='text-red-600 txt-xs'>Nelze zadat transakci mimo šetřící obdobé</p>
               </div> */}
-            </div>
           </div>
         </div>
-      )}
+      </div>
+
     </ModalComponent>
   );
 };

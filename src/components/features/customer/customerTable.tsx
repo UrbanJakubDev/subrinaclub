@@ -10,6 +10,7 @@ import StatusChip from "@/components/tables/ui/statusChip";
 import StatusIcon from "@/components/tables/ui/statusIcon";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { useUpdateCustomer } from "@/lib/queries/customer/mutations";
 
 interface Customer {
   id: string;
@@ -48,12 +49,14 @@ export default function CustomerTable({ defaultData, detailLinkPath, timeInfo }:
   const router = useRouter()
   const tableName = "Přehled zákazníků";
 
+  // Initialize the mutation
+  const updateCustomerMutation = useUpdateCustomer();
+
   // Handle selected rows
   const handleSelectionChange = (selectedRows: Customer[]) => {
   };
 
   const handleDeactivateCustomers = async (selectedRows: Customer[]) => {
-    // Filter out already inactive customers
     const activeCustomers = selectedRows.filter(customer => customer.active);
 
     if (activeCustomers.length === 0) {
@@ -66,37 +69,23 @@ export default function CustomerTable({ defaultData, detailLinkPath, timeInfo }:
     );
     if (!confirmDeactivate) return;
 
-    // Show loading toast
     const loadingToastId = toast.loading(
       `Deaktivace ${activeCustomers.length} zákazníků...`
     );
 
     try {
       const results = await Promise.allSettled(
-        activeCustomers.map(async (customer) => {
-          const response = await fetch(`/api/customers/${customer.id}`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              active: false
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error(`Nepodařilo se deaktivovat zákazníka ${customer.fullName}`);
-          }
-
-          return customer;
-        })
+        activeCustomers.map((customer) =>
+          updateCustomerMutation.mutateAsync({
+            id: Number(customer.id),
+            data: { active: false }
+          })
+        )
       );
 
-      // Count successes and failures
       const succeeded = results.filter(r => r.status === 'fulfilled').length;
       const failed = results.filter(r => r.status === 'rejected').length;
 
-      // Update the loading toast with the result
       if (failed === 0) {
         toast.update(loadingToastId, {
           render: `Úspěšně deaktivováno ${succeeded} zákazníků`,
@@ -112,7 +101,6 @@ export default function CustomerTable({ defaultData, detailLinkPath, timeInfo }:
           autoClose: 5000
         });
 
-        // Show detailed errors
         results
           .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
           .forEach(result => {
@@ -120,7 +108,6 @@ export default function CustomerTable({ defaultData, detailLinkPath, timeInfo }:
           });
       }
 
-      // Refresh the page to show updated data
       router.refresh();
     } catch (error) {
       console.error('Error deactivating customers:', error);

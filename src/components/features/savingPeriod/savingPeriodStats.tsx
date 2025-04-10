@@ -2,15 +2,15 @@
 import ColumnChart from '@/components/ui/charts/columnChart';
 import Skeleton from '@/components/ui/skeleton';
 import { KpiCardProgress } from '@/components/ui/stats/cardsWidgets/KpiCardProgress';
+import { useSavingPeriodByAccount } from '@/lib/queries/savingPeriod/queries';
+import { useTransactionsByAccount, useTransactionsBySavingPeriodId } from '@/lib/queries/transaction/queries';
 import { Transaction } from '@/types/transaction';
 import { SavingPeriod } from '@/types/types';
 import { Card } from '@material-tailwind/react';
 import { useMemo } from 'react';
 
 type Props = {
-  savingPeriod: SavingPeriod | null;
-  transactions?: Transaction[];
-  isLoading: boolean;
+  account_id: number;
 }
 
 interface QuarterData {
@@ -18,35 +18,16 @@ interface QuarterData {
   depositedPoints: number;
 }
 
-const SavingPeriodForm: React.FC = () => {
-  return (
-    <form action="/save-period" method="POST">
-      <div className="mb-4">
-        <label htmlFor="startYear" className="block text-gray-700 font-bold mb-2">Start Year</label>
-        <input type="number" id="startYear" name="startYear" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="startQuarter" className="block text-gray-700 font-bold mb-2">Start Quarter</label>
-        <input type="number" id="startQuarter" name="startQuarter" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="endYear" className="block text-gray-700 font-bold mb-2">End Year</label>
-        <input type="number" id="endYear" name="endYear" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
-      </div>
-      <div className="mb-4">
-        <label htmlFor="endQuarter" className="block text-gray-700 font-bold mb-2">End Quarter</label>
-        <input type="number" id="endQuarter" name="endQuarter" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required />
-      </div>
-      <div className="flex items-center justify-between">
-        <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-          Save
-        </button>
-      </div>
-    </form>
-  );
-};
+export default function SavingPeriodStats({ account_id }: Props) {
+  const { data: savingPeriod, isLoading: isSavingPeriodLoading } = useSavingPeriodByAccount(account_id) as any;
+  const { data: transactions, isLoading: isTransactionsLoading } = useTransactionsBySavingPeriodId(savingPeriod?.id) as any;
 
-export default function SavingPeriodStats({ savingPeriod, transactions = [], isLoading }: Props) {
+  // Move chart data preparation to a separate function
+  const chartData = useMemo(() =>
+    prepareSavingPeriodChartData(savingPeriod, transactions),
+    [savingPeriod, transactions]
+  );
+
   // Early return if no saving period
   if (!savingPeriod) {
     return (
@@ -59,21 +40,16 @@ export default function SavingPeriodStats({ savingPeriod, transactions = [], isL
     );
   }
 
-  // Move chart data preparation to a separate function
-  const chartData = useMemo(() =>
-    prepareSavingPeriodChartData(savingPeriod, transactions),
-    [savingPeriod, transactions]
-  );
-
-  if (isLoading) return <Skeleton className="w-2/4" type="chart" />;
+  if (isSavingPeriodLoading || isTransactionsLoading) return <Skeleton className="w-2/4" type="chart" />;
 
   return (
     <Card className='p-8 flex grow rounded-sm w-1/3'>
       <div className='flex gap-4 pb-4'>
         <KpiCardProgress
-          title={`Dvouleté šetřící období od ${savingPeriod.startYear}-Q${savingPeriod.startQuarter} do ${savingPeriod.endYear}-Q${savingPeriod.endQuarter}`}
-          points={savingPeriod.availablePoints}
+          title={`Dvouleté šetřící období od ${savingPeriod?.startYear}-Q${savingPeriod?.startQuarter} do ${savingPeriod?.endYear}-Q${savingPeriod?.endQuarter}`}
+          points={savingPeriod?.availablePoints}
           icon={<i className="fas fa-arrow-up"></i>}
+          color="blue"
         />
       </div>
       <ColumnChart
@@ -96,8 +72,8 @@ function prepareSavingPeriodChartData(savingPeriod: SavingPeriod, transactions: 
   let currentQuarter = savingPeriod?.startQuarter;
 
   while (
-    currentYear < savingPeriod.endYear ||
-    (currentYear === savingPeriod.endYear && currentQuarter <= savingPeriod.endQuarter)
+    currentYear < savingPeriod?.endYear ||
+    (currentYear === savingPeriod?.endYear && currentQuarter <= savingPeriod?.endQuarter)
   ) {
     quarters.push({
       quarter: `${currentYear}-Q${currentQuarter}`,

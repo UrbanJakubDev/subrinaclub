@@ -8,15 +8,13 @@ import KpiCard from "@/components/ui/stats/cardsWidgets/KpiCard";
 import SimpleStat from "@/components/ui/stats/cardsWidgets/simple";
 import ProductCardWidget from "@/components/ui/stats/cardsWidgets/ProductCardWidget";
 import { Button, Card, Typography } from "@material-tailwind/react";
-import Loader from "@/components/ui/loader";
-import { Customer } from "@/types/customer";
 import { Transaction } from "@/types/transaction";
 import Skeleton from "@/components/ui/skeleton";
+import { useTransactionsByAccount } from "@/lib/queries/transaction/queries";
+import { useAccount } from "@/lib/queries/account/queries";
 
 interface AccountStatsProps {
-  customer: Customer;
-  transactions: Transaction[];
-  isLoading: boolean;
+  account_id: number;
 }
 
 interface IProductData {
@@ -49,10 +47,17 @@ interface ProductsSectionProps {
   products: IProductData[];
 }
 
-export default function AccountStats({ customer, transactions, isLoading }: AccountStatsProps) {
+export default function AccountStats({ account_id }: AccountStatsProps) {
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
-  const clubAccountBalance = customer?.account?.lifetimePointsCorrected;
+
+  const { data: transactions, isLoading: isTransactionsLoading } = useTransactionsByAccount(account_id) as any;
+  const { data: account, isLoading: isAccountLoading } = useAccount(account_id) as any;
+
+
+  if (isAccountLoading || isTransactionsLoading) return <Skeleton type="chart" />;
+
+  const clubAccountBalance = account?.data?.lifetimePoints + account?.data?.lifetimePointsCorrection;
 
   // Helper functions
   const sumPointsInYear = (year: number): number => {
@@ -75,9 +80,9 @@ export default function AccountStats({ customer, transactions, isLoading }: Acco
     }
 
     // Get min and max dates from transactions
-    const dates = transactions.map(t => ({ year: t.year, quarter: t.quarter }));
-    const startYear = Math.min(...dates.map(d => d.year));
-    const endYear = Math.max(...dates.map(d => d.year));
+    const dates = transactions.map((t: Transaction) => ({ year: t.year, quarter: t.quarter }));
+    const startYear = Math.min(...dates.map((d: { year: number; quarter: number }) => d.year));
+    const endYear = Math.max(...dates.map((d: { year: number; quarter: number }) => d.year));
 
     const quarterSums: { [key: string]: number } = {};
 
@@ -90,7 +95,7 @@ export default function AccountStats({ customer, transactions, isLoading }: Acco
     // Generate series data
     const categories: string[] = [];
     const data: number[] = [];
-    
+
     for (let year = startYear; year <= endYear; year++) {
       for (let quarter = 1; quarter <= 4; quarter++) {
         const key = `${year}-Q${quarter}`;
@@ -144,9 +149,7 @@ export default function AccountStats({ customer, transactions, isLoading }: Acco
     series: mostFavouriteProducts.map(p => p.count)
   };
 
-  if (!chartData || !mostFavouriteProducts || !transactions || !customer || isLoading) {
-    return <Skeleton type="chart" />;
-  }
+
 
   return (
     <div className="flex flex-col gap-10">
@@ -158,7 +161,7 @@ export default function AccountStats({ customer, transactions, isLoading }: Acco
       <Card className="p-8 border rounded-sm">
         <div className="mb-4">
           <Typography variant="h5" className="mb-4 color-gray-900">
-            {`Statistika bodů na účtu pro zákazníka - ${customer.fullName}`}
+            {`Statistika bodů na účtu pro zákazníka - ${account?.data?.customer?.fullName}`}
           </Typography>
           {transactions.length > 0 && (
             <LineChart
@@ -185,8 +188,6 @@ export default function AccountStats({ customer, transactions, isLoading }: Acco
           />
         </div>
       </Card>
-
-
     </div>
   );
 }
@@ -238,7 +239,7 @@ const StatsSection: React.FC<StatsSectionProps> = ({
 const ProductsSection: React.FC<ProductsSectionProps> = ({ chartData, products }) => (
   <Card className="p-8 border rounded-sm">
     <Typography variant="h5" className="mb-4 color-gray-900">
-    Přehled výběru Prémium bonusů
+      Přehled výběru Prémium bonusů
     </Typography>
     <div className="flex justify-between w-full gap-4">
       <div className="w-1/2">

@@ -25,7 +25,7 @@ export const useTransaction = (id: number) => {
     })
 }
 
-export const useTransactionsByAccountId = (accountId: number) => {
+export const useTransactionsByAccount = (accountId: number) => {
     return useQuery<ApiResponse<Transaction[]>>({
         queryKey: transactionKeys.account(accountId),
         queryFn: () => transactionApi.getByAccountId(accountId),

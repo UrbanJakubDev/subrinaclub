@@ -24,4 +24,6 @@ export type Customer = {
    salesManagerSinceQ: number | null
    salesManagerSinceYear: number | null
    account: Account
- }
+   dealer: { fullName: string } | null
+   salesManager: { fullName: string } | null
+}

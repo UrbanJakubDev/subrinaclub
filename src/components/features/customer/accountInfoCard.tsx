@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AccountInfoCardProps } from "@/lib/services/account/types";
 import Skeleton from "@/components/ui/skeleton";
 import Button from "@/components/ui/button";
@@ -15,18 +15,17 @@ import SavingPeriodActions from "./SavingPeriodActions";
 import { QuarterDate } from '@/lib/utils/quarterDateUtils';
 import { useAccount } from '@/lib/queries/account/queries';
 import { useSavingPeriodByAccount, useCloseSavingPeriod } from '@/lib/queries/savingPeriod';
-
+import { SavingPeriod, Account } from '@/types/types';
+import ServerStatus from '@/components/ui/serverStatus';
 
 const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account_id }) => {
    const router = useRouter();
 
-   const { data: accountResponse, isLoading } = useAccount(account_id);
-   const { data: savingPeriodResponse, isLoading: isSavingPeriodLoading } = useSavingPeriodByAccount(account_id);
+   const { data: account, isLoading, isError } = useAccount(account_id);
+   const { data: savingPeriod, isLoading: isSavingPeriodLoading } = useSavingPeriodByAccount(account_id) as any;
    const closeSavingPeriodMutation = useCloseSavingPeriod();
 
-   // Extract data from API responses
-   const account = accountResponse?.data;
-   const savingPeriod = savingPeriodResponse?.data;
+
 
    const [isClosing, setIsClosing] = useState(false);
    const [isCreating, setIsCreating] = useState(false);
@@ -36,17 +35,18 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account_id }) => {
 
    // Initialize QuarterDateUtils with the current date
    const qd = new QuarterDate();
-   
+
    // Get current year and quarter
    const actualYear = qd.getActualYearAndQuarter().actualYear;
    const actualQuarter = qd.getActualYearAndQuarter().actualQuarter;
-   
+
    // Initialize selected year and quarter with current values
    const [selectedYear, setSelectedYear] = useState(actualYear);
    const [selectedQuarter, setSelectedQuarter] = useState(actualQuarter);
-   
+
+
+
    if (isLoading) return <Skeleton className="w-1/4" />;
-   if (!account) return <pre>Account not found</pre>;
 
    const handleCloseSavingPeriod = async (closeNow = false) => {
       if (!savingPeriod) return;
@@ -80,7 +80,7 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account_id }) => {
       try {
          setIsClosing(true);
          setIsCreating(true);
-         
+
          await closeSavingPeriodMutation.mutateAsync({
             id: savingPeriod.id,
             data: closeNow ? {
@@ -191,7 +191,7 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account_id }) => {
                                     <Typography variant="small" className="text-gray-700 font-medium mb-2">
                                        Vyberte počáteční rok a čtvrtletí pro nové šetřící období:
                                     </Typography>
-                                    
+
                                     <div className="grid grid-cols-2 gap-4">
                                        <div>
                                           <label htmlFor="yearInput" className="block text-sm font-medium text-gray-700 mb-1">
@@ -207,7 +207,7 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account_id }) => {
                                              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                           />
                                        </div>
-                                       
+
                                        <div>
                                           <label htmlFor="quarterSelect" className="block text-sm font-medium text-gray-700 mb-1">
                                              Čtvrtletí
@@ -225,7 +225,7 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account_id }) => {
                                           </select>
                                        </div>
                                     </div>
-                                    
+
                                     <p className="text-xs text-gray-500 mt-2">
                                        Tyto hodnoty budou použity pro vytvoření nového šetřícího období.
                                        Výchozí hodnoty jsou nastaveny na předchozí čtvrtletí.
@@ -282,13 +282,15 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account_id }) => {
          <CloseSavingPeriodConfirmation />
 
          <Card className="p-8 flex flex-col rounded-sm">
+
             <Typography variant="h3" color="black">Stav účtu</Typography>
-            <span className="text-sm text-gray-500">Účet s ID: {account?.id}</span>
+            <ServerStatus systemStatus={account?.data?.active || false} lastUpdated={account?.metadata?.loadedAt || 'N/A'} id={account?.data?.id || 0} />
+
             <div className="w-full flex flex-col gap-8 mt-6">
                <article>
                   <Typography variant="h5" color="black">Body na účtu</Typography>
-                  <p>Klubové konto: {account?.lifetimePoints}</p>
-                  <p>Roční konto: {new Date().getFullYear()}: {account?.currentYearPoints}</p>
+                  <p>Klubové konto: {account?.data?.lifetimePoints}</p>
+                  <p>Roční konto: {new Date().getFullYear()}: {account?.data?.currentYearPoints}</p>
                </article>
 
                <article>
@@ -308,13 +310,13 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account_id }) => {
 
                         <p>Průběžné konto: {savingPeriod.totalDepositedPoints?.toString()}</p>
                         <p>Průběžné konto k dispozici: {savingPeriod.availablePoints}</p>
-                        <p>Průměrné body před přiřazením obchodního zástupce: {account?.averagePointsBeforeSalesManager?.toString()}</p>
+                        <p>Průměrné body před přiřazením obchodního zástupce: {account?.data?.averagePointsBeforeSalesManager?.toString()}</p>
                         <SavingPeriodActions
                            isClosing={isClosing}
                            onClose={handleCloseSavingPeriod}
                         />
                         <Link
-                           href={`/accounts/${account?.id}/saving-periods`}
+                           href={`/accounts/${account?.data?.id}/saving-periods`}
                            className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
                         >
                            (Správa šetřících období)
@@ -324,7 +326,7 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account_id }) => {
                      <div className="space-y-4">
                         <p className="text-yellow-600">Žádné aktivní šetřící období</p>
                         <Link
-                           href={`/accounts/${account?.id}/saving-periods`}
+                           href={`/accounts/${account?.data?.id}/saving-periods`}
                            className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
                         >
                            (Správa šetřících období)

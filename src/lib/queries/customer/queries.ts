@@ -3,6 +3,8 @@ import { customerApi } from '@/lib/api/customer/api';
 import { Customer } from '@/types/customer';
 import { ApiResponse } from '@/types/types';
 
+
+
 export const customerKeys = {
   all: ['customers'] as const,
   list: (active: boolean) => [...customerKeys.all, { active }] as const,
@@ -21,12 +23,11 @@ export const useCustomers = (active: boolean) => {
 
 export const useCustomer = (id: number) => {
   return useQuery<ApiResponse<Customer>>({
-    queryKey: customerKeys.detail(id),
+    queryKey: ['customer', id],
     queryFn: () => customerApi.getById(id),
     enabled: !!id,
     retry: 1,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnMount: true,
   });
 };
 

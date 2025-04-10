@@ -12,25 +12,23 @@ import React, { useState } from 'react';
 import { useModalStore } from '@/stores/ModalStore';
 import { formatDateToCz } from '@/lib/utils/dateFnc';
 import { Dialog, DialogHeader, DialogBody, DialogFooter } from "@material-tailwind/react";
+import { useTransactionsByAccount } from '@/lib/queries/transaction/queries';
 
 type TransactionsTableProps = {
    tableName?: string;
    accountId: number;
-   transactions?: Transaction[];
-   isLoading?: boolean;
    onEdit: (transaction: Transaction) => void;
    onDelete: (transactionId: number) => void;
 };
 
 export default function TransactionsTable({
    tableName = 'Transakce',
-   transactions,
-   isLoading = false,
+   accountId,
    onEdit,
    onDelete
 }: TransactionsTableProps) {
 
-
+   const { data: transactions, isLoading } = useTransactionsByAccount(accountId) as any;
 
    // Column definitions
    const columns = React.useMemo<ColumnDef<Transaction>[]>(() => [
@@ -120,7 +118,7 @@ export default function TransactionsTable({
             />
          )}
 
-         <TransactionFormComponent />
+         <TransactionFormComponent accountId={accountId} />
       </div>
    );
 }

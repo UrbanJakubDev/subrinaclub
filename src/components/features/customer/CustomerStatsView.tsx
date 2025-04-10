@@ -172,34 +172,21 @@ export default function CustomerStatsView({ initialCustomer }: CustomerStatsView
       <>
          <div className="flex gap-8 my-2">
             <CustomerCard customer_id={customer.id} />
-            <AccountInfoCard
-               account_id={account.id}
-            />
-            {/*
-            <SavingPeriodStats
-               transactions={transactions}
-               savingPeriod={savingPeriod}
-               isLoading={isLoading || isTransactionsLoading}
-            /> */}
+            <AccountInfoCard account_id={account.id} />
+            <SavingPeriodStats account_id={account.id} />
          </div>
          <div>
-            {/* <div className="my-2">
-               <AccountStats
-                  customer={customer}
-                  transactions={transactions}
-                  isLoading={isLoading || isTransactionsLoading}
-               />
+            <div className="my-2">
+               <AccountStats account_id={account.id} />
             </div>
             <div className="my-2 w-full">
                <TransactionsTable
                   tableName={`Transakce ${customer.fullName || ''}`}
                   accountId={account?.id}
-                  transactions={transactions}
-                  isLoading={isTransactionsLoading || isLoading}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                />
-            </div> */}
+            </div>
          </div>
 
       </>

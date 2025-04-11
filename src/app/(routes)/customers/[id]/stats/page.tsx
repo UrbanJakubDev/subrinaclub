@@ -2,8 +2,12 @@
 
 import PageComponent from "@/components/features/detailPage/pageComponent";
 import PageHeader from "@/components/features/detailPage/pageHeader";
-import CustomerStatsView from "@/components/features/customer/CustomerStatsView";
 import { useCustomer } from "@/lib/queries/customer/queries";
+import CustomerCard from "@/components/features/customer/customerCard";
+import AccountInfoCard from "@/components/features/customer/accountInfoCard";
+import AccountStats from "@/components/features/customer/account/accountStats";
+import SavingPeriodStats from "@/components/features/savingPeriod/savingPeriodStats";
+import TransactionDataView from "@/components/features/transactions/trasanctionDataView";
 
 export default function UserDetailStatsPage({
   params: { id },
@@ -29,7 +33,21 @@ export default function UserDetailStatsPage({
       )}
 
       {customer && (
-        <CustomerStatsView initialCustomer={customer.data} />
+        <>
+          <div className="flex gap-8 my-2">
+            <CustomerCard customer_id={customer.data.id} />
+            <AccountInfoCard account_id={customer.data.account?.id} />
+            <SavingPeriodStats account_id={customer.data.account?.id} />
+          </div>
+          <div>
+            <div className="my-2">
+              <AccountStats account_id={customer.data.account?.id} />
+            </div>
+            <div className="my-2 w-full">
+              <TransactionDataView accountId={customer.data.account?.id} />
+            </div>
+          </div>
+        </>
       )}
 
     </PageComponent>

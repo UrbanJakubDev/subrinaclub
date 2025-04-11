@@ -6,7 +6,7 @@ import MyTable from '../../tables/ui/baseTable';
 import Button from '../../ui/button';
 import formatThousandDelimiter from '@/lib/utils/formatFncs';
 import { Transaction } from '@/types/transaction';
-import TransactionFormComponent from '@/components/features/customer/transactionFormComponent';
+import TransactionFormComponent from '@/components/features/transactions/transactionFormComponent';
 import Skeleton from '@/components/ui/skeleton';
 import React, { useState } from 'react';
 import { useModalStore } from '@/stores/ModalStore';

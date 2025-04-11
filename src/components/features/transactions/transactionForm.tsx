@@ -17,6 +17,9 @@ import { useModalStore } from '@/stores/ModalStore';
 import { Account, SavingPeriod } from '@/types/types';
 import { Bonus } from '@/types/bonus';
 import SwitchField from '@/components/ui/inputs/inputSwitcher';
+import { useCreateTransaction, useUpdateTransaction } from '@/lib/queries/transaction/mutations';
+import { useBonusesForSelect } from '@/lib/queries/bonus/queries';
+import { useAccount } from '@/lib/queries/account/queries';
 
 
 const newTransaction: Transaction = {
@@ -44,25 +47,25 @@ const newTransaction: Transaction = {
 
 
 type Props = {
-   transaction: Transaction
-   bonusesDial?: any
+   transaction: Transaction,
+   account: Account
 };
 
 
 
-const TransactionForm = ({ transaction, bonusesDial }: Props) => {
-   const { account, activeSavingPeriod, notifyTransactionChange } = useStatsStore();
-   const [transactionData, setTransactionData] = useState<Transaction>();
+const TransactionForm = ({ transaction, account }: Props) => {
+   const { data: bonuses } = useBonusesForSelect();
+   const [transactionData, setTransactionData] = useState<Transaction>(newTransaction);
    const yearDial = yearSelectOptions();
    const quarterDial = quarterSelectOptions();
    const { actions } = useModalStore()
    const [dateRangeError, setDateRangeError] = useState<string | null>(null);
+   const createTransaction = useCreateTransaction();
+   const updateTransaction = useUpdateTransaction();
 
-   useEffect(() => {
-      if (transaction) {
+      useEffect(() => {
+         if (transaction) {
          setTransactionData(transaction);
-      } else {
-         setTransactionData(newTransaction);
       }
    }, [transaction]);
 
@@ -73,14 +76,14 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
       const quarter = formMethods.watch('quarter');
 
       // Only validate if we have all the necessary data
-      if (activeSavingPeriod && year && quarter) {
+      if (account?.savingPeriods[0] && year && quarter) {
          // Simple year-quarter comparison instead of date objects
          const selectedYQ = year * 10 + quarter;
-         const startYQ = activeSavingPeriod.startYear * 10 + activeSavingPeriod.startQuarter;
-         const endYQ = activeSavingPeriod.endYear * 10 + activeSavingPeriod.endQuarter;
+         const startYQ = account.savingPeriods[0].startYear * 10 + account.savingPeriods[0].startQuarter;
+         const endYQ = account.savingPeriods[0].endYear * 10 + account.savingPeriods[0].endQuarter;
          
          if (selectedYQ < startYQ || selectedYQ > endYQ) {
-            const errorMsg = `Vybrané období (${year}/${quarter}) je mimo rozsah aktivního šetřícího období (${activeSavingPeriod.startYear}/${activeSavingPeriod.startQuarter} - ${activeSavingPeriod.endYear}/${activeSavingPeriod.endQuarter})`;
+            const errorMsg = `Vybrané období (${year}/${quarter}) je mimo rozsah aktivního šetřícího období (${account.savingPeriods[0].startYear}/${account.savingPeriods[0].startQuarter} - ${account.savingPeriods[0].endYear}/${account.savingPeriods[0].endQuarter})`;
             setDateRangeError(errorMsg);
          } else {
             setDateRangeError(null);
@@ -95,42 +98,30 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
       }
    };
 
-   const saveTransaction = async (data: Transaction) => {
-      const isNewTransaction = !data.id;
-      const url = '/api/transactions';
-      const method = isNewTransaction ? 'POST' : 'PUT';
-
-      const transactionData = {
-         ...data,
-         accountId: account?.id,
-         savingPeriodId: activeSavingPeriod?.id,
-      };
-
-      try {
-         const response = await fetch(url, {
-            method,
-            headers: {
-               'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(transactionData),
-         });
-
-         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-         }
-
-         return await response.json();
-      } catch (error) {
-         console.error('Error saving transaction:', error);
-         throw error;
-      }
-   };
-
-
-
    const handleSubmit = async (data: Transaction): Promise<Transaction> => {
       try {
-         const savedTransaction = await saveTransaction(data);
+         const isNewTransaction = !data.id;
+         
+         if (!account?.id || !account?.savingPeriods[0]?.id) {
+            throw new Error('Account or saving period is not available');
+         }
+
+         const transactionData = {
+            ...data,
+            accountId: account.id,
+            savingPeriodId: account.savingPeriods[0].id,
+         };
+
+         let savedTransaction;
+         if (isNewTransaction) {
+            savedTransaction = await createTransaction.mutateAsync(transactionData);
+         } else {
+            savedTransaction = await updateTransaction.mutateAsync({ 
+               id: data.id, 
+               data: transactionData 
+            });
+         }
+
          toast.success('Transakce byla uložena');
          notifyTransactionChange();
 
@@ -150,8 +141,7 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
       }
    }
 
-
-   if (!bonusesDial || !transactionData) {
+   if (!bonuses || !account) {
       return <Skeleton />;
    }
 
@@ -163,8 +153,8 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
          customError={dateRangeError}
       >
          {(formMethods) => {
-            React.useEffect(() => {
-               // Initialize form values
+            // Initialize form values
+            useEffect(() => {
                if (transactionData) {
                   formMethods.setValue('year', transactionData.year);
                   formMethods.setValue('quarter', transactionData.quarter);
@@ -239,7 +229,7 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
                         label="Body"
                         type="number"
                         name="points"
-                        defaultValue={transactionData.points}
+                        defaultValue={transactionData?.points}
                      />
                      <InputDateFiled
                         label="Přijetí objednávky"
@@ -268,14 +258,14 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
                      <SelectField
                         label="Bonus"
                         name="bonusId"
-                        options={bonusesDial}
-                        defaultValue={transactionData.bonusId || 0}
+                        options={bonuses.data}
+                        defaultValue={transactionData?.bonusId || 0}
                      />
                      <div className="flex items-center gap-2">
                         <SwitchField
                            label="Přímý prodej"
                            name="directSale"
-                           defaultValue={transactionData.directSale}
+                           defaultValue={transactionData?.directSale}
                         />
                      </div>
                   </div>

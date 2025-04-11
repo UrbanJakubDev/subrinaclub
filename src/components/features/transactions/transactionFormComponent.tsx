@@ -11,55 +11,47 @@ import { useAccount } from '@/lib/queries/account/queries';
 import { useSavingPeriod } from '@/lib/queries/savingPeriod/queries';
 import { useCustomer } from '@/lib/queries/customer/queries';
 import Skeleton from '@/components/ui/skeleton';
+import { useBonusesForSelect } from '@/lib/queries/bonus/queries';
 
-const newTransaction: Transaction = {
-  id: 0,
-  year: new Date().getFullYear(),
-  quarter: 1,
-  points: 1,
-  acceptedBonusOrder: null,
-  sentBonusOrder: null,
-  bonusPrice: 0,
-  bonusId: 0,
-  description: '',
-  active: true,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  accountId: 0,
-  savingPeriodId: 0,
-  type: 'DEPOSIT',
-  quarterDateTime: new Date(),
-  account: {} as any,
-  bonus: null,
-  savingPeriod: null,
-  directSale: false
-};
+
 
 export default function TransactionFormComponent({ accountId }: { accountId: number }) {
 
   const { data: account, isLoading: isAccountLoading } = useAccount(accountId) as any;
+  
   const { modalId, data: modalData, actions: modalActions } = useModalStore();
-  const [transaction, setTransaction] = useState<Transaction>(newTransaction);
-  const [dials, setDials] = useState<any[]>([]);
+  const [transaction, setTransaction] = useState<Transaction>();
 
   if (isAccountLoading) return <Skeleton type="chart" />;
-
-  // Fetch bonus options
-  useEffect(() => {
-    if (modalId === 'transactionForm') {
-      fetch('/api/bonuses/options')
-        .then(res => res.json())
-        .then(setDials)
-        .catch((error) => {
-          toast.error('Dial API not found');
-        });
-    }
-  }, [modalId]);
 
   useEffect(() => {
     if (modalData?.id) {
       setTransaction(modalData as Transaction);
     } else {
+
+      const newTransaction: Transaction = {
+        id: 0,
+        year: new Date().getFullYear(),
+        quarter: 1,
+        points: 1,
+        acceptedBonusOrder: null,
+        sentBonusOrder: null,
+        bonusPrice: 0,
+        bonusId: 0,
+        description: '',
+        active: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        accountId: accountId,
+        savingPeriodId: account?.savingPeriods[0]?.id,
+        type: 'DEPOSIT',
+        quarterDateTime: new Date(),
+        account: account as any,
+        bonus: null,
+        savingPeriod: account?.savingPeriods[0] as any,
+        directSale: false
+      };
+
       setTransaction(newTransaction);
     }
   }, [modalActions.openModal, modalData]);
@@ -74,7 +66,7 @@ export default function TransactionFormComponent({ accountId }: { accountId: num
         <div className='flex flex-row gap-8'>
           <TransactionForm
             transaction={transaction}
-            bonusesDial={dials}
+            account={account}
           />
 
           <div className='p-8 flex justify-between'>

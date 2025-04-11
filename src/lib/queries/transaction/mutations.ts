@@ -53,11 +53,11 @@ export const useUpdateTransaction = () => {
    })
 }
 
-export const useDeleteTransaction = () => {
+export const useDeleteTransaction = (id: number) => {
    return useMutation({
       mutationFn: transactionApi.delete,
       onSuccess: () => {
-         queryClient.invalidateQueries({ queryKey: transactionKeys.all })
+         queryClient.invalidateQueries({ queryKey: transactionKeys.detail(id) })
       }
    })
 }

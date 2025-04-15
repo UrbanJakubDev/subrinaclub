@@ -161,7 +161,7 @@ export default function AccountStats({ account_id }: AccountStatsProps) {
       <Card className="p-8 border rounded-sm">
         <div className="mb-4">
           <Typography variant="h5" className="mb-4 color-gray-900">
-            {`Statistika bodů na účtu pro zákazníka - ${account?.data?.customer?.fullName}`}
+            {`Statistika bodů na účtu pro zákazníka - ${account?.customer?.fullName}`}
           </Typography>
           {transactions.length > 0 && (
             <LineChart

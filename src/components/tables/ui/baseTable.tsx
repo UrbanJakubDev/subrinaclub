@@ -50,6 +50,7 @@ interface TableProps<T> {
   data: T[]
   columns: ColumnDef<T>[]
   tableName: string
+  timeInfo: string
   addBtn?: boolean
   onAddClick?: () => void
   enableRowSelection?: boolean
@@ -296,7 +297,7 @@ const TableToolbar = <T,>({ table, tableName,timeInfo, addBtn, onAddClick, bulkA
       <div className="flex justify-between">
         <div>
           <h1 className="text-2xl font-semibold">{tableName}</h1>
-          <p className="text-sm text-gray-500">{timeInfo}</p>
+          <p className="text-sm text-gray-500">{`Aktualizováno: ${timeInfo}`}</p>
         </div>
         <div className="flex gap-2 py-2">
           {addBtn && (

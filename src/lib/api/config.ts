@@ -1,4 +1,4 @@
-export const API_BASE_URL = process.env.NEST_API_URL || 'http://localhost:3001';
+export const API_BASE_URL = process.env.NEST_API_URL || 'http://localhost:3002';
 
 export const getHeaders = () => ({
   'Content-Type': 'application/json',

@@ -13,29 +13,29 @@ import Link from "next/link";
 import { useUpdateCustomer } from "@/lib/queries/customer/mutations";
 
 interface Customer {
-  id: string;
-  active: boolean;
-  registrationNumber: string;
-  fullName: string;
-  salonName: string;
-  address?: string;
-  town?: string;
-  psc?: string;
-  phone?: string;
-  ico?: string;
-  salesManager?: {
-    fullName: string;
-  };
-  dealer?: {
-    fullName: string;
-  };
-  account?: {
-    currentYearPoints: number;
-    lifetimePoints: number;
-    lifetimePointsCorrection: number;
-    lifetimePointsCorrected: number;
-    savingPeriodAvailablePoints: number;
-  };
+    id: string
+    active: boolean
+    registrationNumber: string
+    fullName: string
+    salonName: string
+    address?: string
+    town?: string
+    psc?: string
+    phone?: string
+    ico?: string
+    salesManager?: {
+        fullName: string
+    }
+    dealer?: {
+        fullName: string
+    }
+    account?: {
+        currentYearPoints: number
+        lifetimePoints: number
+        lifetimePointsCorrection: number
+        lifetimePointsCorrected: number
+        savingPeriodAvailablePoints: number
+    }
 }
 
 type Props = {

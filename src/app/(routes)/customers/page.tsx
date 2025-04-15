@@ -21,6 +21,7 @@ export default function CustomersPage() {
     refetch();
   }, [activeUsers, refetch]);
 
+
   return (
     <PageComponent>
       <Card className="w-full mb-4 p-6 flex flex-row justify-between">

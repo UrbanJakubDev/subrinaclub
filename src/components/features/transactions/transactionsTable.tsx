@@ -25,7 +25,8 @@ export default function TransactionsTable({
    tableName = 'Transakce',
    accountId,
    onEdit,
-   onDelete
+   onDelete,
+   timeInfo
 }: TransactionsTableProps) {
 
    const { data: transactions, isLoading } = useTransactionsByAccount(accountId) as any;
@@ -115,6 +116,7 @@ export default function TransactionsTable({
                data={transactions}
                columns={columns}
                tableName={tableName}
+               timeInfo={timeInfo}
             />
          )}
 

@@ -6,9 +6,9 @@ import Button from '@/components/ui/button';
 import Card from '@/components/ui/mtui';
 import StatusChip from '@/components/tables/ui/statusChip';
 import { useRouter } from 'next/navigation';
+import Skeleton from '@/components/ui/skeleton';
 
 interface SavingPeriodsManagerProps {
-   account: Account & { savingPeriods: SavingPeriod[] };
    savingPeriods: SavingPeriod[];
 }
 
@@ -21,7 +21,7 @@ interface EditFormData {
    closeReason?: string;
 }
 
-export default function SavingPeriodsManager({ account, savingPeriods }: SavingPeriodsManagerProps) {
+export default function SavingPeriodsManager({ savingPeriods }: SavingPeriodsManagerProps) {
    const router = useRouter();
    const [editingPeriodId, setEditingPeriodId] = useState<number | null>(null);
    const [formData, setFormData] = useState<EditFormData>({
@@ -101,6 +101,8 @@ export default function SavingPeriodsManager({ account, savingPeriods }: SavingP
    const handleCancel = () => {
       setEditingPeriodId(null);
    };
+
+   
 
    return (
       <div className="space-y-4">

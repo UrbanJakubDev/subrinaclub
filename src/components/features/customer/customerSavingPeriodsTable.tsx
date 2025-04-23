@@ -7,45 +7,18 @@ import MyTable from "../../tables/ui/baseTable";
 import { Chip, Dialog, DialogHeader, DialogBody, DialogFooter, Button, Input, Select, Option } from "@material-tailwind/react";
 import { useRouter } from "next/navigation";
 import formatThousandDelimiter from "@/lib/utils/formatFncs";
-import ActionButtons from "@/components/tables/ui/actionButtons";
-import StatusChip from "@/components/tables/ui/statusChip";
 import StatusIcon from "@/components/tables/ui/statusIcon";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { Customer } from "@/types/customer";
 
-interface Customer {
-    id: string;
-    active: boolean;
-    registrationNumber: string;
-    fullName: string;
-    salonName: string;
-    ico: string;
-    salesManager: {
-        fullName: string;
-    };
-    account?: {
-        id: string;
-        active: boolean;
-        lifetimePoints: number;
-        savingPeriod?: {
-            id: number;
-            status: string;
-            availablePoints: number;
-            startYear: number;
-            startQuarter: number;
-            endYear: number;
-            endQuarter: number;
-            endDateTime: string;
-            daysLeft: number;
-            endThisQuarter: boolean;
-        };
-    };
-}
+
 
 type Props = {
     defaultData: Customer[];
     detailLinkPath?: string;
     onRefetchNeeded?: () => void;
+    timeInfo?: string;
 };
 
 type StartPeriodFormData = {
@@ -53,7 +26,7 @@ type StartPeriodFormData = {
     startQuarter: number;
 };
 
-export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath, onRefetchNeeded }: Props) {
+export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath, onRefetchNeeded, timeInfo }: Props) {
     const router = useRouter();
     const tableName = "Přehled šetřících období";
     const [selectedRows, setSelectedRows] = useState<Customer[]>([]);
@@ -93,7 +66,7 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
     const handleCloseSavingPeriods = React.useCallback(async (rows: Customer[]) => {
         // Filter out customers without active saving periods
         const customersWithActivePeriods = rows.filter(
-            customer => customer.account?.savingPeriod?.status === 'ACTIVE'
+            customer => customer.account?.savingPeriodStatus === 'ACTIVE'
         );
 
         if (customersWithActivePeriods.length === 0) {
@@ -103,7 +76,7 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
 
         // Warning if any customers have available points
         const customersWithPoints = customersWithActivePeriods.filter(
-            customer => (customer.account?.savingPeriod?.availablePoints ?? 0) > 0
+            customer => (customer.account?.savingPeriodAvailablePoints ?? 0) > 0
         );
 
         if (customersWithPoints.length > 0) {
@@ -122,12 +95,13 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
 
         // Close saving periods for all selected customers
         try {
+            // TODO: Use the mutation
             const results = await Promise.allSettled(
                 customersWithActivePeriods.map(async (customer) => {
-                    if (!customer.account?.savingPeriod?.id) return;
+                    if (!customer.account?.savingPeriodId) return;
                     
                     const response = await fetch(
-                        `/api/saving-periods/${customer.account.savingPeriod.id}/close`,
+                        `/api/saving-periods/${customer.account.savingPeriodId}/close`,
                         { 
                             method: 'POST',
                             headers: {
@@ -206,9 +180,10 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
             const results = await Promise.allSettled(
                 selectedRows.map(async (customer) => {
                     // First close any active period if it exists
-                    if (customer.account?.savingPeriod?.status === 'ACTIVE') {
+                    if (customer.account?.savingPeriodStatus === 'ACTIVE') {
+                        // TODO: Use the mutation
                         const closeResponse = await fetch(
-                            `/api/saving-periods/${customer.account.savingPeriod.id}/close`,
+                            `/api/saving-periods/${customer.account.savingPeriodId}/close`,
                             { 
                                 method: 'POST',
                                 headers: {
@@ -227,6 +202,7 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
                         }
                     } else {
                         // If no active period exists, create a new one directly
+                        // TODO: Use the mutation
                         const createResponse = await fetch(
                             `/api/customers/${customer.id}/saving-periods/create`,
                             { 
@@ -407,7 +383,7 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
             //     },
             // },
             {
-                accessorKey: "account.savingPeriod.availablePoints",
+                accessorKey: "account.savingPeriodAvailablePoints",
                 header: "Body v šetřícím období",
                 cell: (info) => <ChipComponent value={info.getValue()} />,
                 footer: (info) => {
@@ -443,10 +419,10 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
             //     },
             // },
             {
-                accessorKey: "account.savingPeriod.status",
+                accessorKey: "account.savingPeriodStatus",
                 header: "Šetřící období",
                 accessorFn: (row: Customer) => {
-                    return row.account?.savingPeriod?.status === 'ACTIVE';
+                    return row.account?.savingPeriodStatus === 'ACTIVE';
                 },
                 cell: ({ getValue }) => <StatusIcon active={getValue() as boolean} />,
                 filterFn: (row, columnId, filterValue) => {
@@ -456,39 +432,39 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
                 },
             },
             {
-                accessorKey: "account.savingPeriod.startYear",
+                accessorKey: "account.savingPeriodStartYear",
                 header: "od Rok",
                 accessorFn: (row) => {
-                    return row.account?.savingPeriod?.startYear?.toString() ?? '';
+                    return row.account?.savingPeriodStartYear?.toString() ?? '';
                 },
                 filterFn: "auto"
             },
             {
-                accessorKey: "account.savingPeriod.startQuarter",
+                accessorKey: "account.savingPeriodStartQuarter",
                 header: "od Q",
                 accessorFn: (row) => {
-                    return row.account?.savingPeriod?.startQuarter?.toString() ?? '';
+                    return row.account?.savingPeriodStartQuarter?.toString() ?? '';
                 },
                 filterFn: "auto"
             },
             {
-                accessorKey: "account.savingPeriod.endYear",
+                accessorKey: "account.savingPeriodEndYear",
                 header: "do Rok",
                 accessorFn: (row) => {
-                    return row.account?.savingPeriod?.endYear?.toString() ?? '';
+                    return row.account?.savingPeriodEndYear?.toString() ?? '';
                 },
                 filterFn: "auto"
             },
             {
-                accessorKey: "account.savingPeriod.endQuarter",
+                accessorKey: "account.savingPeriodEndQuarter",
                 header: "do Q",
                 accessorFn: (row) => {
-                    return row.account?.savingPeriod?.endQuarter?.toString() ?? '';
+                    return row.account?.savingPeriodEndQuarter?.toString() ?? '';
                 },
                 filterFn: "auto"
             },
             {
-                accessorKey: "account.savingPeriod.endDateTime",
+                accessorKey: "account.savingPeriodEndDateTime",
                 header: "Datum konce šetřícího období",
                 cell: ({ getValue }) => {
                     const endDate = getValue() as string;
@@ -498,15 +474,15 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
                 }
             },
             {
-                accessorKey: "account.savingPeriod.daysLeft",
+                accessorKey: "account.savingPeriodDaysLeft",
                 header: "Zbývá dní",
 
             },
             {
-                accessorKey: "account.savingPeriod.endThisQuarter",
+                accessorKey: "account.savingPeriodEndThisQuarter",
                 header: "Končí tento Q",
                 accessorFn: (row) => {
-                    return row.account?.savingPeriod?.endThisQuarter ?? false;
+                    return row.account?.savingPeriodEndThisQuarter ?? false;
                 },
                 cell: ({ getValue }) => getValue() ? <FontAwesomeIcon icon={faExclamation} style={{ color: "#e61414", scale: 1.4 }} /> : "-",
                 filterFn: (row, columnId, filterValue) => {
@@ -545,7 +521,8 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
                     },
                     enableRowSelection: true,
                     onSelectionChange: handleSelectionChange,
-                    bulkActions
+                    bulkActions,
+                    timeInfo
                 }}
             />
 

@@ -376,6 +376,13 @@ export default function BaseTable<T>({
   const [columnVisibility, setColumnVisibility] = React.useState({})
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
 
+  // Track previous data with useRef to avoid dependency cycles
+  const prevDataRef = React.useRef<T[]>();
+  
+  // Track previous selection callback with useRef
+  const onSelectionChangeRef = React.useRef(onSelectionChange);
+  const prevSelectedRowsRef = React.useRef<T[]>([]);
+  
   const selectionColumn: ColumnDef<T> = {
     id: 'select',
     header: ({ table }) => (
@@ -420,14 +427,38 @@ export default function BaseTable<T>({
     },
   })
 
+  // Update the ref when the prop changes
   React.useEffect(() => {
-    if (onSelectionChange) {
+    onSelectionChangeRef.current = onSelectionChange;
+  }, [onSelectionChange]);
+
+  React.useEffect(() => {
+    if (onSelectionChangeRef.current) {
       const selectedRows = table
         .getSelectedRowModel()
-        .rows.map(row => row.original)
-      onSelectionChange(selectedRows)
+        .rows.map(row => row.original);
+      
+      // Skip notifying if selection hasn't changed
+      const currentSelectionStr = JSON.stringify(selectedRows);
+      const prevSelectionStr = JSON.stringify(prevSelectedRowsRef.current);
+      
+      if (currentSelectionStr !== prevSelectionStr) {
+        prevSelectedRowsRef.current = selectedRows;
+        onSelectionChangeRef.current(selectedRows);
+      }
     }
-  }, [rowSelection, onSelectionChange])
+  }, [rowSelection, table]);
+  
+  // Reset row selection when data changes
+  React.useEffect(() => {
+    // Only reset selection if data reference has changed from the previous render
+    if (prevDataRef.current !== data) {
+      prevDataRef.current = data;
+      if (Object.keys(rowSelection).length > 0) {
+        setRowSelection({});
+      }
+    }
+  }, [data])
 
   return (
     <div className="mx-auto w-full">

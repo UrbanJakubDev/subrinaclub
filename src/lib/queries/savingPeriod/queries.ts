@@ -38,6 +38,14 @@ export const useSavingPeriodByAccount = (accountId?: number) => {
    })
 }
 
+// Get all saving periods by account ID
+export const useSavingPeriodsByAccount = (accountId?: number) => {
+   return useQuery({
+      queryKey: savingPeriodKeys.byAccount(accountId as number),
+      queryFn: () => savingPeriodApi.getAllByAccountId(accountId as number),
+      enabled: !!accountId,
+   })
+}
 // Pre-fetch helper for saving period data
 export const prefetchSavingPeriod = async (id: number) => {
    await queryClient.prefetchQuery({

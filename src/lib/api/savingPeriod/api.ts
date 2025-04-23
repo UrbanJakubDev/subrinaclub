@@ -22,6 +22,12 @@ export const savingPeriodApi = {
         return result;
     },
 
+    getAllByAccountId: async (accountId: number): Promise<ApiResponse<SavingPeriod[]>> => {
+        const response = await fetch(`${API_BASE_URL}/saving-periods/account/${accountId}/all`);
+        const result = await handleResponse<ApiResponse<SavingPeriod[]>>(response);
+        return result;
+    },  
+
     create: async (data: Omit<SavingPeriod, 'id'>): Promise<SavingPeriod> => {
         const response = await fetch(`${API_BASE_URL}/saving-periods`, {
             method: 'POST',

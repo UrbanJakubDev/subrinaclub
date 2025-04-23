@@ -2,42 +2,24 @@
 
 import CustomerSavingPeriodsTable from "@/components/features/customer/customerSavingPeriodsTable";
 import PageComponent from "@/components/features/detailPage/pageComponent";
-import { customerAPI, customerService } from "@/lib/services/customer";
-import { useEffect } from "react";
-import { CustomerWithAccountDataAndActiveSavingPeriodDTO } from "@/lib/services/customer/types";
-import { useState } from "react";
 import Skeleton from "@/components/ui/skeleton";
+import { useCustomers } from "@/lib/queries/customer/queries";
+import { Customer } from "@/types/customer";
 
 export default function SavingPeriodOverwievPage() {
 
-    const [customerWithSavingPeriods, setCustomerWithSavingPeriods] = useState<CustomerWithAccountDataAndActiveSavingPeriodDTO[]>([]);
-
-    // Define the fetch function outside useEffect so we can reuse it
-    const fetchCustomerWithSavingPeriods = async () => {
-        const endpoint = '/api/customers/saving-periods';
-        const response = await fetch(endpoint);
-        const data = await response.json();
-        setCustomerWithSavingPeriods(data);
-    }
-
-    useEffect(() => {
-        fetchCustomerWithSavingPeriods();
-    }, []);
-
-    // Handle refetch function that will be triggered from the table component
-    const handleRefetch = () => {
-        fetchCustomerWithSavingPeriods();
-    };
+    const { data: customers, isLoading: isLoadingCustomers, refetch: refetchCustomers } = useCustomers(true);
 
     return (
         <PageComponent full>
-            {customerWithSavingPeriods.length === 0 ? (
+            {isLoadingCustomers ? (
                <Skeleton className="h-96" type="table" />
             ) : (
                 <CustomerSavingPeriodsTable 
-                    defaultData={customerWithSavingPeriods} 
+                    defaultData={customers?.data as Customer[]} 
                     detailLinkPath="/customers" 
-                    onRefetchNeeded={handleRefetch}
+                    onRefetchNeeded={refetchCustomers}
+                    timeInfo={new Date(customers?.metadata.loadedAt ?? new Date()).toLocaleString()}
                 />
             )}
         </PageComponent>

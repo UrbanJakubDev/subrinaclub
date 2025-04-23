@@ -19,6 +19,7 @@ type TransactionsTableProps = {
    accountId: number;
    onEdit: (transaction: Transaction) => void;
    onDelete: (transactionId: number) => void;
+   timeInfo?: string;
 };
 
 export default function TransactionsTable({
@@ -116,7 +117,7 @@ export default function TransactionsTable({
                data={transactions}
                columns={columns}
                tableName={tableName}
-               timeInfo={timeInfo}
+               timeInfo={timeInfo ?? new Date().toLocaleString()}
             />
          )}
 

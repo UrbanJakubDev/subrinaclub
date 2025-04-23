@@ -7,6 +7,7 @@ import PageComponent from "@/components/features/detailPage/pageComponent";
 import { useCustomers } from "@/lib/queries/customer/queries";
 import Skeleton from "@/components/ui/skeleton";
 import NoData from "@/components/ui/noData";
+import { Customer } from "@/types/customer";
 
 export default function CustomersPage() {
   const [activeUsers, setActiveUsers] = useState(true);
@@ -35,7 +36,7 @@ export default function CustomersPage() {
       <Suspense fallback={<div className="w-full flex justify-center p-8"><Loader /></div>}>
         <div className="w-full">
           {isLoading ? (
-            <Skeleton className="w-full h-48"  />
+            <Skeleton className="w-full h-48" type="table" />
           ) : error ? (
             <Card className="w-full p-6 bg-red-50">
               <div className="text-red-700">
@@ -47,9 +48,10 @@ export default function CustomersPage() {
             <NoData />
           ) : (
             <CustomerTable
-              defaultData={response.data}
+              defaultData={response.data as Customer[]}
               detailLinkPath="/customers"
               timeInfo={new Date(response.metadata.loadedAt).toLocaleString()}
+              refresh={refetch}
             />
           )}
         </div>

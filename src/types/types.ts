@@ -12,6 +12,7 @@ export type Account = {
    createdAt: Date
    updatedAt: Date
    lifetimePoints: number
+   lifetimePointsCorrection: number
    currentYearPoints: number
    totalDepositedPoints: number
    totalWithdrawnPoints: number

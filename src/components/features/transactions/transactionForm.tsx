@@ -76,14 +76,14 @@ const TransactionForm = ({ transaction, account }: Props) => {
       const quarter = formMethods.watch('quarter');
 
       // Only validate if we have all the necessary data
-      if (account?.savingPeriods[0] && year && quarter) {
+      if (account?.savingPeriods?.[0] && year && quarter) {
          // Simple year-quarter comparison instead of date objects
          const selectedYQ = year * 10 + quarter;
-         const startYQ = account.savingPeriods[0].startYear * 10 + account.savingPeriods[0].startQuarter;
-         const endYQ = account.savingPeriods[0].endYear * 10 + account.savingPeriods[0].endQuarter;
+         const startYQ = account.savingPeriods?.[0]?.startYear * 10 + account.savingPeriods?.[0]?.startQuarter;
+         const endYQ = account.savingPeriods?.[0]?.endYear * 10 + account.savingPeriods?.[0]?.endQuarter;
          
          if (selectedYQ < startYQ || selectedYQ > endYQ) {
-            const errorMsg = `Vybrané období (${year}/${quarter}) je mimo rozsah aktivního šetřícího období (${account.savingPeriods[0].startYear}/${account.savingPeriods[0].startQuarter} - ${account.savingPeriods[0].endYear}/${account.savingPeriods[0].endQuarter})`;
+            const errorMsg = `Vybrané období (${year}/${quarter}) je mimo rozsah aktivního šetřícího období (${account.savingPeriods?.[0]?.startYear}/${account.savingPeriods?.[0]?.startQuarter} - ${account.savingPeriods?.[0]?.endYear}/${account.savingPeriods?.[0]?.endQuarter})`;
             setDateRangeError(errorMsg);
          } else {
             setDateRangeError(null);
@@ -102,14 +102,14 @@ const TransactionForm = ({ transaction, account }: Props) => {
       try {
          const isNewTransaction = !data.id;
          
-         if (!account?.id || !account?.savingPeriods[0]?.id) {
+         if (!account?.id || !account?.savingPeriods?.[0]?.id) {
             throw new Error('Account or saving period is not available');
          }
 
          const transactionData = {
             ...data,
             accountId: account.id,
-            savingPeriodId: account.savingPeriods[0].id,
+            savingPeriodId: account.savingPeriods?.[0]?.id,
          };
 
          let savedTransaction;
@@ -123,7 +123,6 @@ const TransactionForm = ({ transaction, account }: Props) => {
          }
 
          toast.success('Transakce byla uložena');
-         notifyTransactionChange();
 
          if (data.points > 0) {
             actions.closeModal();

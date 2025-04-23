@@ -17,7 +17,7 @@ export const useCustomers = (active: boolean) => {
     queryKey: customerKeys.list(active),
     queryFn: () => customerApi.getAll(active),
     refetchOnMount: true,
-    staleTime: 0,
+    staleTime: 0
   });
 };
 

@@ -78,7 +78,7 @@ export default function CustomerForm({ initialCustomerData, dials, nextRegNumber
         }
 
         refreshCustomersDataServerAction()
-        router.refresh()
+        router.push('/customers')
     }
 
     // If the initialSalesManagerData has changed, update the salesManagerData state and rerender the form

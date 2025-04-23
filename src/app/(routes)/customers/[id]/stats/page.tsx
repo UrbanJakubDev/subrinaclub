@@ -1,9 +1,8 @@
 import PageComponent from "@/components/features/detailPage/pageComponent";
 import PageHeader from "@/components/features/detailPage/pageHeader";
 import { customerService } from "@/lib/services/customer";
-import CustomerStatsView from "@/components/features/customer/CustomerStatsView";
 import { transactionService } from "@/lib/services/transaction";
-
+import CustomerStatsView from "@/components/features/customer/CustomerStatsView";
 export default async function UserDetailStats({
   params: { id },
 }: {

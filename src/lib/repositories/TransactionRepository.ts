@@ -38,7 +38,7 @@ export class TransactionRepository extends BaseRepository<
             bonus: { select: { name: true } }
          },
          orderBy: {
-            quarterDateTime: 'desc'
+            createdAt: 'desc'
          }
       });
 

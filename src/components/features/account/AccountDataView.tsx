@@ -3,7 +3,6 @@ import { Transaction } from '@/types/transaction';
 import KpiCard from '@/components/ui/stats/cardsWidgets/KpiCard';
 import { useStatsStore } from '@/stores/CustomerStatsStore';
 import { Alert } from '@material-tailwind/react';
-import SavingPeriodStats from '../../savingPeriod/savingPeriodStats';
 
 
 

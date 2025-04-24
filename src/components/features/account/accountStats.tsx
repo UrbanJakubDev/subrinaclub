@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import SimpleSelectInput from "../../../ui/inputs/simpleSelectInput";
-import { yearSelectOptions } from "../../../../lib/utils/dateFnc";
+import SimpleSelectInput from "@/components/ui/inputs/simpleSelectInput";
+import { yearSelectOptions } from "@/lib/utils/dateFnc";
 import LineChart from "@/components/ui/charts/line";
 import Donut from "@/components/ui/charts/donutChart";
 import KpiCard from "@/components/ui/stats/cardsWidgets/KpiCard";

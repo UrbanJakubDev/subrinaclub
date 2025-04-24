@@ -1,37 +1,22 @@
 'use client'
 import { ColumnDef } from '@tanstack/react-table'
-import { Link as LucideLink } from 'lucide-react'
-import { useAccounts } from '@/lib/queries/account/queries'
-import React, { Suspense } from 'react'
-import Loader from '@/components/ui/loader'
+import React from 'react'
 import MyTable from '@/components/tables/ui/baseTable'
-import NoData from '@/components/ui/noData'
 
-// Define interface without causing name conflict
-interface AccountData {
-    id: string | number
-    customer: {
-        fullName: string
-        registrationNumber: string
-    }
-    lifetimePoints?: number
-    currentYearPoints?: number
-}
 
 // Table content with data fetching
-export default function AccountTableWithData() {
-    // All hooks must be called at the top level of the component
-    const { data: accounts, isLoading } = useAccounts()
-    const [data, setData] = React.useState<AccountData[]>([])
+export default function AccountsTable({ accounts }: { accounts: any[] }) {
+    // All hooks must be called at the top level of the componen
+    const [data, setData] = React.useState<any[]>([])
 
     // useEffect for updating data from accounts
     React.useEffect(() => {
         if (accounts) {
-            setData(accounts as unknown as AccountData[])
+            setData(accounts as unknown as any[])
         }
     }, [accounts])
 
-    const columns = React.useMemo<ColumnDef<AccountData>[]>(
+    const columns = React.useMemo<ColumnDef<any>[]>(
         () => [
             {
                 accessorKey: 'customer.fullName',
@@ -75,13 +60,11 @@ export default function AccountTableWithData() {
     )
 
     return (
-        <Suspense fallback={<Loader />}>
-            <MyTable
-                data={data}
-                columns={columns as ColumnDef<unknown>[]}
-                tableName="Seznam účtů"
-                timeInfo={new Date().toLocaleString()}
-            />
-        </Suspense>
+        <MyTable
+            data={data}
+            columns={columns as ColumnDef<unknown>[]}
+            tableName="Seznam účtů"
+            timeInfo={new Date().toLocaleString()}
+        />
     )
 }

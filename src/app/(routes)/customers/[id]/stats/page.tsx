@@ -5,7 +5,7 @@ import PageHeader from "@/components/features/detailPage/pageHeader";
 import { useCustomer } from "@/lib/queries/customer/queries";
 import CustomerCard from "@/components/features/customer/customerCard";
 import AccountInfoCard from "@/components/features/customer/accountInfoCard";
-import AccountStats from "@/components/features/customer/account/accountStats";
+import AccountStats from "@/components/features/account/accountStats";
 import SavingPeriodStats from "@/components/features/savingPeriod/savingPeriodStats";
 import TransactionDataView from "@/components/features/transactions/trasanctionDataView";
 

@@ -34,7 +34,7 @@ export const accountApi = {
 
     update: async (id: number, data: Partial<Account>): Promise<Account> => {
         const response = await fetch(`${API_BASE_URL}/accounts/${id}`, {
-            method: 'PUT',
+            method: 'PATCH',
             headers: getHeaders(),
             body: JSON.stringify(data),
         });

@@ -15,11 +15,12 @@
 - [ ] `/api/transactions/salesManager` - Various routes
 
 ### Accounts
-- [ ] `/api/accounts` - GET - Gets all active accounts with transformed data
-- [ ] `/api/accounts/[id]` - Various methods (GET, PUT, DELETE)
+- [X] `/api/accounts` - GET - Gets all active accounts with transformed data
+- [X] `/api/accounts/[id]` - Various methods (GET, PUT, DELETE)
 
 ### Saving Periods
-- [ ] `/api/saving-periods/[id]` - Various methods
+- [X] `/api/saving-periods` - Various methods
+- [X] `/api/saving-periods/[id]` - Various methods
 
 ### Customers
 - [X] `/api/customers/[id]` - Various methods

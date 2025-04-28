@@ -5,8 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
 
 import { Customer } from '@/types/customer'
-import { CreateCustomerDTO, customerValidationSchema } from '@/lib/services/customer/validation'
-import { CustomerFormProps } from '@/lib/services/customer/types'
+import { CreateCustomerDTO, customerValidationSchema } from '@/validations/customer'
 import UniversalForm from '@/components/forms/universalForm'
 import InputSwitcher from '@/components/ui/inputs/inputSwitcher'
 import InputField from '@/components/ui/inputs/basicInput'
@@ -37,7 +36,7 @@ const newCustomer: CreateCustomerDTO = {
     gdpr: null,
 }
 
-export default function CustomerForm({ initialCustomerData, dials, nextRegNumber }: CustomerFormProps) {
+export default function CustomerForm({ initialCustomerData, dials, nextRegNumber }: any) {
     const router = useRouter()
     // Set default registration number from props if creating a new customer
     const defaultCustomer = React.useMemo(() => {

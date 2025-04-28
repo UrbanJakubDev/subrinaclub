@@ -17,13 +17,13 @@ export const transactionApi = {
     },
 
     getByAccountId: async (accountId: number): Promise<ApiResponse<Transaction[]>> => {
-        const response = await fetch(`${API_BASE_URL}/transactions/account/${accountId}`);
+        const response = await fetch(`${API_BASE_URL}/transactions?accountId=${accountId}`);
         const result = await handleResponse<ApiResponse<Transaction[]>>(response);
         return result;
     },
 
     getBySavingPeriodId: async (savingPeriodId: number): Promise<ApiResponse<Transaction[]>> => {
-        const response = await fetch(`${API_BASE_URL}/transactions/saving-period/${savingPeriodId}`);
+        const response = await fetch(`${API_BASE_URL}/transactions?savingPeriodId=${savingPeriodId}`);
         const result = await handleResponse<ApiResponse<Transaction[]>>(response);
         return result;
     },

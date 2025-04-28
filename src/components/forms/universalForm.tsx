@@ -13,7 +13,6 @@ interface UniversalFormProps<T extends FieldValues> {
    validationSchema: any;
    onSubmit: (data: T) => Promise<T>;
    children: (methods: UseFormReturn<T>) => React.ReactNode;
-   successMessage?: string;
    customError?: string | null;
 }
 
@@ -22,14 +21,13 @@ export default function UniversalForm<T extends FieldValues>({
    validationSchema,
    onSubmit,
    children,
-   successMessage,
    customError,
 }: UniversalFormProps<T>) {
    const [formData, setFormData] = React.useState<T>(initialData);
 
    const methods = useForm<T>({
-      resolver: yupResolver(validationSchema),
-      defaultValues: initialData
+      resolver: yupResolver(validationSchema) as any,
+      defaultValues: initialData as DefaultValues<T>
    });
 
    const { handleSubmit, reset, formState: { isSubmitting, errors } } = methods;
@@ -38,7 +36,7 @@ export default function UniversalForm<T extends FieldValues>({
    useEffect(() => {
       if (initialData) {
          setFormData(initialData);  // Update local state
-         reset(initialData);  // Sync react-hook-form with new initialData
+         reset(initialData as DefaultValues<T>);  // Sync react-hook-form with new initialData
       }
    }, [initialData, reset]);
 
@@ -52,12 +50,10 @@ export default function UniversalForm<T extends FieldValues>({
       try {
          const result = await onSubmit(data);
          setFormData(result);
-         reset(result);
-         if (successMessage) {
-            toast.success(successMessage);
-         }
+         reset(result as DefaultValues<T>);
       } catch (error) {
-         toast.error('An error occurred while submitting the form.' + error);
+         // Error handling is now delegated to the onSubmit function
+         console.error('Form submission error:', error);
       }
    };
 
@@ -98,7 +94,7 @@ export default function UniversalForm<T extends FieldValues>({
                   >
                      {isSubmitting ? 'Ukládání...' : 'Uložit'}
                   </Button>
-                  <Button color="red" type="button" onClick={() => reset(formData)}>
+                  <Button color="red" type="button" onClick={() => reset(formData as DefaultValues<T>)}>
                      Zrušit
                   </Button>
                </div>

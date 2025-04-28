@@ -316,7 +316,7 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account_id }) => {
                            onClose={handleCloseSavingPeriod}
                         />
                         <Link
-                           href={`/accounts/${account?.data?.id}/saving-periods`}
+                           href={`/accounts/${account?.data?.id}/saving-periods/`}
                            className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
                         >
                            (Správa šetřících období)
@@ -326,7 +326,7 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account_id }) => {
                      <div className="space-y-4">
                         <p className="text-yellow-600">Žádné aktivní šetřící období</p>
                         <Link
-                           href={`/accounts/${account?.data?.id}/saving-periods`}
+                           href={`/accounts/${account?.data?.id}/saving-periods/`}
                            className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
                         >
                            (Správa šetřících období)

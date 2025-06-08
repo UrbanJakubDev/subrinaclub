@@ -1,13 +1,23 @@
-import PageComponent from "@/components/features/detailPage/pageComponent";
-import SalesManagerTable from "@/components/features/salesManager/salesManagertable";
-import { salesManagerService } from "@/lib/services/salesManager";
+'use client'
+import PageComponent from '@/components/features/detailPage/pageComponent'
+import SalesManagerTable from '@/components/features/salesManager/salesManagertable'
+import Loader from '@/components/ui/loader'
+import { useSalesManagers } from '@/lib/queries/salesManager/queries'
 
 export default async function SalesManagers() {
-  const salesManagers = await salesManagerService.getAll();
+    const { data: salesManagers, isLoading } = useSalesManagers(true)
 
-  return (
-    <PageComponent>
-      <SalesManagerTable defaultData={salesManagers} detailLinkPath="sales-managers/" />
-    </PageComponent>
-  );
+    return (
+        <PageComponent>
+            {isLoading ? (
+                <Loader />
+            ) : (
+                <SalesManagerTable
+                    defaultData={salesManagers?.data}
+                    detailLinkPath="sales-managers/"
+                    timeInfo={salesManagers?.metadata?.loadedAt}
+                />
+            )}
+        </PageComponent>
+    )
 }

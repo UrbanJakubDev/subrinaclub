@@ -1,8 +1,8 @@
+'use client'
 import PageHeader from '@/components/features/detailPage/pageHeader';
 import SalesManagerStats from '@/components/features/salesManager/salesManagerStats';
 import PageComponent from '@/components/features/detailPage/pageComponent';
-import { salesManagerService } from '@/lib/services/salesManager';
-
+import { useSalesManager } from '@/lib/queries/salesManager/queries';
 export default async function SalesManagersDetailStats({
     params,
 }: {
@@ -11,7 +11,7 @@ export default async function SalesManagersDetailStats({
     let sales_manager_id = parseInt(params.id)
 
     // const currentYear = new Date().getFullYear()
-    const salesManager = await salesManagerService.get(sales_manager_id)
+    const { data: salesManager } = useSalesManager(sales_manager_id)
     // const totalPoints = await salesManagerService.getLifeTimePointsOfCustomers(sales_manager_id)
 
     // const customersCountsInfo = await salesManagerService.getCustomersCountsInfo(sales_manager_id, currentYear)
@@ -21,15 +21,15 @@ export default async function SalesManagersDetailStats({
 
     return (
         <PageComponent>
-            <PageHeader
-                userId={salesManager.id.toString()}
-                userName={salesManager.fullName}
-                active={salesManager.active}
-                formUrl={`/sales-managers/${salesManager.id}`}
+                <PageHeader
+                    userId={salesManager.data?.id.toString()}
+                userName={salesManager.data?.fullName}
+                active={salesManager.data?.active}
+                formUrl={`/sales-managers/${salesManager.data?.id}`}
             />
             <div className="w-full mx-auto">
                 <SalesManagerStats
-                    salesManager={salesManager}
+                    salesManager={salesManager.data}
                 />
             </div>
            

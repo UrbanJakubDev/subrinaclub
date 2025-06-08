@@ -8,7 +8,7 @@ import Link from 'next/link'
 import React from 'react'
 import MyTable, { getFooterValue } from '../../tables/ui/baseTable'
 import { Button } from '@material-tailwind/react'
-import ActionButtons from '@/components/tables/ui/actionButtons'
+import ActionButtons from '@/components/tables/ui/TableActions'
 
 type Props = {
    defaultData: any[]

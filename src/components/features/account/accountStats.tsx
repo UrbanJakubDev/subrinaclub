@@ -10,8 +10,7 @@ import ProductCardWidget from "@/components/ui/stats/cardsWidgets/ProductCardWid
 import { Button, Card, Typography } from "@material-tailwind/react";
 import { Transaction } from "@/types/transaction";
 import Skeleton from "@/components/ui/skeleton";
-import { useTransactionsByAccount } from "@/lib/queries/transaction/queries";
-import { useAccount } from "@/lib/queries/account/queries";
+import { useAccount, useTransactionsByAccount } from "@/lib/queries/account/queries";
 
 interface AccountStatsProps {
   account_id: number;
@@ -51,13 +50,14 @@ export default function AccountStats({ account_id }: AccountStatsProps) {
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState(currentYear);
 
-  const { data: transactions, isLoading: isTransactionsLoading } = useTransactionsByAccount(account_id) as any;
-  const { data: account, isLoading: isAccountLoading } = useAccount(account_id) as any;
-
+  const { data: transactionsResponse, isLoading: isTransactionsLoading } = useTransactionsByAccount(account_id);
+  const { data: account, isLoading: isAccountLoading } = useAccount(account_id);
 
   if (isAccountLoading || isTransactionsLoading) return <Skeleton type="chart" />;
 
-  const clubAccountBalance = account?.data?.lifetimePoints + account?.data?.lifetimePointsCorrection;
+  const transactions = transactionsResponse?.data || [];
+
+  const clubAccountBalance = (account?.data?.lifetimePoints || 0) + (account?.data?.lifetimePointsCorrection || 0);
 
   // Helper functions
   const sumPointsInYear = (year: number): number => {
@@ -138,9 +138,11 @@ export default function AccountStats({ account_id }: AccountStatsProps) {
   // Calculate derived data
   const { series, categories } = getSumOfTransactionsForChart();
   const mostFavouriteProducts = getMostFavouriteProducts();
-  const withdrawPrice = transactions
-    .filter(t => t.points < 0)
-    .reduce((sum, t) => sum + (t.bonusPrice || 0), 0);
+  const withdrawPrice = Array.isArray(transactions) 
+    ? transactions
+        .filter((t: Transaction) => t.points < 0)
+        .reduce((sum: number, t: Transaction) => sum + (t.bonusPrice || 0), 0)
+    : 0;
 
   const chartData = {
     options: {

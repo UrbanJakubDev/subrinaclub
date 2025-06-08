@@ -1,71 +1,78 @@
-"use client"
+'use client'
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
-import { ColumnDef } from "@tanstack/react-table";
-import { deleteBonusServerAction, refreshBonusesDataServerAction } from "@/actions/bonus";
-import ActionButtons from "@/components/tables/ui/actionButtons";
-import MyTable from "@/components/tables/ui/baseTable";
+import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { toast } from 'react-toastify'
+import { ColumnDef } from '@tanstack/react-table'
+import ActionButtons from '@/components/tables/ui/TableActions'
+import MyTable from '@/components/tables/ui/baseTable'
+import { queryClient } from '@/lib/config/query'
+import { useDeleteBonus } from '@/lib/queries/bonus/mutations'
+import TableActions from '@/components/tables/ui/TableActions'
+import { Bonus } from '@/types/bonus'
+
+
 
 type Props = {
-  defaultData: any[];
-  detailLinkPath?: string;
-};
+    data: Bonus[]
+    detailLinkPath?: string
+    timeInfo?: string
+}
 
-export default function BonusesTable({ defaultData, detailLinkPath }: Props) {
-  const router = useRouter();
-  const [data, setData] = useState(() => [...defaultData]);
+export default function BonusesTable({ data, detailLinkPath, timeInfo }: Props) {
+    const router = useRouter()
+    const { mutateAsync: deleteBonus } = useDeleteBonus()
 
-  const handleAddClick = () => {
-    router.push("/dictionaries/bonus/new");
-  };
+    const handleAddClick = React.useCallback(() => {
+        router.push('/dictionaries/bonus/new')
+    }, [router])
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this bonus?")) {
-      try {
-        await deleteBonusServerAction(id);
-        await refreshBonusesDataServerAction();
-        setData(data.filter(item => item.id !== id));
-        toast.success("Bonus deleted successfully");
-        router.refresh();
-      } catch (error) {
-        console.error("Error deleting bonus:", error);
-        toast.error("Failed to delete bonus");
-      }
-    }
-  };
+    const handleDelete = React.useCallback(
+        (id: string | number) => {
+            deleteBonus(Number(id))
+        },
+        [deleteBonus],
+    )
 
-  const columns = React.useMemo<ColumnDef<any>[]>(
-    () => [
-      { accessorKey: "id", header: "ID", filterFn: "auto" },
-      { accessorKey: "name", header: "Název", filterFn: "auto" },
-      { accessorKey: "description", header: "Popis" },
-      { accessorKey: "points", header: "Body" },
-      { accessorKey: "price", header: "Hodnota" },
-      {
-        accessorKey: "action",
-        header: "Akce",
-        cell: ({ row }) => (
-          <ActionButtons 
-            id={row.original.id} 
-            detailLinkPath={detailLinkPath} 
-            deleteAction={handleDelete}
-          />
-        ),
-        enableColumnFilter: false,
-      },
-    ],
-    [detailLinkPath]
-  );
+    const handleEdit = React.useCallback(
+        (record: Bonus) => {
+            router.push(`${detailLinkPath}/${record.id}`)
+        },
+        [router, detailLinkPath],
+    )
 
-  return (
-    <MyTable
-      data={data}
-      columns={columns}
-      tableName="bonus"
-      addBtn={true}
-      onAddClick={handleAddClick}
-    />
-  );
+    const columns = React.useMemo<ColumnDef<Bonus>[]>(
+        () => [
+            { accessorKey: 'id', header: 'ID', filterFn: 'auto' },
+            { accessorKey: 'name', header: 'Název', filterFn: 'auto' },
+            { accessorKey: 'description', header: 'Popis' },
+            { accessorKey: 'points', header: 'Body' },
+            { accessorKey: 'price', header: 'Hodnota' },
+            {
+                accessorKey: 'action',
+                header: 'Akce',
+                cell: ({ row }) => (
+                    <TableActions
+                        record={row.original}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                    />
+                ),
+                enableColumnFilter: false,
+            },
+        ],
+        [detailLinkPath],
+    )
+
+
+    return (
+        <MyTable
+            data={data}
+            columns={columns}
+            tableName="Seznam bonusů"
+            addBtn={true}
+            onAddClick={handleAddClick}
+            timeInfo={timeInfo || ''}
+        />
+    )
 }

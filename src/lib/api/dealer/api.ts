@@ -28,7 +28,7 @@ export const dealerApi = {
 
     update: async (id: number, data: Partial<Dealer>): Promise<Dealer> => {
         const response = await fetch(`${API_BASE_URL}/dealers/${id}`, {
-            method: 'PUT',
+            method: 'PATCH',
             headers: getHeaders(),
             body: JSON.stringify(data),
         });

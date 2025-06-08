@@ -11,7 +11,7 @@ import { transactionKeys } from "@/lib/queries/transaction/queries";
 export default function TransactionDataView({ accountId }: { accountId: number }) {
     const { data: account } = useAccount(accountId);
     const { actions } = useModalStore();
-    const { mutate: deleteTransaction } = useDeleteTransaction(accountId);
+    const { mutate: deleteTransaction } = useDeleteTransaction();
 
     const handleEdit = useCallback((transaction: Transaction) => {
         actions.openModal('transactionForm', transaction)
@@ -21,13 +21,13 @@ export default function TransactionDataView({ accountId }: { accountId: number }
         deleteTransaction(transactionId, {
             onSuccess: () => {
                 toast.success('Transakce byla úspěšně smazána');
-                queryClient.invalidateQueries({ queryKey: transactionKeys.account(accountId) });
+                queryClient.invalidateQueries({ queryKey: transactionKeys.byAccount(accountId) });
             },
             onError: () => {
                 toast.error('Nepodařilo se smazat transakci');
             }
         });
-    }, [deleteTransaction, accountId]);
+    }, [accountId, deleteTransaction]);
 
     return (
         <TransactionsTable

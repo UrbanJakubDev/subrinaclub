@@ -34,7 +34,7 @@ export const bonusApi = {
 
     update: async (id: number, data: Partial<Bonus>): Promise<Bonus> => {
         const response = await fetch(`${API_BASE_URL}/bonuses/${id}`, {
-            method: 'PUT',
+            method: 'PATCH',
             headers: getHeaders(),
             body: JSON.stringify(data),
         });

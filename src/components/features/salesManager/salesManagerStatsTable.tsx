@@ -167,7 +167,7 @@ export default function SalesManagerStatsTable({
         enableColumnFilter: false,
       },
       {
-        accessorKey: "account.lifetimePointsCorrected",
+        accessorKey: "lifetimePointsCorrected",
         header: "Klubové konto",
         cell: ({ getValue }) => formatThousandDelimiter(getValue<number>() || 0),
         footer: (props) => getFooterValue('sum', props),

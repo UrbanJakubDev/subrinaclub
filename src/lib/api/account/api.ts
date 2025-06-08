@@ -2,22 +2,50 @@ import { API_BASE_URL, getHeaders } from "../config";
 import { ApiResponse } from "@/types/types";
 import { handleResponse } from "../config";
 import { Account } from "@/types/types";
+import { Transaction } from "@/types/transaction";
 
 export const accountApi = {
     getAll: async (): Promise<ApiResponse<Account[]>> => {
-        const response = await fetch(`${API_BASE_URL}/accounts`);
+        const response = await fetch(`${API_BASE_URL}/accounts`, {
+            headers: {
+                ...getHeaders(),
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            }
+        });
         const result = await handleResponse<ApiResponse<Account[]>>(response);
         return result;
     },
 
     getById: async (id: number): Promise<ApiResponse<Account>> => {
-        const response = await fetch(`${API_BASE_URL}/accounts/${id}`);
+        const response = await fetch(`${API_BASE_URL}/accounts/${id}`, {
+            headers: {
+                ...getHeaders(),
+                'Cache-Control': 'no-cache'
+            }
+        });
         const result = await handleResponse<ApiResponse<Account>>(response);
         return result;
     },
 
+    getTransactionsByAccountId: async (id: number): Promise<ApiResponse<Transaction[]>> => {
+        const response = await fetch(`${API_BASE_URL}/accounts/${id}/transactions`, {
+            headers: {
+                ...getHeaders(),
+                'Cache-Control': 'no-cache'
+            }
+        });
+        const result = await handleResponse<ApiResponse<Transaction[]>>(response);
+        return result;
+    },
+
     getByCustomerId: async (customerId: number): Promise<ApiResponse<Account>> => {
-        const response = await fetch(`${API_BASE_URL}/accounts/customer/${customerId}`);
+        const response = await fetch(`${API_BASE_URL}/accounts/customer/${customerId}`, {
+            headers: {
+                ...getHeaders(),
+                'Cache-Control': 'no-cache'
+            }
+        });
         const result = await handleResponse<ApiResponse<Account>>(response);
         return result;
     },

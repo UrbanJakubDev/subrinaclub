@@ -1,13 +1,12 @@
-import { transactionApi } from "@/lib/api/transaction/api"
-import { Transaction } from "@/types/transaction"
-import { ApiResponse } from "@/types/types"
-import { useQuery } from "@tanstack/react-query"
+import { transactionApi } from '@/lib/api/transaction/api'
+import { Transaction } from '@/types/transaction'
+import { ApiResponse } from '@/types/types'
+import { useQuery } from '@tanstack/react-query'
 
 export const transactionKeys = {
     all: ['transactions'] as const,
     detail: (id: number) => [...transactionKeys.all, id] as const,
-    account: (accountId: number) => [...transactionKeys.all, 'account', accountId] as const,
-    savingPeriod: (savingPeriodId: number) => [...transactionKeys.all, 'savingPeriod', savingPeriodId] as const,
+    byAccount: (accountId: number) => [...transactionKeys.all, 'byAccount', accountId] as const,
 }
 
 export const useTransactions = () => {
@@ -26,17 +25,10 @@ export const useTransaction = (id: number) => {
 }
 
 export const useTransactionsByAccount = (accountId: number) => {
-    return useQuery<ApiResponse<Transaction[]>>({
-        queryKey: transactionKeys.account(accountId),
+    return useQuery({
+        queryKey: transactionKeys.byAccount(accountId),
         queryFn: () => transactionApi.getByAccountId(accountId),
         enabled: !!accountId,
     })
 }
 
-export const useTransactionsBySavingPeriodId = (savingPeriodId: number) => {
-    return useQuery<ApiResponse<Transaction[]>>({
-        queryKey: transactionKeys.savingPeriod(savingPeriodId),
-        queryFn: () => transactionApi.getBySavingPeriodId(savingPeriodId),
-        enabled: !!savingPeriodId,
-    })
-} 

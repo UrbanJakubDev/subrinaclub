@@ -3,6 +3,7 @@ import { queryClient } from "@/lib/config/query"
 import { useMutation } from "@tanstack/react-query"
 import { bonusKeys } from "./queries"
 import { Bonus } from "@/types/bonus"
+import { toast } from "react-toastify"
 
 export const useCreateBonus = () => {
    return useMutation({
@@ -11,6 +12,10 @@ export const useCreateBonus = () => {
          queryClient.invalidateQueries({ queryKey: bonusKeys.all })
          queryClient.invalidateQueries({ queryKey: bonusKeys.active() })
          queryClient.invalidateQueries({ queryKey: bonusKeys.forSelect() })
+         toast.success('Bonus created successfully')
+      },
+      onError: () => {
+         toast.error('Bonus creation failed')
       }
    })
 }
@@ -24,6 +29,10 @@ export const useUpdateBonus = () => {
          queryClient.invalidateQueries({ queryKey: bonusKeys.detail(variables.id) })
          queryClient.invalidateQueries({ queryKey: bonusKeys.active() })
          queryClient.invalidateQueries({ queryKey: bonusKeys.forSelect() })
+         toast.success('Bonus updated successfully')
+      },
+      onError: () => {
+         toast.error('Bonus update failed')
       }
    })
 }
@@ -35,6 +44,10 @@ export const useDeleteBonus = () => {
          queryClient.invalidateQueries({ queryKey: bonusKeys.all })
          queryClient.invalidateQueries({ queryKey: bonusKeys.active() })
          queryClient.invalidateQueries({ queryKey: bonusKeys.forSelect() })
+         toast.success('Bonus deleted successfully')
+      },
+      onError: () => {
+         toast.error('Bonus deletion failed')
       }
    })
 }
@@ -46,6 +59,10 @@ export const useSoftDeleteBonus = () => {
          queryClient.invalidateQueries({ queryKey: bonusKeys.all })
          queryClient.invalidateQueries({ queryKey: bonusKeys.active() })
          queryClient.invalidateQueries({ queryKey: bonusKeys.forSelect() })
+         toast.success('Bonus soft deleted successfully')
+      },
+      onError: () => {
+         toast.error('Bonus soft deletion failed')
       }
    })
 } 

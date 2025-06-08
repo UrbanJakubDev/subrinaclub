@@ -14,6 +14,7 @@ interface UniversalFormProps<T extends FieldValues> {
    onSubmit: (data: T) => Promise<T>;
    children: (methods: UseFormReturn<T>) => React.ReactNode;
    customError?: string | null;
+   isPending?: boolean;
 }
 
 export default function UniversalForm<T extends FieldValues>({
@@ -22,6 +23,7 @@ export default function UniversalForm<T extends FieldValues>({
    onSubmit,
    children,
    customError,
+   isPending = false,
 }: UniversalFormProps<T>) {
    const [formData, setFormData] = React.useState<T>(initialData);
 
@@ -63,7 +65,7 @@ export default function UniversalForm<T extends FieldValues>({
    }
 
    // Determine if the submit button should be disabled
-   const isSubmitDisabled = isSubmitting || !!customError;
+   const isSubmitDisabled = isSubmitting || !!customError || isPending;
 
    return (
       <div className="mx-auto p-4 w-fit">
@@ -92,7 +94,7 @@ export default function UniversalForm<T extends FieldValues>({
                      disabled={isSubmitDisabled}
                      className={isSubmitDisabled ? "opacity-50 cursor-not-allowed" : ""}
                   >
-                     {isSubmitting ? 'Ukládání...' : 'Uložit'}
+                     {isSubmitting || isPending ? <Loader /> : 'Uložit'}
                   </Button>
                   <Button color="red" type="button" onClick={() => reset(formData as DefaultValues<T>)}>
                      Zrušit

@@ -1,6 +1,4 @@
 import { dealerApi } from "@/lib/api/dealer/api"
-import { Dealer } from "@/types/dealer"
-import { ApiResponse } from "@/types/types"
 import { useQuery } from "@tanstack/react-query"
 
 export const dealerKeys = {
@@ -10,15 +8,14 @@ export const dealerKeys = {
 }
 
 export const useDealers = (active: boolean) => {
-    return useQuery<ApiResponse<Dealer[]>>({
+    return useQuery({
         queryKey: dealerKeys.list(active),
-        queryFn: () => dealerApi.getAll(),
+        queryFn: () => dealerApi.getAll()
     })
 }
 
-
 export const useDealer = (id: number) => {
-    return useQuery<ApiResponse<Dealer>>({
+    return useQuery({
         queryKey: dealerKeys.detail(id),
         queryFn: () => dealerApi.getById(id),
         enabled: !!id,
@@ -26,7 +23,7 @@ export const useDealer = (id: number) => {
 }
 
 export const useDealersForSelect = () => {
-    return useQuery<ApiResponse<Dealer[]>>({
+    return useQuery({
         queryKey: dealerKeys.all,
         queryFn: () => dealerApi.getForSelect(),
     })

@@ -9,7 +9,7 @@ import UniversalForm from '../../forms/universalForm';
 import SelectField from '../../ui/inputs/selectInput';
 import { quarterSelectOptions, yearSelectOptions } from '@/lib/utils/dateFnc';
 import { Transaction } from '@/types/transaction';
-import { transactionValidationSchema } from '@/lib/services/transaction/validation';
+import { transactionValidationSchema } from '@/validations/transactions';
 import Skeleton from '@/components/ui/skeleton';
 import { useStatsStore } from '@/stores/CustomerStatsStore';
 import { TransactionType } from '@prisma/client';
@@ -48,7 +48,39 @@ const newTransaction: Transaction = {
 
 type Props = {
    transaction: Transaction,
-   account: Account
+   account: {
+      data: {
+         id: number;
+         active: boolean;
+         createdAt: string;
+         updatedAt: string;
+         lifetimePoints: number;
+         currentYearPoints: number;
+         totalDepositedPoints: number;
+         totalWithdrawnPonits: number;
+         averagePointsBeforeSalesManager: string;
+         lifetimePointsCorrection: number;
+         customerId: number;
+         customer: {
+            id: number;
+            publicId: string;
+            // ... other customer properties
+         };
+         savingPeriods: Array<{
+            id: number;
+            status: string;
+            startYear: number;
+            startQuarter: number;
+            endYear: number;
+            endQuarter: number;
+            // ... other saving period properties
+         }>;
+      };
+      metadata: {
+         loadedAt: string;
+         timezone: string;
+      };
+   }
 };
 
 
@@ -63,8 +95,21 @@ const TransactionForm = ({ transaction, account }: Props) => {
    const createTransaction = useCreateTransaction();
    const updateTransaction = useUpdateTransaction();
 
-      useEffect(() => {
-         if (transaction) {
+   if (!account) {
+      return <Skeleton />;
+   }
+
+   if (!account.data) {
+      return (
+         <div className="p-4 text-red-500">
+            <Typography variant="h6">Chyba</Typography>
+            <p>Účet nemá žádné aktivní šetřící období. Nelze vytvořit transakci.</p>
+         </div>
+      );
+   }
+
+   useEffect(() => {
+      if (transaction) {
          setTransactionData(transaction);
       }
    }, [transaction]);
@@ -76,14 +121,14 @@ const TransactionForm = ({ transaction, account }: Props) => {
       const quarter = formMethods.watch('quarter');
 
       // Only validate if we have all the necessary data
-      if (account?.savingPeriods?.[0] && year && quarter) {
+      if (account.data.savingPeriods?.[0] && year && quarter) {
          // Simple year-quarter comparison instead of date objects
          const selectedYQ = year * 10 + quarter;
-         const startYQ = account.savingPeriods?.[0]?.startYear * 10 + account.savingPeriods?.[0]?.startQuarter;
-         const endYQ = account.savingPeriods?.[0]?.endYear * 10 + account.savingPeriods?.[0]?.endQuarter;
+         const startYQ = account.data.savingPeriods?.[0]?.startYear * 10 + account.data.savingPeriods?.[0]?.startQuarter;
+         const endYQ = account.data.savingPeriods?.[0]?.endYear * 10 + account.data.savingPeriods?.[0]?.endQuarter;
          
          if (selectedYQ < startYQ || selectedYQ > endYQ) {
-            const errorMsg = `Vybrané období (${year}/${quarter}) je mimo rozsah aktivního šetřícího období (${account.savingPeriods?.[0]?.startYear}/${account.savingPeriods?.[0]?.startQuarter} - ${account.savingPeriods?.[0]?.endYear}/${account.savingPeriods?.[0]?.endQuarter})`;
+            const errorMsg = `Vybrané období (${year}/${quarter}) je mimo rozsah aktivního šetřícího období (${account.data.savingPeriods?.[0]?.startYear}/${account.data.savingPeriods?.[0]?.startQuarter} - ${account.data.savingPeriods?.[0]?.endYear}/${account.data.savingPeriods?.[0]?.endQuarter})`;
             setDateRangeError(errorMsg);
          } else {
             setDateRangeError(null);
@@ -102,14 +147,41 @@ const TransactionForm = ({ transaction, account }: Props) => {
       try {
          const isNewTransaction = !data.id;
          
-         if (!account?.id || !account?.savingPeriods?.[0]?.id) {
-            throw new Error('Account or saving period is not available');
+         if (!account?.data) {
+            throw new Error('Účet není k dispozici');
          }
 
-         const transactionData = {
-            ...data,
-            accountId: account.id,
-            savingPeriodId: account.savingPeriods?.[0]?.id,
+         if (!account.data.savingPeriods || account.data.savingPeriods.length === 0) {
+            throw new Error('Účet nemá žádné aktivní šetřící období');
+         }
+
+         const activeSavingPeriod = account.data.savingPeriods[0];
+         if (!activeSavingPeriod.id) {
+            throw new Error('ID šetřícího období není k dispozici');
+         }
+
+         // Create a new transaction object with all required fields
+         const transactionData: Omit<Transaction, 'id'> = {
+            year: data.year || new Date().getFullYear(),
+            quarter: data.quarter || 1,
+            points: data.points || 0,
+            bonusPrice: data.bonusPrice || 0,
+            bonusId: data.bonusId || 0,
+            description: data.description || '',
+            active: data.active ?? true,
+            createdAt: data.createdAt || new Date(),
+            updatedAt: data.updatedAt || new Date(),
+            type: data.type || TransactionType.DEPOSIT,
+            quarterDateTime: data.quarterDateTime || new Date(),
+            directSale: data.directSale ?? false,
+            accountId: account.data.id,
+            savingPeriodId: activeSavingPeriod.id,
+            acceptedBonusOrder: data.acceptedBonusOrder || null,
+            sentBonusOrder: data.sentBonusOrder || null,
+            // These will be populated by the backend
+            account: {} as Account,
+            bonus: {} as Bonus,
+            savingPeriod: {} as SavingPeriod
          };
 
          let savedTransaction;
@@ -134,8 +206,9 @@ const TransactionForm = ({ transaction, account }: Props) => {
 
          return savedTransaction;
       } catch (error) {
-         toast.error('Chyba při ukládání transakce transaction Form component');
-         console.error(error);
+         const errorMessage = error instanceof Error ? error.message : 'Chyba při ukládání transakce';
+         toast.error(errorMessage);
+         console.error('Transaction Form Error:', error);
          throw error;
       }
    }

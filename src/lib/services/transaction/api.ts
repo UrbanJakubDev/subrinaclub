@@ -1,5 +1,5 @@
 import { TransactionRepository } from "@/lib/repositories/TransactionRepository";
-import { CreateTransactionDTO } from "./validation";
+import { CreateTransactionDTO } from "../../../validations/transactions";
 import { Transaction } from "@/types/transaction";
 import { QuarterDateUtils } from "@/lib/utils/quarterDateUtils";
 import { TransactionResponseDTO } from "./types";

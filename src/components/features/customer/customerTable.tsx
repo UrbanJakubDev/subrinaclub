@@ -5,12 +5,13 @@ import MyTable from '../../tables/ui/baseTable'
 import { Chip } from '@material-tailwind/react'
 import { useRouter } from 'next/navigation'
 import formatThousandDelimiter from '@/lib/utils/formatFncs'
-import ActionButtons from '@/components/tables/ui/actionButtons'
+import ActionButtons from '@/components/tables/ui/TableActions'
 import StatusChip from '@/components/tables/ui/statusChip'
 import StatusIcon from '@/components/tables/ui/statusIcon'
 import { toast } from 'react-toastify'
 import Link from 'next/link'
 import { useUpdateCustomer } from '@/lib/queries/customer/mutations'
+import TableActions from '@/components/tables/ui/TableActions'
 
 interface Customer {
     id: string
@@ -324,7 +325,10 @@ export default function CustomerTable({ defaultData, detailLinkPath, timeInfo, r
                 accessorKey: 'action',
                 header: '',
                 cell: ({ row }) => (
-                    <ActionButtons id={row.original.id} detailLinkPath={detailLinkPath} />
+                    <TableActions
+                        record={row.original}
+                        onEdit={() => {router.push(`${detailLinkPath}/${row.original.id}`)}}
+                    />
                 ),
                 enableColumnFilter: false,
                 enableSorting: false,

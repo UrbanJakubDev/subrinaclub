@@ -8,6 +8,8 @@ import Script from "next/script";
 import { Providers } from "./providers";
 import { Suspense } from "react";
 import Loader from "@/components/ui/loader";
+import ErrorBoundary from "@/components/ui/errorBoundary";
+import ErrorFallback from "@/components/ui/errorFallback";
 const os = Open_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -26,11 +28,13 @@ export default function RootLayout({
       <body className={os.className}>
         <Providers>
           <NavIndex />
-          <Suspense fallback={<Loader />}>
-            <main className="flex-grow w-screen mx-auto overflow-hidden bg-gray-100">
-              {children}
-            </main>
-          </Suspense>
+          <ErrorBoundary fallback={<ErrorFallback />}>
+            <Suspense fallback={<Loader />}>
+              <main className="flex-grow w-screen mx-auto overflow-hidden bg-gray-100">
+                {children}
+              </main>
+            </Suspense>
+          </ErrorBoundary>
           <Footer />
           <Toast />
         </Providers>

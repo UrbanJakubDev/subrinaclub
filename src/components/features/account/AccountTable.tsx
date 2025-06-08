@@ -2,20 +2,11 @@
 import { ColumnDef } from '@tanstack/react-table'
 import React from 'react'
 import MyTable from '@/components/tables/ui/baseTable'
-
+import { useRouter } from 'next/navigation'
 
 // Table content with data fetching
-export default function AccountsTable({ accounts }: { accounts: any[] }) {
-    // All hooks must be called at the top level of the componen
-    const [data, setData] = React.useState<any[]>([])
-
-    // useEffect for updating data from accounts
-    React.useEffect(() => {
-        if (accounts) {
-            setData(accounts as unknown as any[])
-        }
-    }, [accounts])
-
+export default function AccountsTable({ data, timeInfo }: { data: any[]; timeInfo: string }) {
+    const router = useRouter()
     const columns = React.useMemo<ColumnDef<any>[]>(
         () => [
             {
@@ -64,7 +55,7 @@ export default function AccountsTable({ accounts }: { accounts: any[] }) {
             data={data}
             columns={columns as ColumnDef<unknown>[]}
             tableName="Seznam účtů"
-            timeInfo={new Date().toLocaleString()}
+            timeInfo={timeInfo}
         />
     )
 }

@@ -3,7 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { ColumnDef } from "@tanstack/react-table";
-import ActionButtons from "@/components/tables/ui/actionButtons";
+import ActionButtons from "@/components/tables/ui/TableActions";
 import StatusChip from "@/components/tables/ui/statusChip";
 import MyTable from "@/components/tables/ui/baseTable";
 import StatusIcon from "@/components/tables/ui/statusIcon";
@@ -23,16 +23,17 @@ interface SalesManagerData {
 interface SalesManagerTableProps {
   defaultData: SalesManagerData[];
   detailLinkPath?: string;
+  timeInfo?: string;
 }
 
 
 const useTableColumns = (detailLinkPath?: string): ColumnDef<SalesManagerData>[] => {
   return React.useMemo(() => [
-    // {
-    //   accessorKey: "id",
-    //   header: "ID",
-    //   enableColumnFilter: false,
-    // },
+      {
+        accessorKey: "id",
+        header: "ID",
+        enableColumnFilter: false,
+      },
     {
       accessorKey: "active",
       header: "Aktivní v systému",
@@ -91,6 +92,7 @@ const useTableColumns = (detailLinkPath?: string): ColumnDef<SalesManagerData>[]
 export default function SalesManagerTable({
   defaultData,
   detailLinkPath,
+  timeInfo,
 }: SalesManagerTableProps) {
   const router = useRouter();
   const columns = useTableColumns(detailLinkPath);
@@ -108,6 +110,7 @@ export default function SalesManagerTable({
       tableName={tableName}
       addBtn={true}
       onAddClick={handleAdd}
+      timeInfo={timeInfo}
     />
   );
 }

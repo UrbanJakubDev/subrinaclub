@@ -1,8 +1,8 @@
+
 import { bonusApi } from "@/lib/api/bonus/api"
-import { Bonus } from "@/types/bonus"
 import { ApiResponse } from "@/types/types"
 import { useQuery } from "@tanstack/react-query"
-
+import { Bonus } from "@/types/bonus"
 export const bonusKeys = {
     all: ['bonuses'] as const,
     active: () => [...bonusKeys.all, 'active'] as const,

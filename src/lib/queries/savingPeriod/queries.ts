@@ -10,6 +10,7 @@ export const savingPeriodKeys = {
    details: () => [...savingPeriodKeys.all, 'detail'] as const,
    detail: (id: number) => [...savingPeriodKeys.details(), id] as const,
    byAccount: (accountId: number) => [...savingPeriodKeys.all, 'byAccount', accountId] as const,
+   bySavingPeriodId: (savingPeriodId: number) => [...savingPeriodKeys.all, 'bySavingPeriodId', savingPeriodId] as const,
 }
 
 // Get all saving periods
@@ -60,3 +61,12 @@ export const invalidateSavingPeriods = async () => {
       queryKey: savingPeriodKeys.all,
    })
 } 
+
+// Get transactions by saving period ID
+export const useTransactionsBySavingPeriodId = (savingPeriodId?: number) => {
+   return useQuery({
+      queryKey: savingPeriodKeys.bySavingPeriodId(savingPeriodId as number),
+      queryFn: () => savingPeriodApi.getTransactionsBySavingPeriodId(savingPeriodId as number),
+      enabled: !!savingPeriodId,
+   })
+}

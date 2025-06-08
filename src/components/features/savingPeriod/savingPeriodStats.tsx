@@ -2,8 +2,7 @@
 import ColumnChart from '@/components/ui/charts/columnChart';
 import Skeleton from '@/components/ui/skeleton';
 import { KpiCardProgress } from '@/components/ui/stats/cardsWidgets/KpiCardProgress';
-import { useSavingPeriodByAccount } from '@/lib/queries/savingPeriod/queries';
-import { useTransactionsByAccount, useTransactionsBySavingPeriodId } from '@/lib/queries/transaction/queries';
+import { useSavingPeriodByAccount, useTransactionsBySavingPeriodId } from '@/lib/queries/savingPeriod/queries';
 import { Transaction } from '@/types/transaction';
 import { SavingPeriod } from '@/types/types';
 import { Card } from '@material-tailwind/react';

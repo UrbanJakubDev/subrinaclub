@@ -186,7 +186,7 @@ export default function ColumnChart({
 
    return (
       <div className="w-full">
-         <CardHeader
+         {/* <CardHeader
             floated={false}
             shadow={false}
             color="transparent"
@@ -207,7 +207,7 @@ export default function ColumnChart({
                   {description}
                </Typography>
             </div>
-         </CardHeader>
+         </CardHeader> */}
          <CardBody className="">
             {series && categories && (
                <Chart {...chartConfig} />

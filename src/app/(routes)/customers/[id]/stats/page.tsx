@@ -37,7 +37,9 @@ export default function UserDetailStatsPage({
           <div className="flex gap-8 my-2">
             <CustomerCard customer_id={customer.data.id} />
             <AccountInfoCard account_id={customer.data.account?.id} />
+          {/* </div>
             <SavingPeriodStats account_id={customer.data.account?.id} />
+          <div className="my-2"> */}
           </div>
           <div>
             <div className="my-2">

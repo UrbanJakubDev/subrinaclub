@@ -1,7 +1,7 @@
 import { API_BASE_URL, getHeaders } from "../config";
 import { ApiResponse } from "@/types/types";
 import { handleResponse } from "../config";
-import { Bonus } from "@/types/bonus";
+import { Bonus, BonusSelectDTO } from "@/types/bonus";
 
 export const bonusApi = {
     getAll: async (): Promise<ApiResponse<Bonus[]>> => {
@@ -60,9 +60,9 @@ export const bonusApi = {
         return result.data;
     },
 
-    getForSelect: async (): Promise<ApiResponse<Bonus[]>> => {
+    getForSelect: async (): Promise<ApiResponse<BonusSelectDTO[]>> => {
         const response = await fetch(`${API_BASE_URL}/bonuses/for-select`);
-        const result = await handleResponse<ApiResponse<Bonus[]>>(response);
+        const result = await handleResponse<ApiResponse<BonusSelectDTO[]>>(response);
         return result;
     }
 } 

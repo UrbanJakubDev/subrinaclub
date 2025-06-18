@@ -68,7 +68,7 @@ export default function TransactionFormComponent({ accountId }: { accountId: num
         <div className='flex flex-row gap-8'>
           <TransactionForm
             transaction={transaction}
-            account={account}
+            account={account.data}
           />
 
           <div className='p-8 flex justify-between'>

@@ -1,6 +1,5 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { AccountInfoCardProps } from '@/lib/services/account/types'
 import Skeleton from '@/components/ui/skeleton'
 import Button from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
@@ -33,6 +32,9 @@ const PointsWidget = ({ title, points, icon, bgColor = "bg-blue-50", textColor =
    </div>
  );
 
+ interface AccountInfoCardProps {
+    account_id: number
+ }
 
 
 const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account_id }) => {
@@ -47,11 +49,11 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account_id }) => {
     const [isClosing, setIsClosing] = useState(false)
     const [isCreating, setIsCreating] = useState(false)
     const { actions } = useModalStore()
-    const savingPeriodStart = savingPeriod
-        ? `${savingPeriod.startYear} / 0${savingPeriod.startQuarter}`
+    const savingPeriodStart = savingPeriod?.data
+        ? `${savingPeriod.data.startYear} / 0${savingPeriod.data.startQuarter}`
         : ''
-    const savingPeriodEnd = savingPeriod
-        ? `${savingPeriod.endYear} / 0${savingPeriod.endQuarter}`
+    const savingPeriodEnd = savingPeriod?.data
+        ? `${savingPeriod.data.endYear} / 0${savingPeriod.data.endQuarter}`
         : ''
 
     // Initialize QuarterDateUtils with the current date
@@ -71,10 +73,10 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account_id }) => {
         if (!savingPeriod) return
 
         // Show warning dialog if there are available points
-        if (savingPeriod.availablePoints > 0) {
+        if (savingPeriod.data.availablePoints > 0) {
             // Open confirmation modal with data about the closing operation
             actions.openModal('closeSavingPeriodConfirmation', {
-                availablePoints: savingPeriod.availablePoints,
+                availablePoints: savingPeriod.data.availablePoints,
                 closeNow,
                 actualYear,
                 actualQuarter,
@@ -101,7 +103,7 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account_id }) => {
             setIsCreating(true)
 
             await closeSavingPeriodMutation.mutateAsync({
-                id: savingPeriod.id,
+                id: savingPeriod.data.id,
                 data: closeNow
                     ? {
                           createNewPeriod: true,
@@ -414,7 +416,7 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account_id }) => {
         />
         <PointsWidget
           title="Průběžné konto"
-          points={savingPeriod?.totalDepositedPoints}
+          points={savingPeriod?.data?.totalDepositedPoints}
           icon="💰"
           bgColor="bg-amber-50"
           textColor="text-amber-600"
@@ -428,9 +430,9 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account_id }) => {
           <Typography variant="h6" color="black" className="flex items-center gap-2 font-medium text-sm">
             🕒 Aktivní šetřící období
           </Typography>
-          {savingPeriod?.id && (
+          {savingPeriod?.data.id && (
             <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
-              {savingPeriod.id}
+              {savingPeriod.data.id}
             </span>
           )}
         </div>
@@ -440,7 +442,7 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ account_id }) => {
         ) : savingPeriod ? (
           <div className="text-xs text-gray-600 space-y-1">
             <div className="flex items-center gap-2">
-              <StatusChip status={savingPeriod.status} />
+              <StatusChip status={savingPeriod.data.status} />
               <span>{savingPeriodStart} – {savingPeriodEnd}</span>
             </div>
             

@@ -11,7 +11,7 @@ import { useSavingPeriod } from "@/lib/queries/savingPeriod/queries";
 import NoData from "@/components/ui/noData";
 import SavingPeriodFormComponent from "@/components/features/savingPeriod/savingPeriodFormComponent";
 import { useAccount } from "@/lib/queries/account/queries";
-import { useTransactionsBySavingPeriodId } from "@/lib/queries/transaction/queries";
+import { useTransactionsBySavingPeriodId } from "@/lib/queries/savingPeriod/queries";
 
 interface PageProps {
     params: {
@@ -34,9 +34,9 @@ export default function SavingPeriodPage({ params }: PageProps) {
     return (
         <PageComponent>
             <div className="w-full max-w-4xl mx-auto">
-                <SavingPeriodFormComponent initialSavingPeriodData={savingPeriod} />
+                <SavingPeriodFormComponent initialSavingPeriodData={savingPeriod?.data} />
 
-                {transactions && transactions.length > 0 ? (
+                {transactions && transactions?.data.length > 0 ? (
                     <Card className="mt-8">
                         <table className="w-full min-w-max table-auto text-left">
                             <thead>
@@ -80,7 +80,7 @@ export default function SavingPeriodPage({ params }: PageProps) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {transactions.map((transaction) => (
+                                {transactions?.data.map((transaction) => (
                                     <tr key={transaction.id}>
                                         <td className="p-4 border-b border-blue-gray-50">
                                             <Typography variant="small" color="blue-gray">
@@ -102,7 +102,7 @@ export default function SavingPeriodPage({ params }: PageProps) {
                                         </td>
                                         <td className="p-4 border-b border-blue-gray-50">
                                             <Typography variant="small" color="blue-gray">
-                                                {transaction.note || '-'}
+                                                {transaction.description || '-'}
                                             </Typography>
                                         </td>
                                     </tr>
@@ -111,7 +111,7 @@ export default function SavingPeriodPage({ params }: PageProps) {
                         </table>
                     </Card>
                 ) : (
-                    <NoData text="Žádné transakce k zobrazení" className="mt-8" />
+                    <NoData />
                 )}
 
             </div>

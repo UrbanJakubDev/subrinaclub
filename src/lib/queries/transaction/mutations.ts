@@ -2,13 +2,13 @@ import { transactionApi } from "@/lib/api/transaction/api"
 import { queryClient } from "@/lib/config/query"
 import { useMutation } from "@tanstack/react-query"
 import { transactionKeys } from "./queries"
-import { Transaction } from "@/types/transaction"
+import { Transaction, TransactionCreateDTO, TransactionUpdateDTO } from "@/types/transaction"
 import { accountKeys } from "../account/queries"
 
 export const useCreateTransaction = () => {
    return useMutation({
-      mutationFn: async (data: Omit<Transaction, 'id'>) => {
-         const response = await transactionApi.create(data);
+      mutationFn: async (data: TransactionCreateDTO) => {
+         const response = await transactionApi.create(data as any);
          return response; // This is already the Transaction object from the API
       },
       onSuccess: (data) => {
@@ -27,8 +27,8 @@ export const useCreateTransaction = () => {
 
 export const useUpdateTransaction = () => {
    return useMutation({
-      mutationFn: async ({ id, data }: { id: number; data: Partial<Transaction> }) => {
-         const response = await transactionApi.update(id, data);
+      mutationFn: async ({ id, data }: { id: number; data: TransactionUpdateDTO }) => {
+         const response = await transactionApi.update(id, data as any);
          return response;
       },
       onSuccess: (data, variables) => {

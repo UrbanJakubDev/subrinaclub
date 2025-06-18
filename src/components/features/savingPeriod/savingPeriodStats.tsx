@@ -25,16 +25,16 @@ export default function SavingPeriodStats({ account_id }: Props) {
         account_id,
     ) as any
     const { data: transactions, isLoading: isTransactionsLoading } =
-        useTransactionsBySavingPeriodId(savingPeriod?.id) as any
+        useTransactionsBySavingPeriodId(savingPeriod?.data.id) as any
 
     // Move chart data preparation to a separate function
     const chartData = useMemo(
-        () => prepareSavingPeriodChartData(savingPeriod, transactions),
+        () => prepareSavingPeriodChartData(savingPeriod?.data, transactions?.data),
         [savingPeriod, transactions],
     )
 
     // Early return if no saving period
-    if (!savingPeriod) {
+    if (!savingPeriod?.data || !transactions?.data) {
         return (
             <Card className="p-8 grow rounded-sm">
                 <p>No saving period selected.</p>

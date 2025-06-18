@@ -40,13 +40,22 @@ export const useSavingPeriodByAccount = (accountId?: number) => {
 }
 
 // Get all saving periods by account ID
-export const useSavingPeriodsByAccount = (accountId?: number) => {
+export const useSavingPeriodsByAccount = (accountId: number) => {
    return useQuery({
-      queryKey: savingPeriodKeys.byAccount(accountId as number),
-      queryFn: () => savingPeriodApi.getAllByAccountId(accountId as number),
+      queryKey: savingPeriodKeys.byAccount(accountId),
+      queryFn: async () => {
+         const response = await savingPeriodApi.getAllByAccountId(accountId);
+         return response;
+      },
       enabled: !!accountId,
-   })
+      staleTime: 0,
+      gcTime: 5 * 60 * 1000,
+      retry: 1,
+      refetchOnWindowFocus: true,
+      refetchOnMount: true,
+   });
 }
+
 // Pre-fetch helper for saving period data
 export const prefetchSavingPeriod = async (id: number) => {
    await queryClient.prefetchQuery({

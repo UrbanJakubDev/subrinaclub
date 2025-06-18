@@ -35,8 +35,6 @@ export const savingPeriodApi = {
         return result
     },
 
- 
-
     create: async (data: Omit<SavingPeriod, 'id'>): Promise<SavingPeriod> => {
         const response = await fetch(`${API_BASE_URL}/saving-periods`, {
             method: 'POST',

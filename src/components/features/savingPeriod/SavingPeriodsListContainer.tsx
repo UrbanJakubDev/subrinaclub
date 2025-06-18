@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { SavingPeriod } from '@/types/types';
+import { SavingPeriod, ApiResponse } from '@/types/types';
 import { Card, Typography, Button as MButton } from "@material-tailwind/react";
 import StatusChip from '@/components/tables/ui/statusChip';
 import { useRouter } from 'next/navigation';
@@ -15,18 +15,24 @@ import { useUpdateSavingPeriod, useDeleteSavingPeriod } from '@/lib/queries/savi
 import { toast } from 'react-toastify';
 import { useSavingPeriodsByAccount } from '@/lib/queries/savingPeriod/queries';
 import SavingPeriodFormComponent from './savingPeriodFormComponent';
+import NoData from '@/components/ui/noData';
 
 interface SavingPeriodsListContainerProps {
    accountId: number;
-   savingPeriods: SavingPeriod[] | undefined;
 }
 
-export default function SavingPeriodsListContainer({accountId, savingPeriods}: SavingPeriodsListContainerProps) {
+export default function SavingPeriodsListContainer({accountId}: SavingPeriodsListContainerProps) {
    const router = useRouter();
    const [editingPeriodId, setEditingPeriodId] = useState<number | null>(null);
    const [confirmingDeleteId, setConfirmingDeleteId] = useState<number | null>(null);
 
-   
+   const { 
+      data: savingPeriodsResponse, 
+      isLoading: isSavingPeriodsLoading,
+      isError: isSavingPeriodsError,
+      error: savingPeriodsError
+   } = useSavingPeriodsByAccount(accountId)
+
    // Mutations
    const { mutate: updateSavingPeriod, isPending: isUpdating } = useUpdateSavingPeriod();
    const { mutate: deleteSavingPeriod, isPending: isDeleting } = useDeleteSavingPeriod();
@@ -50,12 +56,10 @@ export default function SavingPeriodsListContainer({accountId, savingPeriods}: S
       formState: { errors },
    } = useForm({
       resolver: yupResolver(savingPeriodUpdateValidationSchema),
-      defaultValues: editingPeriodId
-         ? getDefaultValues(savingPeriods?.find(p => p.id === editingPeriodId) as SavingPeriod)
+      defaultValues: editingPeriodId && savingPeriodsResponse?.data
+         ? getDefaultValues(savingPeriodsResponse.data.find(p => p.id === editingPeriodId) as SavingPeriod)
          : undefined,
    });
-
-
 
    const handleEdit = (period: SavingPeriod) => {
       setEditingPeriodId(period.id);
@@ -114,83 +118,95 @@ export default function SavingPeriodsListContainer({accountId, savingPeriods}: S
       }
    };
 
+   if (isSavingPeriodsLoading) {
+      return <Skeleton className="h-screen w-full" />
+   }
+
+   if (isSavingPeriodsError) {
+      console.error('Saving Periods Error:', savingPeriodsError);
+      return (
+         <div className="p-4">
+            <Typography variant="h5" color="red">
+               Error loading data. Please try again later.
+            </Typography>
+         </div>
+      )
+   }
+
+   if (!savingPeriodsResponse?.data || !Array.isArray(savingPeriodsResponse.data) || savingPeriodsResponse.data.length === 0) {
+      return <NoData message="Nebyly nalezeny žádné šetřící období" />
+   }
 
    return (
       <div className="space-y-4">
-         {!savingPeriods || savingPeriods.length === 0 ? (
-            <Card className="p-4 text-center">
-               Nebyly nalezeny žádné šetřící období
-            </Card>
-         ) : (
-            savingPeriods.map((period) => (
-               <Card key={period.id} className="p-4">
-                  <div className="flex justify-between items-start">
-                     <div className="w-full">
-                        <div className="flex items-center gap-2 mb-2">
-                           <StatusChip status={period.status === "ACTIVE"} />
-                           <span className="text-sm text-gray-500">
-                              ID: {period.id}
-                           </span>
-                        </div>
-                        
-                        {editingPeriodId === period.id ? (
-                           <SavingPeriodFormComponent initialSavingPeriodData={period} />
-                        ) : (
-                           <>
-                              <p>
-                                 Od: {period.startYear}/Q{period.startQuarter} - 
-                                 Do: {period.endYear}/Q{period.endQuarter}
-                              </p>
-                              <p className="text-sm text-gray-600">
-                                 Body k dispozici: {period.availablePoints}
-                              </p>
-                              <p className="text-sm text-gray-600">
-                                 Nasbírané body: {period.totalDepositedPoints}
-                              </p>
-                              <p className="text-sm text-gray-600">
-                                 Vybrané body: {period.totalWithdrawnPoints}
-                              </p>
-                              {period.closedAt && (
-                                 <p className="text-sm text-gray-600">
-                                    Uzavřeno: {new Date(period.closedAt).toLocaleDateString('cs-CZ')}
-                                    {period.closeReason && ` - ${period.closeReason}`}
-                                 </p>
-                              )}
-                              <div className="flex gap-2 mt-4">
-                                 <Button
-                                    onClick={() => handleEdit(period)}
-                                    variant="outlined"
-                                    size="sm"
-                                 >
-                                    Upravit
-                                 </Button>
-                                 <Button
-                                    onClick={() => handleDelete(period.id)}
-                                    variant="outlined"
-                                    size="sm"
-                                    className={confirmingDeleteId === period.id ? 
-                                       "text-red-600 border-red-600 hover:text-red-800 hover:border-red-800" : ""}
-                                    disabled={isDeleting && confirmingDeleteId === period.id}
-                                 >
-                                    {confirmingDeleteId === period.id ? 
-                                       (isDeleting ? "Mazání..." : "Potvrdit smazání") : 
-                                       "Smazat"}
-                                 </Button>
-                                 <Button
-                                    onClick={() => router.push(`/accounts/${accountId}/saving-periods/${period.id}`)}
-                                    variant="filled"
-                                    size="sm"
-                                 >
-                                    Detail
-                                 </Button>
-                              </div>
-                           </>
-                        )}
+         {savingPeriodsResponse.data.map((period: SavingPeriod) => (
+            <Card key={period.id} className="p-4">
+               <div className="flex justify-between items-start">
+                  <div className="w-full">
+                     <div className="flex items-center gap-2 mb-2">
+                        <StatusChip status={period.status === "ACTIVE"} />
+                        <span className="text-sm text-gray-500">
+                           ID: {period.id}
+                        </span>
                      </div>
+                     
+                     {editingPeriodId === period.id ? (
+                        <SavingPeriodFormComponent initialSavingPeriodData={period} />
+                     ) : (
+                        <>
+                           <p>
+                              Od: {period.startYear}/Q{period.startQuarter} - 
+                              Do: {period.endYear}/Q{period.endQuarter}
+                           </p>
+                           <p className="text-sm text-gray-600">
+                              Body k dispozici: {period.availablePoints}
+                           </p>
+                           <p className="text-sm text-gray-600">
+                              Nasbírané body: {period.totalDepositedPoints}
+                           </p>
+                           <p className="text-sm text-gray-600">
+                              Vybrané body: {period.totalWithdrawnPoints}
+                           </p>
+                           {period.closedAt && (
+                              <p className="text-sm text-gray-600">
+                                 Uzavřeno: {new Date(period.closedAt).toLocaleDateString('cs-CZ')}
+                                 {period.closeReason && ` - ${period.closeReason}`}
+                              </p>
+                           )}
+                           <div className="flex gap-2 mt-4">
+                              <Button
+                                 onClick={() => handleEdit(period)}
+                                 variant="outlined"
+                                 size="sm"
+                              >
+                                 Upravit
+                              </Button>
+                              <Button
+                                 onClick={() => handleDelete(period.id)}
+                                 variant="outlined"
+                                 size="sm"
+                                 className={confirmingDeleteId === period.id ? 
+                                    "text-red-600 border-red-600 hover:text-red-800 hover:border-red-800" : ""}
+                                 disabled={isDeleting && confirmingDeleteId === period.id}
+                              >
+                                 {confirmingDeleteId === period.id ? 
+                                    (isDeleting ? "Mazání..." : "Potvrdit smazání") : 
+                                    "Smazat"}
+                              </Button>
+                              <Button
+                                 onClick={() => router.push(`/accounts/${accountId}/saving-periods/${period.id}`)}
+                                 variant="filled"
+                                 size="sm"
+                              >
+                                 Detail
+                              </Button>
+                           </div>
+                        </>
+                     )}
                   </div>
-               </Card>
-            ))
-         )}
+               </div>
+            </Card>
+         ))}
       </div>
    );
 } 

@@ -29,3 +29,37 @@ export interface Transaction {
    savingPeriodId: number | null
    
 }
+
+
+export interface TransactionCreateDTO {
+   year: number
+   quarter: number
+   quarterDateTime: Date
+   points: number
+   type: string
+   description: string | null
+   directSale: boolean
+
+   acceptedBonusOrder: Date | null
+   sentBonusOrder: Date | null
+   bonusPrice: number | null
+
+   accountId: number
+
+   bonusId: number | null
+   savingPeriodId: number | null
+}
+
+export interface TransactionUpdateDTO {
+   year: number
+   quarter: number
+   quarterDateTime: Date
+   points: number
+   type: string
+   description: string | null
+   directSale: boolean
+   acceptedBonusOrder: Date | null
+   sentBonusOrder: Date | null
+   bonusPrice: number | null
+   bonusId: number | null
+}

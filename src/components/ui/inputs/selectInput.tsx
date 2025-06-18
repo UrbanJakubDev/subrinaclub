@@ -22,7 +22,7 @@ type SelectFieldProps = {
 const SelectField = ({
   label,
   name,
-  options,
+  options = [], // Provide default empty array
   defaultValue,
   disabled,
   customClass,
@@ -37,7 +37,7 @@ const SelectField = ({
     if (defaultValue !== undefined) {
       setValue(name, defaultValue)
       // Find and set the label for the default value
-      const option = options.find(opt => opt.value === defaultValue)
+      const option = options.find(opt => opt?.value === defaultValue)
       if (option) {
         setDisplayLabel(option.label)
       }
@@ -46,7 +46,7 @@ const SelectField = ({
 
   // Update display label when value changes
   useEffect(() => {
-    const option = options.find(opt => opt.value === value)
+    const option = options.find(opt => opt?.value === value)
     if (option) {
       setDisplayLabel(option.label)
     } else {
@@ -56,6 +56,11 @@ const SelectField = ({
 
   // Register field
   register(name)
+
+  // Filter out any invalid options
+  const validOptions = options.filter((option): option is SelectOption => 
+    option !== undefined && option.value !== undefined && option.label !== undefined
+  );
 
   return (
     <div className={customClass} 
@@ -69,7 +74,7 @@ const SelectField = ({
         onChange={(newValue) => {
           setValue(name, newValue ? parseInt(newValue) : null)
           // Update display label
-          const option = options.find(opt => opt.value === parseInt(newValue))
+          const option = validOptions.find(opt => opt.value === parseInt(newValue))
           if (option) {
             setDisplayLabel(option.label)
           }
@@ -85,7 +90,7 @@ const SelectField = ({
         )}
       >
         <Option value="0">Vyberte...</Option>
-        {options.map((option) => (
+        {validOptions.map((option) => (
           <Option
             key={option.value}
             value={option.value.toString()}

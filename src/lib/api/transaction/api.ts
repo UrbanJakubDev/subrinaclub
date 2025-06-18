@@ -34,7 +34,7 @@ export const transactionApi = {
 
     update: async (id: number, data: Partial<Transaction>): Promise<Transaction> => {
         const response = await fetch(`${API_BASE_URL}/transactions/${id}`, {
-            method: 'PUT',
+            method: 'PATCH',
             headers: getHeaders(),
             body: JSON.stringify(data),
         })

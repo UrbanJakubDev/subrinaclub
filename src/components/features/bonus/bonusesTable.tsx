@@ -24,7 +24,7 @@ export default function BonusesTable({ data, detailLinkPath, timeInfo }: Props) 
     const { mutateAsync: deleteBonus } = useDeleteBonus()
 
     const handleAddClick = React.useCallback(() => {
-        router.push('/dictionaries/bonus/new')
+        router.push('/dictionaries/bonuses/new')
     }, [router])
 
     const handleDelete = React.useCallback(

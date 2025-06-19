@@ -11,7 +11,7 @@ function BonusesTableWithData() {
     return (
         <BonusesTable
             data={bonuses?.data ?? []}
-            detailLinkPath="bonus/"
+            detailLinkPath="bonuses/"
             timeInfo={bonuses?.metadata?.loadedAt}
         />
     )

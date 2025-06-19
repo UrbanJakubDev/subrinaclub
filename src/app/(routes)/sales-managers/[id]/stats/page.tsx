@@ -10,11 +10,8 @@ export default async function SalesManagersDetailStats({
 }) {
     let sales_manager_id = parseInt(params.id)
 
-    // const currentYear = new Date().getFullYear()
     const { data: salesManager } = useSalesManager(sales_manager_id)
-    // const totalPoints = await salesManagerService.getLifeTimePointsOfCustomers(sales_manager_id)
 
-    // const customersCountsInfo = await salesManagerService.getCustomersCountsInfo(sales_manager_id, currentYear)
     if (!salesManager) {
         return <div>Uživatel nenalezen</div>
     }

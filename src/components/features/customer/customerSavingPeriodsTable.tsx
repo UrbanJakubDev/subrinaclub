@@ -11,6 +11,7 @@ import StatusIcon from "@/components/tables/ui/statusIcon";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import { Customer } from "@/types/customer";
+import { useCloseSavingPeriod } from "@/lib/queries/savingPeriod/mutations";
 
 
 
@@ -38,6 +39,9 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
             startQuarter: Math.floor(now.getMonth() / 3) + 1
         };
     });
+
+    // Use the close saving period mutation
+    const closeSavingPeriodMutation = useCloseSavingPeriod();
 
     // Handle refetch and reset selection
     const handleRefetchAndResetSelection = React.useCallback(() => {
@@ -93,31 +97,18 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
             `Uzavírání ${customersWithActivePeriods.length} šetřících období...`
         );
 
-        // Close saving periods for all selected customers
+        // Close saving periods for all selected customers using the mutation
         try {
-            // TODO: Use the mutation
             const results = await Promise.allSettled(
                 customersWithActivePeriods.map(async (customer) => {
                     if (!customer.account?.savingPeriodId) return;
                     
-                    const response = await fetch(
-                        `/api/saving-periods/${customer.account.savingPeriodId}/close`,
-                        { 
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                createNewPeriod: true
-                            })
+                    return await closeSavingPeriodMutation.mutateAsync({
+                        id: customer.account.savingPeriodId,
+                        data: {
+                            createNewPeriod: true
                         }
-                    );
-
-                    if (!response.ok) {
-                        throw new Error(`Nepodařilo se uzavřít šetřící období pro zákazníka ${customer.fullName}`);
-                    }
-
-                    return customer;
+                    });
                 })
             );
 
@@ -162,7 +153,7 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
         } finally {
             handleRefetchAndResetSelection();
         }
-    }, [router, handleRefetchAndResetSelection]);
+    }, [router, handleRefetchAndResetSelection, closeSavingPeriodMutation]);
 
     const handleCreateFreshSavingPeriods = React.useCallback(async () => {
         setIsFormOpen(true);
@@ -181,25 +172,14 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
                 selectedRows.map(async (customer) => {
                     // First close any active period if it exists
                     if (customer.account?.savingPeriodStatus === 'ACTIVE') {
-                        // TODO: Use the mutation
-                        const closeResponse = await fetch(
-                            `/api/saving-periods/${customer.account.savingPeriodId}/close`,
-                            { 
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    startYear: formData.startYear,
-                                    startQuarter: formData.startQuarter,
-                                    createNewPeriod: true
-                                })
+                        await closeSavingPeriodMutation.mutateAsync({
+                            id: customer.account.savingPeriodId,
+                            data: {
+                                startYear: formData.startYear,
+                                startQuarter: formData.startQuarter,
+                                createNewPeriod: true
                             }
-                        );
-                        
-                        if (!closeResponse.ok) {
-                            throw new Error(`Nepodařilo se uzavřít stávající šetřící období pro zákazníka ${customer.fullName}`);
-                        }
+                        });
                     } else {
                         // If no active period exists, create a new one directly
                         // TODO: Use the mutation
@@ -267,7 +247,7 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
         } finally {
             handleRefetchAndResetSelection();
         }
-    }, [formData.startQuarter, formData.startYear, router, selectedRows, handleRefetchAndResetSelection]);
+    }, [formData.startQuarter, formData.startYear, router, selectedRows, handleRefetchAndResetSelection, closeSavingPeriodMutation]);
 
     // Memoize bulk actions
     const bulkActions = React.useMemo(() => [

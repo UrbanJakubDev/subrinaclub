@@ -2,7 +2,7 @@
 import { bonusApi } from "@/lib/api/bonus/api"
 import { ApiResponse } from "@/types/types"
 import { useQuery } from "@tanstack/react-query"
-import { Bonus } from "@/types/bonus"
+import { Bonus, BonusSelectDTO } from "@/types/bonus"
 export const bonusKeys = {
     all: ['bonuses'] as const,
     active: () => [...bonusKeys.all, 'active'] as const,
@@ -33,7 +33,7 @@ export const useBonus = (id: number) => {
 }
 
 export const useBonusesForSelect = () => {
-    return useQuery<ApiResponse<Bonus[]>>({
+    return useQuery<ApiResponse<BonusSelectDTO[]>>({
         queryKey: bonusKeys.forSelect(),
         queryFn: () => bonusApi.getForSelect(),
     })

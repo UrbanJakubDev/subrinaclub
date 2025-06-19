@@ -18,6 +18,8 @@ export const useSavingPeriods = () => {
    return useQuery({
       queryKey: savingPeriodKeys.lists(),
       queryFn: savingPeriodApi.getAll,
+      staleTime: 0,
+      refetchOnMount: true,
    })
 }
 

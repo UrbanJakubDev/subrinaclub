@@ -1,110 +1,114 @@
-import { Prisma, PrismaClient } from "@prisma/client";
-import { BaseRepository } from "./base/BaseRepository";
-import { Customer } from "@/types/customer";
-import { CustomerWithAccountDataAndActiveSavingPeriodDTO, SeznamObratuDTO } from "../services/customer/types";
-
-
+import { Prisma, PrismaClient } from '@prisma/client'
+import { BaseRepository } from './base/BaseRepository'
+import { Customer } from '@/types/customer'
+import {
+    CustomerWithAccountDataAndActiveSavingPeriodDTO,
+    SeznamObratuDTO,
+} from '../services/customer/types'
 
 export class CustomerRepository extends BaseRepository<
-   Customer,
-   Prisma.CustomerCreateInput,
-   Prisma.CustomerUpdateInput
+    Customer,
+    Prisma.CustomerCreateInput,
+    Prisma.CustomerUpdateInput
 > {
-   constructor(prisma: PrismaClient) {
-      super(prisma, 'customer');
-   }
+    constructor(prisma: PrismaClient) {
+        super(prisma, 'customer')
+    }
 
-   async getMaxRegistrationNumber(): Promise<number> {
-      const result = await this.prisma.customer.aggregate({
-         _max: {
-            registrationNumber: true
-         }
-      });
-      return result._max.registrationNumber || 0;
-   }
-
-   async findByIco(ico: string): Promise<any> {
-
-      // Try to find customer by ICO
-      const customer = await this.prisma.customer.findFirst({
-         where: {
-            ico
-         }
-      });
-
-      return customer;
-   }
-
-   // Find customers Account with active saving period
-   async getAccountDataWithActiveSavingPeriod(id: number): Promise<CustomerWithAccountDataAndActiveSavingPeriodDTO[]> {
-      const accountData = await this.prisma.customer.findUnique({
-         where: { id: id },
-         include: {
-            account: {
-               include: {
-                  savingPeriods: {
-                     where: {
-                        status: "ACTIVE"
-                     }
-                  }
-               }
+    async getMaxRegistrationNumber(): Promise<number> {
+        const result = await this.prisma.customer.aggregate({
+            _max: {
+                registrationNumber: true,
             },
-            salesManager: {
-               select: {
-                  id: true,
-                  fullName: true
-               }
+        })
+        return result._max.registrationNumber || 0
+    }
+
+    async findByIco(ico: string): Promise<any> {
+        // Try to find customer by ICO
+        const customer = await this.prisma.customer.findFirst({
+            where: {
+                ico,
             },
-            dealer: {
-               select: {
-                  id: true,
-                  fullName: true
-               }
-            }
-         }
+        })
 
-      });
+        return customer
+    }
 
-      return accountData;
-   }
+    // Find customers Account with active saving period
+    async getAccountDataWithActiveSavingPeriod(
+        id: number,
+    ): Promise<CustomerWithAccountDataAndActiveSavingPeriodDTO> {
+        const accountData = await this.prisma.customer.findUnique({
+            where: { id: id },
+            include: {
+                account: {
+                    include: {
+                        savingPeriods: {
+                            where: {
+                                status: 'ACTIVE',
+                            },
+                        },
+                    },
+                },
+                salesManager: {
+                    select: {
+                        id: true,
+                        fullName: true,
+                    },
+                },
+                dealer: {
+                    select: {
+                        id: true,
+                        fullName: true,
+                    },
+                },
+            },
+        })
 
-   // Get all customers with their associated accounts belonging to the sales manager
-   async getCustomersWithAccounts(salesManagerId: number): Promise<Customer[]> {
-      const result = await this.prisma.customer.findMany({
-         where: {
-            salesManagerId: salesManagerId
-         },
-         include: {
-            dealer: true,
-            account: true
-         }
-      });
+        return accountData
+    }
 
-      return result;
-   }
+    // Get all customers with their associated accounts belonging to the sales manager
+    async getCustomersWithAccounts(salesManagerId: number): Promise<Customer[]> {
+        const result = await this.prisma.customer.findMany({
+            where: {
+                salesManagerId: salesManagerId,
+            },
+            include: {
+                dealer: true,
+                account: true,
+            },
+        })
 
-   // Deactivate customer
-   async deactivateCustomer(id: number): Promise<Customer> {
-      return this.prisma.customer.update({
-         where: { id },
-         data: { active: false }
-      });
-   }
+        return result
+    }
 
-   async getCustomersForReportSeznamObratu(year_from: number = new Date().getFullYear(), year_to: number = 2010): Promise<SeznamObratuDTO[]> {
-      // Get current year for quarterly data
-      const currentYear = new Date().getFullYear();
-      
-      // Build dynamic year columns for the query
-      let yearColumns = '';
-      let years: number[] = [];
-      
-      for (let year = year_from; year >= year_to; year--) {
-         yearColumns += `sum(case when t."year" = ${year} then t.points else 0 end) as "${year}", `;
-         years.push(year);
-      }
-      
-      const result = await this.prisma.$queryRaw<SeznamObratuDTO[]>`
+    // Deactivate customer
+    async deactivateCustomer(id: number): Promise<Customer> {
+        return this.prisma.customer.update({
+            where: { id },
+            data: { active: false },
+        })
+    }
+
+    async getCustomersForReportSeznamObratu(
+        year_from: number = new Date().getFullYear(),
+        year_to: number = 2010,
+    ): Promise<SeznamObratuDTO[]> {
+        // Get current year for quarterly data
+        const currentYear = new Date().getFullYear()
+
+        // Build dynamic year columns for the query
+        let yearColumns = ''
+        let years: number[] = []
+
+        for (let year = year_from; year >= year_to; year--) {
+            yearColumns += `sum(case when t."year" = ${year} then t.points else 0 end) as "${year}", `
+            years.push(year)
+        }
+
+        const result = await this.prisma.$queryRaw<SeznamObratuDTO[]>`
          SELECT
             c."registrationNumber",
             max(c.id) as "id",
@@ -137,28 +141,28 @@ export class CustomerRepository extends BaseRepository<
             t."type" = 'DEPOSIT'
             and c."active" = true
          GROUP BY
-            c."registrationNumber"`;
+            c."registrationNumber"`
 
-      // Dynamically format the result based on the years
-      const formattedResult = result.map(row => {
-         const formattedRow: any = {
-            ...row,
-            clubScore: Number(row.clubScore),
-            Q1: Number((row as any).Q1 ?? 0),
-            Q2: Number((row as any).Q2 ?? 0),
-            Q3: Number((row as any).Q3 ?? 0), 
-            Q4: Number((row as any).Q4 ?? 0),
-         };
-         
-         // Add dynamic year properties
-         years.forEach(year => {
-            const yearStr = year.toString();
-            formattedRow[yearStr] = Number(row[yearStr as keyof SeznamObratuDTO] ?? 0);
-         });
-         
-         return formattedRow;
-      });
+        // Dynamically format the result based on the years
+        const formattedResult = result.map(row => {
+            const formattedRow: any = {
+                ...row,
+                clubScore: Number(row.clubScore),
+                Q1: Number((row as any).Q1 ?? 0),
+                Q2: Number((row as any).Q2 ?? 0),
+                Q3: Number((row as any).Q3 ?? 0),
+                Q4: Number((row as any).Q4 ?? 0),
+            }
 
-      return formattedResult;
-   }
+            // Add dynamic year properties
+            years.forEach(year => {
+                const yearStr = year.toString()
+                formattedRow[yearStr] = Number(row[yearStr as keyof SeznamObratuDTO] ?? 0)
+            })
+
+            return formattedRow
+        })
+
+        return formattedResult
+    }
 }

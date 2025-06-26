@@ -5,6 +5,7 @@ import Typography from "@/components/ui/typography";
 import { CustomerCardProps } from "@/lib/services/customer/types";
 import Link from "next/link";
 import React from 'react';
+import { gdprOptions } from "./types";
 
 const formatDate = (date: string | Date | null) => {
    if (!date) return "...";
@@ -46,8 +47,11 @@ const CustomerCard = ({ customer, isLoading }: CustomerCardProps) => {
             <div className="max-w-1/2">
                <p>Velkoobchod: {customer.dealer?.fullName || "..."}</p>
             </div>
+            <div className="max-w-1/2">
+               <p>GDPR: {gdprOptions.find(option => option.value === customer.gdpr)?.label || "..."}</p>
+            </div>
          </div>
-         <div className="max-w-1/2">
+         <div className="max-w-1/2 mt-4">
             <Typography variant="h5" color="black">Poznámka</Typography>
             <p>{customer.note || "..."}</p>
          </div>

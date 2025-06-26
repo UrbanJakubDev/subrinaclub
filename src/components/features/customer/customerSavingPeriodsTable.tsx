@@ -410,7 +410,6 @@ export default function CustomerSavingPeriodsTable({ defaultData, detailLinkPath
             {
                 accessorKey: "account.savingPeriod.availablePoints",
                 header: "Body v šetřícím období",
-                cell: (info) => <ChipComponent value={info.getValue()} />,
                 footer: (info) => {
                     const total = info.table
                         .getFilteredRowModel()

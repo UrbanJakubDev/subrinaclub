@@ -65,6 +65,9 @@ export async function fetchDealersForOptionsFromDB(): Promise<DealerSelect[]> {
             id: true,
             fullName: true,
         },
+        orderBy: {
+            fullName: 'asc',
+        },
     })
 
     // Return as id, name array

@@ -44,10 +44,6 @@ export default function SavingPeriodOverwievPage() {
                     onRefetchNeeded={handleRefetch}
                 />
             )}
-            <div>
-                <h1>Test customers</h1>
-                <pre>{JSON.stringify(testCustomers, null, 2)}</pre>
-            </div>
         </PageComponent>
     )
 }

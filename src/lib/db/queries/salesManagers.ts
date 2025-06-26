@@ -79,6 +79,9 @@ export async function fetchSalesManagersOptionsFromDB(): Promise<SalesManagerSel
       id: true,
       fullName: true,
     },
+    orderBy: {
+      fullName: 'asc',
+    },
   });
 
   // Return as value, label array

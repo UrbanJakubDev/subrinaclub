@@ -60,6 +60,7 @@ export interface CustomerWithAccountDataAndActiveSavingPeriodDTO {
    note: string | null;
    dealerId: number | null;
    salesManagerId: number | null;
+   gdpr: number | null;
    account: {
       id: number;
       customerId: number;
@@ -68,6 +69,7 @@ export interface CustomerWithAccountDataAndActiveSavingPeriodDTO {
       averagePointsBeforeSalesManager: number;
       lifetimePoints: number;
       lifetimePointsCorrection: number;
+      lifetimePointsCorrected: number;
       savingPeriod: {
          id: number;
          accountNumber: string;

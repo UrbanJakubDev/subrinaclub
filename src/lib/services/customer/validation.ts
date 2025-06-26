@@ -3,7 +3,7 @@ import * as yup from "yup";
 export const customerValidationSchema = yup.object().shape({
    active: yup.boolean().default(true),
    registrationNumber: yup.number().default(0),
-   ico: yup.string().max(40).required(),
+   ico: yup.string().max(40).nullable(),
    registratedSince: yup.date().required(),
    fullName: yup.string().max(255).required(),
    birthDate: yup.date().nullable(),

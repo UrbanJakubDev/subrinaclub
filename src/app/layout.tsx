@@ -10,6 +10,7 @@ import { Suspense } from "react";
 import Loader from "@/components/ui/loader";
 import ErrorBoundary from "@/components/ui/errorBoundary";
 import ErrorFallback from "@/components/ui/errorFallback";
+import { AuthProvider } from "@/contexts/AuthContext";
 const os = Open_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -27,16 +28,18 @@ export default function RootLayout({
       <Script src="node_modules/@material-tailwind/html@latest/scripts/dialog.js" />
       <body className={os.className}>
         <Providers>
-          <NavIndex />
-          <ErrorBoundary fallback={<ErrorFallback />}>
-            <Suspense fallback={<Loader />}>
-              <main className="flex-grow w-screen mx-auto overflow-hidden bg-gray-100">
-                {children}
-              </main>
-            </Suspense>
-          </ErrorBoundary>
-          <Footer />
-          <Toast />
+          <AuthProvider>
+            <NavIndex />
+            <ErrorBoundary fallback={<ErrorFallback />}>
+              <Suspense fallback={<Loader />}>
+                <main className="flex-grow w-screen mx-auto overflow-hidden bg-gray-100">
+                  {children}
+                </main>
+              </Suspense>
+            </ErrorBoundary>
+            <Footer />
+            <Toast />
+          </AuthProvider>
         </Providers>
       </body>
     </html>

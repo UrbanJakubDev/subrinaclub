@@ -13,7 +13,8 @@ import Logo from './logo'
 import User from './user'
 import Link from 'next/link'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCoins, faUser } from '@fortawesome/free-solid-svg-icons'
+import { faCoins, faUser, faUsers, faCog, faShield } from '@fortawesome/free-solid-svg-icons'
+import { useAuth } from '@/contexts/AuthContext'
 
 const newMenuItems = [
     {
@@ -88,6 +89,33 @@ const newMenuItems = [
     },
 ]
 
+// Admin menu items - zobrazí se pouze pro ADMIN roli
+const adminMenuItems = [
+    {
+        title: 'Administrace',
+        items: [
+            {
+                title: 'Správa uživatelů',
+                description: 'Vytváření, úprava a správa uživatelů systému.',
+                link: '/admin/users',
+                icon: faUsers,
+            },
+            {
+                title: 'Nastavení systému',
+                description: 'Konfigurace a nastavení aplikace.',
+                link: '/admin/settings',
+                icon: faCog,
+            },
+            {
+                title: 'Oprávnění a role',
+                description: 'Správa rolí a oprávnění uživatelů.',
+                link: '/admin/permissions',
+                icon: faShield,
+            },
+        ],
+    },
+]
+
 function ListItemWrapper({ children, selected }: { children: React.ReactNode; selected: boolean }) {
     return (
         <ListItem
@@ -141,6 +169,9 @@ function NavListMenu({ title, items }: { title: string; items: any[] }) {
 }
 
 function NavList() {
+    const { user } = useAuth()
+    const isAdmin = user?.role === 'ADMIN'
+
     return (
         <List className="items-baseline p-0 mt-4 mb-6 lg:mt-0 lg:mb-0 lg:flex-row lg:p-1">
             <Link href={'/'}>
@@ -150,6 +181,10 @@ function NavList() {
             </Link>
             {newMenuItems.map((menu, index) => (
                 <NavListMenu key={index} title={menu.title} items={menu.items} />
+            ))}
+            {/* Admin menu items - zobrazí se pouze pro ADMIN */}
+            {isAdmin && adminMenuItems.map((menu, index) => (
+                <NavListMenu key={`admin-${index}`} title={menu.title} items={menu.items} />
             ))}
         </List>
     )

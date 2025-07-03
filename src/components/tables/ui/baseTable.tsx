@@ -58,6 +58,7 @@ interface TableProps<T> {
     label: string
     onClick: (selectedRows: T[]) => void
   }[]
+  updatedTime?: string
 }
 
 // Add built-in footer function types
@@ -115,6 +116,7 @@ interface TableToolbarProps<T> {
     label: string
     onClick: (selectedRows: T[]) => void
   }[]
+  updatedTime?: string
 }
 
 const IndeterminateCheckbox = React.forwardRef<
@@ -248,7 +250,7 @@ const Pagination = <T,>({ table }: PaginationProps<T>) => (
   </div>
 )
 
-const TableToolbar = <T,>({ table, tableName, addBtn, onAddClick, bulkActions }: TableToolbarProps<T>) => {
+const TableToolbar = <T,>({ table, tableName, addBtn, onAddClick, bulkActions, updatedTime }: TableToolbarProps<T>) => {
   const selectedRows = table.getSelectedRowModel().rows
   const hasSelectedRows = selectedRows.length > 0
 
@@ -295,7 +297,7 @@ const TableToolbar = <T,>({ table, tableName, addBtn, onAddClick, bulkActions }:
       <div className="flex justify-between">
         <div>
           <h1 className="text-2xl font-semibold">{tableName}</h1>
-          <p className="text-sm text-gray-500">some text</p>
+          <p className="text-sm text-gray-500">{updatedTime ? `Aktualizováno: ${timestampToDate(updatedTime.toString())}` : ''}</p>
         </div>
         <div className="flex gap-2 py-2">
           {addBtn && (
@@ -364,7 +366,8 @@ export default function BaseTable<T>({
   onAddClick,
   enableRowSelection = false,
   onSelectionChange,
-  bulkActions
+  bulkActions,
+  updatedTime
 }: TableProps<T>) {
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
@@ -435,6 +438,7 @@ export default function BaseTable<T>({
           addBtn={addBtn}
           onAddClick={onAddClick}
           bulkActions={bulkActions}
+          updatedTime={updatedTime}
         />
 
         <table className="text-sm basic-table !text-gray-800">

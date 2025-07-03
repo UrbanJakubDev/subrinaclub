@@ -195,7 +195,9 @@ export class TransactionAPI {
            WHERE
             c."active" = true
            GROUP BY
-              c."registrationNumber"`
+              c."registrationNumber"
+           ORDER BY
+              c."registrationNumber" ASC`
 
         // Dynamically format the result based on the years
         const formattedResult = result.map(row => {
@@ -216,7 +218,6 @@ export class TransactionAPI {
 
             return formattedRow
         })
-
         return formattedResult
     }
 }

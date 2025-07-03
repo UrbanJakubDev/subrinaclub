@@ -7,11 +7,12 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useModalStore } from '@/stores/ModalStore';
 import { useStatsStore } from '@/stores/CustomerStatsStore';
+import { QuarterDateUtils } from '@/lib/utils/quarterDateUtils';
 
 const newTransaction: Transaction = {
   id: 0,
-  year: new Date().getFullYear(),
-  quarter: 1,
+  year: QuarterDateUtils.getCurrentQuarter().year,
+  quarter: QuarterDateUtils.getPreviousQuarterFomNow().quarter,
   points: 1,
   acceptedBonusOrder: null,
   sentBonusOrder: null,
@@ -30,6 +31,8 @@ const newTransaction: Transaction = {
   savingPeriod: null,
   directSale: false
 };
+
+
 
 export default function TransactionFormComponent() {
   const { modalId, data: modalData, actions: modalActions } = useModalStore();

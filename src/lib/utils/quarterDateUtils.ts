@@ -47,6 +47,16 @@ export class QuarterDateUtils {
    static getCurrentQuarter(): { year: number; quarter: number } {
      return this.getQuarterAndYear(new Date());
    }
+
+   static getPreviousQuarterFomNow(): { year: number; quarter: number } {
+    const currentQuarter = this.getCurrentQuarter();
+    return this.getPreviousQuarter(currentQuarter.year, currentQuarter.quarter);
+   }
+
+   static getFollowingQuarterFomNow(): { year: number; quarter: number } {
+    const currentQuarter = this.getCurrentQuarter();
+    return this.getNextQuarter(currentQuarter.year, currentQuarter.quarter);
+   }
  
    /**
     * Gets the next quarter and year

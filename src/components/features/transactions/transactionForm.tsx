@@ -12,43 +12,13 @@ import { Transaction } from '@/types/transaction';
 import { transactionValidationSchema } from '@/lib/services/transaction/validation';
 import Skeleton from '@/components/ui/skeleton';
 import { useStatsStore } from '@/stores/CustomerStatsStore';
-import { TransactionType } from '@prisma/client';
 import { useModalStore } from '@/stores/ModalStore';
-import { Account, SavingPeriod } from '@/types/types';
-import { Bonus } from '@/types/bonus';
 import SwitchField from '@/components/ui/inputs/inputSwitcher';
-
-
-const newTransaction: Transaction = {
-   id: 0,
-   year: new Date().getFullYear(),
-   quarter: 1,
-   points: 1,
-   acceptedBonusOrder: null,
-   sentBonusOrder: null,
-   bonusPrice: 0,
-   bonusId: 0,
-   description: '',
-   active: true,
-   createdAt: new Date(),
-   updatedAt: new Date(),
-   accountId: 0,
-   savingPeriodId: 0,
-   type: TransactionType.DEPOSIT,
-   quarterDateTime: new Date(),
-   account: {} as Account,
-   bonus: {} as Bonus,
-   savingPeriod: {} as SavingPeriod,
-   directSale: false
-};
-
 
 type Props = {
    transaction: Transaction
    bonusesDial?: any
 };
-
-
 
 const TransactionForm = ({ transaction, bonusesDial }: Props) => {
    const { account, activeSavingPeriod, notifyTransactionChange } = useStatsStore();
@@ -59,11 +29,7 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
    const [dateRangeError, setDateRangeError] = useState<string | null>(null);
 
    useEffect(() => {
-      if (transaction) {
-         setTransactionData(transaction);
-      } else {
-         setTransactionData(newTransaction);
-      }
+      setTransactionData(transaction);
    }, [transaction]);
 
    const handleFormChange = (formMethods: any) => {
@@ -126,8 +92,6 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
       }
    };
 
-
-
    const handleSubmit = async (data: Transaction): Promise<Transaction> => {
       try {
          const savedTransaction = await saveTransaction(data);
@@ -139,7 +103,7 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
          }
 
          if (data.points < 0) {
-            setTransactionData(newTransaction);
+            setTransactionData(transaction);
          }
 
          return savedTransaction;
@@ -149,7 +113,6 @@ const TransactionForm = ({ transaction, bonusesDial }: Props) => {
          throw error;
       }
    }
-
 
    if (!bonusesDial || !transactionData) {
       return <Skeleton />;

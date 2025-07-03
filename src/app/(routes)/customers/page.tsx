@@ -1,10 +1,11 @@
 'use client';
 import { Card, Switch } from "@material-tailwind/react";
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import CustomerTable from "@/components/features/customer/customerTable";
 import Loader from "@/components/ui/loader";
 import PageComponent from "@/components/features/detailPage/pageComponent";
 import { toast } from "react-toastify";
+import { useQuery } from "@tanstack/react-query";
 
 // Define the Customer type
 interface Customer {
@@ -31,41 +32,41 @@ interface Customer {
   };
 }
 
+
+
+// Fetch function for TanStack Query
+export const fetchCustomers = async (activeUsers: boolean): Promise<Customer[]> => {
+  const response = await fetch(`/api/customers?active=${activeUsers}`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch customers");
+  }
+  const data = await response.json();
+  // Sort by fullName ascending
+  return data.sort((a: Customer, b: Customer) => a.fullName.localeCompare(b.fullName));
+};
+
 // Separate component for the customer table with data fetching
 function CustomerTableWithData({ activeUsers }: { activeUsers: boolean }) {
-  const [data, setData] = useState<Customer[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['customers', activeUsers],
+    queryFn: () => fetchCustomers(activeUsers),
+    staleTime: 0,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(`/api/customers?active=${activeUsers}`);
-        if (!response.ok) {
-          throw new Error("Failed to fetch customers");
-        }
-        const fetchedData = await response.json();
-        // Sort by fullName ascending
-        fetchedData.sort((a, b) => a.fullName.localeCompare(b.fullName));
+  
 
-        
-        setData(fetchedData);
-      } catch (error) {
-        console.error("Error fetching customers:", error);
-        toast.error("Nepodařilo se načíst seznam zákazníků");
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (error) {
+    toast.error("Nepodařilo se načíst seznam zákazníků");
+    return <div>Error loading customers</div>;
+  }
 
-    fetchData();
-  }, [activeUsers]);
-
-  if (loading) {
+  if (isLoading) {
     return <Loader />;
   }
 
-  return <CustomerTable defaultData={data} detailLinkPath="/customers" />;
+  return <CustomerTable defaultData={data || []} detailLinkPath="/customers" activeUsers={activeUsers} />;
 }
 
 export default function CustomersPage() {
@@ -81,9 +82,9 @@ export default function CustomersPage() {
     <PageComponent>
       <Card className="w-full mb-4 p-6 flex flex-row justify-between">
         <Switch
-          label={`Zobrazit ${activeUsers ? "aktivní" : "neaktivní"} zákazníky`}
+          label={`Zobrazit ${activeUsers ? "neaktivní" : "aktivní"} zákazníky`}
           onChange={handleActiveUsers}
-          checked={activeUsers}
+          checked={!activeUsers}
           crossOrigin={undefined} />
       </Card>
       

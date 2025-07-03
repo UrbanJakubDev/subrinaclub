@@ -92,6 +92,14 @@ export class CustomerRepository extends BaseRepository<
         })
     }
 
+    // Activate customer
+    async activateCustomer(id: number): Promise<Customer> {
+        return this.prisma.customer.update({
+            where: { id },
+            data: { active: true },
+        })
+    }
+
     async getCustomersForReportSeznamObratu(
         year_from: number = new Date().getFullYear(),
         year_to: number = 2010,

@@ -10,6 +10,7 @@ import StatusChip from "@/components/tables/ui/statusChip";
 import StatusIcon from "@/components/tables/ui/statusIcon";
 import { toast } from "react-toastify";
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Customer {
   id: string;
@@ -40,54 +41,63 @@ interface Customer {
 type Props = {
   defaultData: Customer[];
   detailLinkPath?: string;
+  activeUsers?: boolean;
 };
 
-export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
+export default function CustomerTable({ defaultData, detailLinkPath, activeUsers }: Props) {
 
   const router = useRouter()
+  const queryClient = useQueryClient();
   const tableName = "Přehled zákazníků";
 
   // Handle selected rows
   const handleSelectionChange = (selectedRows: Customer[]) => {
   };
 
-  const handleDeactivateCustomers = async (selectedRows: Customer[]) => {
-    // Filter out already inactive customers
-    const activeCustomers = selectedRows.filter(customer => customer.active);
+  const handleToggleCustomersStatus = async (selectedRows: Customer[], targetStatus: boolean) => {
+    // Filter customers that need status change
+    const customersToUpdate = selectedRows.filter(customer => customer.active !== targetStatus);
 
-    if (activeCustomers.length === 0) {
-      toast.error('Žádný z vybraných zákazníků není aktivní.');
+    if (customersToUpdate.length === 0) {
+      const statusText = targetStatus ? 'neaktivní' : 'aktivní';
+      toast.error(`Žádný z vybraných zákazníků není ${statusText}.`);
       return;
     }
 
-    const confirmDeactivate = window.confirm(
-      `Opravdu chcete deaktivovat ${activeCustomers.length} zákazníků?`
+    const actionText = targetStatus ? 'aktivovat' : 'deaktivovat';
+    const actionTextPast = targetStatus ? 'aktivováno' : 'deaktivováno';
+    const actionTextGerund = targetStatus ? 'Aktivace' : 'Deaktivace';
+
+    const confirmAction = window.confirm(
+      `Opravdu chcete ${actionText} ${customersToUpdate.length} zákazníků?`
     );
-    if (!confirmDeactivate) return;
+    if (!confirmAction) return;
 
     // Show loading toast
     const loadingToastId = toast.loading(
-      `Deaktivace ${activeCustomers.length} zákazníků...`
+      `${actionTextGerund} ${customersToUpdate.length} zákazníků...`
     );
 
     try {
       const results = await Promise.allSettled(
-        activeCustomers.map(async (customer) => {
+        customersToUpdate.map(async (customer) => {
           const response = await fetch(`/api/customers/${customer.id}`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              active: false
+              active: targetStatus
             }),
           });
 
           if (!response.ok) {
-            throw new Error(`Nepodařilo se deaktivovat zákazníka ${customer.fullName}`);
+            const errorText = await response.text();
+            console.error(`Error response for ${customer.fullName}:`, errorText);
+            throw new Error(`Nepodařilo se ${actionText} zákazníka ${customer.fullName}`);
           }
 
-          return customer;
+          return await response.json();
         })
       );
 
@@ -98,14 +108,14 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
       // Update the loading toast with the result
       if (failed === 0) {
         toast.update(loadingToastId, {
-          render: `Úspěšně deaktivováno ${succeeded} zákazníků`,
+          render: `Úspěšně ${actionTextPast} ${succeeded} zákazníků`,
           type: 'success',
           isLoading: false,
           autoClose: 5000
         });
       } else {
         toast.update(loadingToastId, {
-          render: `Deaktivováno ${succeeded} zákazníků, ${failed} se nezdařilo`,
+          render: `${actionTextPast.charAt(0).toUpperCase() + actionTextPast.slice(1)} ${succeeded} zákazníků, ${failed} se nezdařilo`,
           type: 'warning',
           isLoading: false,
           autoClose: 5000
@@ -119,26 +129,63 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
           });
       }
 
-      // Refresh the page to show updated data
-      router.refresh();
+      // Invalidate and refetch the customers query
+      if (activeUsers !== undefined) {
+        await queryClient.invalidateQueries({ queryKey: ['customers', activeUsers] });
+        await queryClient.invalidateQueries({ queryKey: ['customers', !activeUsers] });
+        // Reload the page
+        window.location.reload();
+      }
     } catch (error) {
-      console.error('Error deactivating customers:', error);
+      console.error(`Error ${actionTextGerund.toLowerCase()} customers:`, error);
       toast.update(loadingToastId, {
-        render: 'Nepodařilo se deaktivovat zákazníky. Zkuste to prosím znovu.',
+        render: `Nepodařilo se ${actionText} zákazníky. Zkuste to prosím znovu.`,
         type: 'error',
         isLoading: false,
         autoClose: 5000
       });
     }
+
   };
 
-  // Define bulk actions
-  const bulkActions = [
-    {
-      label: 'Deaktivovat vybrané',
-      onClick: handleDeactivateCustomers
+  const handleDeactivateCustomers = async (selectedRows: Customer[]) => {
+    await handleToggleCustomersStatus(selectedRows, false);
+  };
+
+  const handleActivateCustomers = async (selectedRows: Customer[]) => {
+    await handleToggleCustomersStatus(selectedRows, true);
+  };
+
+  // Define bulk actions based on activeUsers
+  const bulkActions = React.useMemo(() => {
+    if (activeUsers === true) {
+      return [
+        {
+          label: 'Deaktivovat vybrané',
+          onClick: handleDeactivateCustomers
+        }
+      ];
+    } else if (activeUsers === false) {
+      return [
+        {
+          label: 'Aktivovat vybrané',
+          onClick: handleActivateCustomers
+        }
+      ];
+    } else {
+      // If activeUsers is undefined, show both actions
+      return [
+        {
+          label: 'Deaktivovat vybrané',
+          onClick: handleDeactivateCustomers
+        },
+        {
+          label: 'Aktivovat vybrané',
+          onClick: handleActivateCustomers
+        }
+      ];
     }
-  ];
+  }, [activeUsers]);
 
   // Render Chip
   const ChipComponent = React.useMemo(() => {
@@ -314,7 +361,12 @@ export default function CustomerTable({ defaultData, detailLinkPath }: Props) {
   );
 
 
-  const [data, _setData] = React.useState(() => [...defaultData]);
+  const [data, setData] = React.useState(() => [...defaultData]);
+
+  // Update data when defaultData changes
+  React.useEffect(() => {
+    setData([...defaultData]);
+  }, [defaultData]);
 
   return (
     <>

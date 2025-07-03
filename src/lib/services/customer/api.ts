@@ -114,6 +114,11 @@ export class CustomerAPI {
         return this.customerRepository.deactivateCustomer(id)
     }
 
+    // Activate customer
+    async activateCustomer(id: number): Promise<Customer> {
+        return this.customerRepository.activateCustomer(id)
+    }
+
     // Get all customers with optional active filter
     async getAllCustomers(active?: boolean): Promise<CustomerResponse[]> {
         const include = {

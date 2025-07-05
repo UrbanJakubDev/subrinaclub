@@ -2,8 +2,8 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { ColumnDef } from "@tanstack/react-table";
-import MyTable from "../../tables/ui/baseTable";
-import ActionButtons from "../../tables/ui/actionButtons";
+import MyTable from "../../tables/baseTable";
+import ActionButtons from "../../tables/ui/ActionButtons";
 
 type DealerData = {
   id: string;

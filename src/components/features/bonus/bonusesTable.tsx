@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { ColumnDef } from "@tanstack/react-table";
 import { deleteBonusServerAction, refreshBonusesDataServerAction } from "@/actions/bonus";
-import ActionButtons from "@/components/tables/ui/actionButtons";
-import MyTable from "@/components/tables/ui/baseTable";
+import ActionButtons from "@/components/tables/ui/ActionButtons";
+import MyTable from "@/components/tables/baseTable";
 
 type Props = {
   defaultData: any[];

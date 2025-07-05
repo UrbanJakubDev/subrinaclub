@@ -1,6 +1,5 @@
 
 import PageHeader from "@/components/features/detailPage/pageHeader";
-import { getCustomerById } from "@/lib/db/queries/customers";
 import PageComponent from "@/components/features/detailPage/pageComponent";
 import { fetchDealersForOptionsFromDB } from "@/lib/db/queries/dealers";
 import { fetchSalesManagersOptionsFromDB } from "@/lib/db/queries/salesManagers";

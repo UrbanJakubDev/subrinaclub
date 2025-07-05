@@ -1,182 +1,198 @@
-"use client"
-import React from "react";
+'use client'
+import React from 'react'
+import Logo from './logo'
+import User from './user'
+import Link from 'next/link'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
-   Typography,
-   List,
-   ListItem,
-   Menu,
-   MenuHandler,
-   MenuList,
-   MenuItem,
-} from "@material-tailwind/react";
-import Logo from "./logo";
-import User from "./user";
-import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCoins, faMedal, faUser } from "@fortawesome/free-solid-svg-icons";
-import { icon } from "@fortawesome/fontawesome-svg-core";
+    faCoins,
+    faMedal,
+    faUser,
+    faChevronDown,
+    faChartBar,
+    faList,
+    faBars,
+    faTimes,
+} from '@fortawesome/free-solid-svg-icons'
+import { IconDefinition } from '@fortawesome/free-solid-svg-icons'
 
-const newMenuItems = [
-   {
-      title: "Zákazníci",
-      items: [
-         {
-            title: "Přehled",
-            description: "Základní informace o zákaznících.",
-            link: "/customers",
-            icon: faUser,
-         },
-         {
-            title: "Šetřící období",
-            description: "Přehled aktivních šetřících období. Hromadné akce.",
-            link: "/customers/saving-periods",
-            icon: faCoins,
-         },
-         // {
-         //    title: "Stříbrná a zlatá pozice",
-         //    description: "Vyhodnocení stříbrné a zlaté pozice.",
-         //    link: "/customers",
-         //    icon: faMedal,
-         // },
-         {
-            title: "Seznam účtů",
-            description: "Seznam aktivních účtů.",
-            link: "/accounts",
-            icon: faUser,
-         }
-      ],
-   },
-   {
-      title: "Obchodní zástupci",
-      items: [
-         {
-            title: "Přehled",
-            description: "Základní informace o obchodních zástupcích.",
-            link: "/sales-managers",
-            icon: faUser,
-         },
-
-      ],
-   },
-   {
-      title: "Reporty",
-      items: [
-         {
-            title: "Reporty - premium bonus",
-            description: "Find the perfect solution for your needs.",
-            link: "/reports/bonus",
-         },
-         {
-            title: "Reporty - seznam obratu",
-            description: "Find the perfect solution for your needs.",
-            link: "/reports/transactions",
-         },
-      ],
-   },
-   {
-      title: "Čísleníky",
-      items: [
-         {
-            title: "Premium Bonusy",
-            description: "Čísleník premium bonusů.",
-            link: "/dictionaries/bonus",
-         },
-         {
-            title: "Obchodníci",
-            description: "Čísleník obchodníků.",
-            link: "/dictionaries/dealers",
-         },
-      ],
-   }
-];
-
-function ListItemWrapper({ children, selected }) {
-   return (
-      <ListItem selected className="flex items-center h-full gap-2 px-6 py-4 text-white bg-gray-900 hover:text-black hover:bg-white hover:rounded-md">
-        {children}
-      </ListItem>
-   );
+interface MenuItem {
+    title: string
+    description: string
+    link: string
+    icon: IconDefinition
 }
 
+interface MenuSection {
+    title: string
+    items: MenuItem[]
+}
 
-function NavListMenu({ title, items }) {
-   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-   const renderItems = items.map(({ title, description, link, icon }, key) => (
-      <Link href={link} key={key} className="bg-white rounded-md">
-         <MenuItem className="flex items-center gap-3 rounded-lg">
-            <FontAwesomeIcon icon={icon} />
-            <div>
-               <Typography
-                  variant="h6"
-                  color="blue-gray"
-                  className="flex items-center text-sm font-bold"
-               >
-                  {title}
-               </Typography>
-               <Typography
-                  variant="paragraph"
-                  className="text-xs !font-medium text-blue-gray-500"
-               >
-                  {description}
-               </Typography>
+const menuItems: MenuSection[] = [
+    {
+        title: 'Zákazníci',
+        items: [
+            {
+                title: 'Přehled',
+                description: 'Základní informace o zákaznících',
+                link: '/customers',
+                icon: faUser,
+            },
+            {
+                title: 'Šetřící období',
+                description: 'Přehled aktivních šetřících období',
+                link: '/customers/saving-periods',
+                icon: faCoins,
+            },
+            {
+                title: 'Seznam účtů',
+                description: 'Seznam aktivních účtů',
+                link: '/accounts',
+                icon: faList,
+            },
+        ],
+    },
+    {
+        title: 'Obchodní zástupci',
+        items: [
+            {
+                title: 'Přehled',
+                description: 'Základní informace o obchodních zástupcích',
+                link: '/sales-managers',
+                icon: faUser,
+            },
+        ],
+    },
+    {
+        title: 'Reporty',
+        items: [
+            {
+                title: 'Premium bonus',
+                description: 'Reporty premium bonusů',
+                link: '/reports/bonus',
+                icon: faChartBar,
+            },
+            {
+                title: 'Seznam obratu',
+                description: 'Reporty obratů a transakcí',
+                link: '/reports/transactions',
+                icon: faChartBar,
+            },
+        ],
+    },
+    {
+        title: 'Čísleníky',
+        items: [
+            {
+                title: 'Premium Bonusy',
+                description: 'Čísleník premium bonusů',
+                link: '/dictionaries/bonus',
+                icon: faMedal,
+            },
+            {
+                title: 'Obchodníci',
+                description: 'Čísleník obchodníků',
+                link: '/dictionaries/dealers',
+                icon: faUser,
+            },
+        ],
+    },
+]
+
+interface DropdownMenuProps {
+    title: string
+    items: MenuItem[]
+}
+
+function DropdownMenu({ title, items }: DropdownMenuProps) {
+    const [isOpen, setIsOpen] = React.useState(false)
+
+    return (
+        <div
+            className="relative"
+            onMouseEnter={() => setIsOpen(true)}
+            onMouseLeave={() => setIsOpen(false)}>
+            <button
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    isOpen
+                        ? 'bg-gray-100 text-gray-900'
+                        : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                }`}>
+                {title}
+                <FontAwesomeIcon
+                    icon={faChevronDown}
+                    className={`w-3 h-3 transition-transform duration-200 ${
+                        isOpen ? 'rotate-180' : ''
+                    }`}
+                />
+            </button>
+
+            {/* Dropdown Menu */}
+            <div
+                className={`absolute top-full left-0 z-50 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-200 transition-all duration-200 ${
+                    isOpen
+                        ? 'opacity-100 visible translate-y-0'
+                        : 'opacity-0 invisible -translate-y-2'
+                }`}>
+                <div className="p-4">
+                    <div className="space-y-2">
+                        {items.map((item, index) => (
+                            <Link
+                                key={index}
+                                href={item.link}
+                                className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 group">
+                                <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-gray-200 transition-colors duration-200">
+                                    <FontAwesomeIcon
+                                        icon={item.icon}
+                                        className="w-4 h-4 text-gray-600"
+                                    />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="text-sm font-medium text-gray-900 group-hover:text-gray-700">
+                                        {item.title}
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1">
+                                        {item.description}
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
             </div>
-         </MenuItem>
-      </Link>
-   ));
-
-   return (
-      <Menu
-         open={isMenuOpen}
-         handler={setIsMenuOpen}
-         offset={{ mainAxis: 20 }}
-         placement="bottom"
-         allowHover={true}
-      >
-         <MenuHandler>
-            <Typography as="div" variant="small" className="font-medium">
-               <ListItemWrapper selected={isMenuOpen}>{title}</ListItemWrapper>
-            </Typography>
-         </MenuHandler>
-         <MenuList className="max-w-screen-xl rounded-xl">
-            <ul className="outline-none outline-0">
-               {renderItems}
-            </ul>
-         </MenuList>
-      </Menu>
-   );
-}
-
-function NavList() {
-   return (
-      <List className="items-baseline p-0 mt-4 mb-6 lg:mt-0 lg:mb-0 lg:flex-row lg:p-1">
-         <Link href={"/"}>
-            <Typography
-               as="span"
-               variant="small"
-               color="blue-gray"
-               className="font-medium"
-            >
-               <ListItemWrapper>Home</ListItemWrapper>
-            </Typography>
-         </Link>
-         {newMenuItems.map((menu, index) => (
-            <NavListMenu key={index} title={menu.title} items={menu.items} />
-         ))}
-
-      </List>
-   );
+        </div>
+    )
 }
 
 export function MegaMenuWithHover() {
-   return (
-      <div className="w-screen px-8 py-2 mx-auto bg-gray-100">
-         <div className="flex items-center justify-between text-blue-gray-900">
-            <Logo />
-            <div>
-               <NavList />
+
+    return (
+        <div className="w-full bg-gray-100 pt-2">
+            <div className="w-full px-8">
+                <div className="flex items-center justify-between h-16">
+                    {/* Logo */}
+                    <div className="flex-shrink-0">
+                        <Logo />
+                    </div>
+
+                    {/* Desktop Navigation */}
+                    <nav className="hidden md:flex items-center space-x-1">
+                        <Link
+                            href="/"
+                            className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+                            Home
+                        </Link>
+                        {menuItems.map((menu, index) => (
+                            <DropdownMenu key={index} title={menu.title} items={menu.items} />
+                        ))}
+                    </nav>
+
+                    {/* Desktop User */}
+                    <div className="hidden md:flex flex-shrink-0">
+                        <User />
+                    </div>
+                </div>
             </div>
-            <User />
-         </div>
-      </div>
-   );
+        </div>
+    )
 }

@@ -3,10 +3,10 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { ColumnDef } from "@tanstack/react-table";
-import ActionButtons from "@/components/tables/ui/actionButtons";
-import StatusChip from "@/components/tables/ui/statusChip";
-import MyTable from "@/components/tables/ui/baseTable";
-import StatusIcon from "@/components/tables/ui/statusIcon";
+import ActionButtons from "@/components/tables/ui/ActionButtons";
+import StatusChip from "@/components/ui/StatusChip";
+import MyTable from "@/components/tables/baseTable";
+import StatusIcon from "@/components/ui/StatusIcon";
 import Link from "next/link";
 
 

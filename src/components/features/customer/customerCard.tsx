@@ -1,4 +1,4 @@
-import StatusChip from "@/components/tables/ui/statusChip";
+import StatusChip from "@/components/ui/StatusChip";
 import Card from "@/components/ui/mtui";
 import Skeleton from "@/components/ui/skeleton";
 import Typography from "@/components/ui/typography";

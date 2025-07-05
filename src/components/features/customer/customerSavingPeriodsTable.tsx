@@ -3,13 +3,13 @@ import { faExclamation } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ColumnDef } from "@tanstack/react-table";
 import React, { useState } from "react";
-import MyTable from "../../tables/ui/baseTable";
+import MyTable from "../../tables/baseTable";
 import { Chip, Dialog, DialogHeader, DialogBody, DialogFooter, Button, Input, Select, Option } from "@material-tailwind/react";
 import { useRouter } from "next/navigation";
 import formatThousandDelimiter from "@/lib/utils/formatFncs";
-import ActionButtons from "@/components/tables/ui/actionButtons";
-import StatusChip from "@/components/tables/ui/statusChip";
-import StatusIcon from "@/components/tables/ui/statusIcon";
+import ActionButtons from "@/components/tables/ui/ActionButtons";
+import StatusChip from "@/components/ui/StatusChip";
+import StatusIcon from "@/components/ui/StatusIcon";
 import { toast } from "react-toastify";
 import Link from "next/link";
 

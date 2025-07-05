@@ -6,7 +6,7 @@ import {
 } from '@tanstack/react-table'
 import Link from 'next/link'
 import React from 'react'
-import MyTable, { getFooterValue } from '../../tables/ui/baseTable'
+import MyTable, { getFooterValue } from '../../tables/baseTable'
 import { Button } from '@material-tailwind/react'
 
 type Props = {

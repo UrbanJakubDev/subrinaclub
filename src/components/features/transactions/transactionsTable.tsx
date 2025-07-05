@@ -2,7 +2,7 @@
 import { faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { ColumnDef } from '@tanstack/react-table';
-import MyTable from '../../tables/ui/baseTable';
+import MyTable from '../../tables/baseTable';
 import Button from '../../ui/button';
 import formatThousandDelimiter from '@/lib/utils/formatFncs';
 import { Transaction } from '@/types/transaction';

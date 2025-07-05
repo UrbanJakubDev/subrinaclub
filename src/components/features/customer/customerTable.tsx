@@ -1,54 +1,64 @@
 "use client";;
 import { ColumnDef } from "@tanstack/react-table";
 import React from "react";
-import MyTable from "../../tables/ui/baseTable";
-import { Chip } from "@material-tailwind/react";
+import MyTable from "../../tables/baseTable";
+import { Card, Chip, Switch } from "@material-tailwind/react";
 import { useRouter } from "next/navigation";
 import formatThousandDelimiter from "@/lib/utils/formatFncs";
-import ActionButtons from "@/components/tables/ui/actionButtons";
-import StatusChip from "@/components/tables/ui/statusChip";
-import StatusIcon from "@/components/tables/ui/statusIcon";
+import StatusChip from "@/components/ui/StatusChip";
+import StatusIcon from "@/components/ui/StatusIcon";
 import { toast } from "react-toastify";
 import Link from "next/link";
 import { useQueryClient } from "@tanstack/react-query";
+import { useCustomersQuery } from "@/hooks/useCustomerQueries";
+import Loader from "@/components/ui/loader";
+import ActionButtons from "@/components/tables/ui/ActionButtons";
 
 interface Customer {
-  id: string;
+  id: number;
   active: boolean;
-  registrationNumber: string;
+  registrationNumber: string | null;
   fullName: string;
-  salonName: string;
-  address?: string;
-  town?: string;
-  psc?: string;
-  phone?: string;
-  ico?: string;
+  salonName: string | null;
+  address?: string | null;
+  town?: string | null;
+  psc?: string | null;
+  phone?: string | null;
+  ico?: string | null;
   salesManager?: {
     fullName: string;
-  };
+  } | null;
   dealer?: {
     fullName: string;
-  };
+  } | null;
   account?: {
     currentYearPoints: number;
     lifetimePoints: number;
     lifetimePointsCorrection: number;
     lifetimePointsCorrected: number;
     savingPeriodAvailablePoints: number;
-  };
+    averagePointsBeforeSalesManager?: number;
+  } | null;
 }
 
 type Props = {
-  defaultData: Customer[];
   detailLinkPath?: string;
-  activeUsers?: boolean;
 };
 
-export default function CustomerTable({ defaultData, detailLinkPath, activeUsers }: Props) {
-
+export default function CustomerTable({ detailLinkPath }: Props) {
+  const [activeUsers, setActiveUsers] = React.useState(true);
   const router = useRouter()
   const queryClient = useQueryClient();
   const tableName = "Přehled zákazníků";
+
+  // Fetch customers data
+  const { data: response, isLoading, error } = useCustomersQuery({ active: activeUsers })
+
+  // Handle active users switch
+  const handleActiveUsers = () => {
+    const newActiveUsers = !activeUsers;
+    setActiveUsers(newActiveUsers);
+  }
 
   // Handle selected rows
   const handleSelectionChange = (selectedRows: Customer[]) => {
@@ -208,24 +218,17 @@ export default function CustomerTable({ defaultData, detailLinkPath, activeUsers
     };
   }, []);
 
-
-
-  // Change the data registrationNumber to a string
-  defaultData.forEach((row) => {
-    row.registrationNumber = row.registrationNumber.toString();
-  });
-
   // Column definitions
   const columns = React.useMemo<ColumnDef<Customer>[]>(
     () => [
       {
         accessorKey: "active",
         header: "Status",
-        filterFn: "auto",
         accessorFn: (row: Customer) => {
           return row.active;
         },
         cell: ({ getValue }) => <StatusIcon active={getValue() as boolean} />,
+        enableColumnFilter: false,
       },
       {
         accessorKey: "registrationNumber",
@@ -338,10 +341,9 @@ export default function CustomerTable({ defaultData, detailLinkPath, activeUsers
           return lifetimePoints > 0;
         },
         cell: ({ getValue }) => <StatusChip status={getValue() as boolean} />,
-        filterFn: (row: { getValue: (columnId: string) => any }, columnId: string, filterValue: string) => {
+        filterFn: (row: { getValue: (columnId: string) => any }, columnId: string, filterValue: boolean) => {
           const cellValue = row.getValue(columnId);
-          const boolFilterValue = filterValue === "true";
-          return filterValue === "" || cellValue === boolFilterValue;
+          return filterValue === undefined || cellValue === filterValue;
         },
       },
       {
@@ -349,7 +351,7 @@ export default function CustomerTable({ defaultData, detailLinkPath, activeUsers
         header: "",
         cell: ({ row }) => (
           <ActionButtons
-            id={row.original.id}
+            id={row.original.id.toString()}
             detailLinkPath={detailLinkPath}
           />
         ),
@@ -360,19 +362,41 @@ export default function CustomerTable({ defaultData, detailLinkPath, activeUsers
     []
   );
 
+  // Custom toolbar content with Switch
+  const customToolbarContent = React.useMemo(() => (
+    <div className="flex flex-col gap-4">
+        <Switch
+          label={`Zobrazit ${activeUsers ? "neaktivní" : "aktivní"} zákazníky`}
+          onChange={handleActiveUsers}
+          checked={!activeUsers}
+          crossOrigin={undefined} />
+    </div>
+  ), [activeUsers, handleActiveUsers]);
 
-  const [data, setData] = React.useState(() => [...defaultData]);
+  // Handle loading and error states AFTER all hooks
+  if (error) {
+    toast.error("Nepodařilo se načíst seznam zákazníků");
+    return <div>Error loading customers</div>;
+  }
 
-  // Update data when defaultData changes
-  React.useEffect(() => {
-    setData([...defaultData]);
-  }, [defaultData]);
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  // Extract data and timestamp from response
+  const customers = response?.data || []
+
+  // Transform customers data to match expected interface
+  const transformedCustomers: Customer[] = customers.map(customer => ({
+    ...customer,
+    registrationNumber: customer.registrationNumber?.toString() || null
+  }))
 
   return (
     <>
       <MyTable<Customer>
         {...{
-          data,
+          data: transformedCustomers,
           columns,
           tableName,
           addBtn: true,
@@ -381,7 +405,9 @@ export default function CustomerTable({ defaultData, detailLinkPath, activeUsers
           },
           enableRowSelection: true,
           onSelectionChange: handleSelectionChange,
-          bulkActions: bulkActions
+          bulkActions: bulkActions,
+          customToolbarContent: customToolbarContent,
+          updatedTime: response?.timestamp
         }}
       />
     </>

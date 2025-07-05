@@ -2,7 +2,7 @@
 import { ColumnDef } from '@tanstack/react-table'
 import Link from 'next/link'
 import React from 'react'
-import MyTable, { getFooterValue } from '@/components/tables/ui/baseTable'
+import MyTable, { getFooterValue } from '@/components/tables/baseTable'
 import { Button } from '@material-tailwind/react'
 import { faUser } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'

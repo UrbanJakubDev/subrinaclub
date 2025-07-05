@@ -4,9 +4,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { ColumnDef } from '@tanstack/react-table'
 import Link from 'next/link'
 import React from 'react'
-import MyTable, { getFooterValue } from '../../tables/ui/baseTable'
+import MyTable, { getFooterValue } from '../../tables/baseTable'
 import { Button } from '@material-tailwind/react'
-import ActionButtons from '@/components/tables/ui/actionButtons'
+import ActionButtons from '@/components/tables/ui/ActionButtons'
 
 type Props = {
     defaultData: any[]

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Account, SavingPeriod } from '@prisma/client';
 import Button from '@/components/ui/button';
 import Card from '@/components/ui/mtui';
-import StatusChip from '@/components/tables/ui/statusChip';
+import StatusChip from '@/components/ui/StatusChip';
 import { useRouter } from 'next/navigation';
 
 interface SavingPeriodsManagerProps {

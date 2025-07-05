@@ -6,9 +6,9 @@ import {
 } from '@tanstack/react-table'
 import Link from 'next/link'
 import React from 'react'
-import MyTable from '../../tables/ui/baseTable'
+import MyTable from '../../tables/baseTable'
 import { Button } from '@material-tailwind/react'
-import { getFooterValue, FooterFunctionType } from '../../tables/ui/baseTable'
+import { getFooterValue, FooterFunctionType } from '../../tables/baseTable'
 
 type Props = {
    defaultData: any[]

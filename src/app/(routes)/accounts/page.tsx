@@ -4,7 +4,7 @@ import Card from "@/components/ui/mtui";
 import Typography from "@/components/ui/typography";
 import { accountService } from "@/lib/services/account";
 import { Suspense, useEffect, useState } from "react";
-import MyTable from "@/components/tables/ui/baseTable";
+import MyTable from "@/components/tables/baseTable";
 import Loader from "@/components/ui/loader";
 import { ColumnDef } from "@tanstack/react-table";
 import PageComponent from "@/components/features/detailPage/pageComponent";

@@ -5,7 +5,8 @@ import NavIndex from '../components/features/header'
 import Footer from '../components/features/footer'
 import Toast from '@/components/ui/toast'
 import Script from 'next/script'
-import QueryClientProvider from '../components/ui/QueryClientProvider'
+// Verze 2: tRPC Provider replaces basic QueryClientProvider
+import { TRPCProvider } from '@/lib/trpc/Provider'
 
 const os = Open_Sans({ subsets: ['latin'] })
 
@@ -24,11 +25,12 @@ export default function RootLayout({
             <Script src="node_modules/@material-tailwind/html@latest/scripts/dialog.js" />
             <body className={os.className}>
                 <NavIndex />
-                <QueryClientProvider>
+                {/* Verze 2: tRPC Provider with React Query integration */}
+                <TRPCProvider>
                     <main className="flex-grow w-screen mx-auto overflow-hidden bg-gray-100">
                         {children}
                     </main>
-                </QueryClientProvider>
+                </TRPCProvider>
                 <Footer />
                 <Toast />
             </body>

@@ -3,9 +3,8 @@
 import { Column, Table } from "@tanstack/react-table";
 import React, { ChangeEvent, useMemo, useState } from "react";
 
-
 // Type for the props
-interface DebouncedInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface DebouncedInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   value: string;
   onChange: (value: string) => void;
   debounceTime?: number;
@@ -46,12 +45,10 @@ const DebouncedInput: React.FC<DebouncedInputProps> = ({
       {...props}
       value={value}
       onChange={handleChange}
+      className="w-full px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 bg-white transition-all duration-200"
     />
   );
 };
-
-
-
 
 export default function Filter({
   column,
@@ -64,13 +61,11 @@ export default function Filter({
     .getPreFilteredRowModel()
     .flatRows[0]?.getValue(column.id);
 
-
-
   const columnFilterValue = column.getFilterValue();
 
   if (typeof firstValue === "number") {
     return (
-      <div className="flex flex-col-reverse">
+      <div className="flex flex-col gap-1">
         <input
           type="number"
           value={(columnFilterValue as [number, number])?.[0] ?? ""}
@@ -80,8 +75,8 @@ export default function Filter({
               old?.[1],
             ])
           }
-          placeholder={`Min`}
-          className="w-16 rounded p-1"
+          placeholder="Min"
+          className="w-full px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 bg-white transition-all duration-200"
         />
         <input
           type="number"
@@ -92,28 +87,54 @@ export default function Filter({
               e.target.value,
             ])
           }
-          placeholder={`Max`}
-          className=" w-16 rounded p-1"
+          placeholder="Max"
+          className="w-full px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 bg-white transition-all duration-200"
         />
       </div>
     );
   }
 
-  if (typeof firstValue === "boolean") {
+  // Handle specific boolean columns with custom labels
+  if (typeof firstValue === "boolean" || column.id === "active" || column.id === "hasCurrentYearPoints") {
+    let options = [
+      { value: "", label: "Vše" },
+      { value: "true", label: "Ano" },
+      { value: "false", label: "Ne" }
+    ];
+
+    // Custom labels for specific columns
+    if (column.id === "active") {
+      options = [
+        { value: "", label: "Vše" },
+        { value: "true", label: "Aktivní" },
+        { value: "false", label: "Neaktivní" }
+      ];
+    } else if (column.id === "hasCurrentYearPoints") {
+      options = [
+        { value: "", label: "Vše" },
+        { value: "true", label: "S body" },
+        { value: "false", label: "Bez bodů" }
+      ];
+    }
+
     return (
       <select
         value={columnFilterValue?.toString() ?? ""}
         onChange={(e) => {
           const value = e.target.value;
-          column.setFilterValue(
-            value === "" ? undefined : value === "true"
-          );
+          if (value === "") {
+            column.setFilterValue(undefined);
+          } else {
+            column.setFilterValue(value === "true");
+          }
         }}
-        className="w-full ps-1"
+        className="w-full px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 bg-white transition-all duration-200"
       >
-        <option value="">Vše</option>
-        <option value="true">Ano</option>
-        <option value="false">Ne</option>
+        {options.map(option => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
       </select>
     );
   }
@@ -122,12 +143,12 @@ export default function Filter({
   if (column.id === "status" && (firstValue === "ACTIVE" || firstValue === "CLOSED")) {
     return (
       <select
-        value={columnFilterValue ?? ""}
+        value={(columnFilterValue as string) ?? ""}
         onChange={(e) => {
           const value = e.target.value;
           column.setFilterValue(value === "" ? undefined : value);
         }}
-        className="w-full ps-1"
+        className="w-full px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 bg-white transition-all duration-200"
       >
         <option value="">Vše</option>
         <option value="ACTIVE">Aktivní</option>
@@ -139,11 +160,10 @@ export default function Filter({
   return (
     <DebouncedInput
       type="text"
-      value={columnFilterValue ?? ""}
+      value={(columnFilterValue as string) ?? ""}
       onChange={value => column.setFilterValue(value)}
-      placeholder="Hledat"
-      className="w-full ps-1"
-      debounceTime={300} // Optional, defaults to 300ms
+      placeholder="Hledat..."
+      debounceTime={300}
     />
   );
-}
+} 
